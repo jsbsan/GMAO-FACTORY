@@ -79,11 +79,12 @@ El proyecto sigue una arquitectura modular en un solo nivel para facilitar el de
 
 ## 📖 Documentación Adicional
 
-Para más detalles, consulta los manuales incluidos en el repositorio:
+Para más detalles, consulta los manuales incluidos en el repositorio, carpeta docs:
 
-MANUAL_USUARIO.md: Guía paso a paso para el usuario final.
+Manual Usuario GMAO.md:  Guía paso a paso para el usuario final.
 
-DOCUMENTACION_TECNICA.md: Detalles de arquitectura para desarrolladores.
+Manual Programador GMAO.md: Detalles de arquitectura para desarrolladores.
+
 
 Autor: Julio Sánchez Berro
 
