@@ -4,5 +4,5 @@ __pycache__/
 *.pyo
 *.pyd
 *.log
-scr/*.db
+src/*.db
 !ejemplos/*.db
