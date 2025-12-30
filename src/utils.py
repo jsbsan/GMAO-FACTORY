@@ -140,8 +140,9 @@ def generate_and_update_work_orders(conn, current_system_date):
                              (act['id'], f"{act['nombre']} - {f.strftime('%d/%m/%Y')}", f, st))
                 count_generated += 1
             f += datetime.timedelta(days=p)
-            
-    active_ots = conn.execute("SELECT ot.id, ot.fecha_generacion, ot.estado, a.periodicidad FROM ordenes_trabajo ot JOIN actividades a ON ot.actividad_id=a.id WHERE ot.estado NOT IN ('Realizada', 'Rechazada')").fetchall()
+    
+    # MODIFICACIÓN APLAZADA: Se añade 'Aplazada' a la lista de exclusiones para que el sistema no la modifique
+    active_ots = conn.execute("SELECT ot.id, ot.fecha_generacion, ot.estado, a.periodicidad FROM ordenes_trabajo ot JOIN actividades a ON ot.actividad_id=a.id WHERE ot.estado NOT IN ('Realizada', 'Rechazada', 'Aplazada')").fetchall()
     
     for ot in active_ots:
         gen = datetime.datetime.strptime(ot['fecha_generacion'], '%Y-%m-%d').date()

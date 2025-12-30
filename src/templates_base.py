@@ -7,10 +7,9 @@ BASE_TEMPLATE = """
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GMAO Factory</title>
-    <!-- CAMBIO OFFLINE: Carga local de Bootstrap CSS -->
-    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
-    <!-- CAMBIO OFFLINE: Carga local de FontAwesome CSS -->
-    <link href="{{ url_for('static', filename='css/all.min.css') }}" rel="stylesheet">
+    <!-- CAMBIO OFFLINE: Si usas la versión offline, mantén tus rutas locales. Aquí pongo las CDN por defecto -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .sidebar-container { background-color: #2c3e50; color: white; min-height: 100vh; }
         .sidebar-link { color: #bdc3c7; text-decoration: none; display: block; padding: 12px 15px; border-bottom: 1px solid #34495e; }
@@ -19,11 +18,14 @@ BASE_TEMPLATE = """
         .content { padding: 20px; }
         .mobile-navbar { background-color: #2c3e50; }
         
+        /* ESTADOS DE OTS */
         .status-realizada { background-color: #198754; color: white; }
         .status-en-curso { background-color: #ffc107; color: #212529; }
         .status-rechazada { background-color: #000000; color: white; }
         .status-pendiente { background-color: #dc3545; color: white; }
         .status-prevista { background-color: #6c757d; color: white; }
+        /* NUEVO ESTADO APLAZADA */
+        .status-aplazada { background-color: #6f42c1; color: white; } /* Morado */
         
         .corr-detectada { background-color: #dc3545; color: white; }
         .corr-en-curso { background-color: #ffc107; color: #212529; }
@@ -99,8 +101,7 @@ BASE_TEMPLATE = """
             </main>
         </div>
     </div>
-    <!-- CAMBIO OFFLINE: Carga local de Bootstrap JS -->
-    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 """
@@ -112,8 +113,7 @@ LOGIN_TEMPLATE = """
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - GMAO Factory</title>
-    <!-- CAMBIO OFFLINE: Carga local de Bootstrap CSS -->
-    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>body { background-color: #f8f9fa; display: flex; align-items: center; justify-content: center; height: 100vh; } .login-card { max-width: 400px; width: 100%; padding: 20px; }</style>
 </head>
 <body>
@@ -151,7 +151,7 @@ ABOUT_TEMPLATE = """
                         <dd class="col-sm-8">Sistema de Gestión de Mantenimiento Asistido por Ordenador</dd>
 
                         <dt class="col-sm-4 text-end">Versión:</dt>
-                        <dd class="col-sm-8"><span class="badge bg-primary">v5.1</span></dd>
+                        <dd class="col-sm-8"><span class="badge bg-primary">v5.2</span></dd>
 
                         <dt class="col-sm-4 text-end">Autor:</dt>
                         <dd class="col-sm-8">Julio Sánchez Berro</dd>
@@ -171,19 +171,19 @@ ABOUT_TEMPLATE = """
 </div>
 """
 
-# --- PLANTILLAS DE IMPRESIÓN (MODIFICADAS PARA OFFLINE) ---
+# --- PLANTILLAS DE IMPRESIÓN ---
 
-PRINT_TEMPLATE = """<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Reporte</title><link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet"><style>@media print {.no-print {display:none;}} img {max-width:100%;}</style></head><body onload="window.print()"><div class="container"><h1>Ficha Técnica</h1><div class="card mb-3"><div class="card-body"><strong>Nombre:</strong> {{ item.nombre }}<br><strong>Tipo:</strong> {{ item.tipo_nombre }}<br><strong>Desc:</strong> {{ item.descripcion }}</div></div><h3>Imágenes</h3><div class="row">{% for img in imgs %}<div class="col-6 mb-3"><img src="data:image/png;base64,{{ img.data }}"><br><small>{{ img.name }}</small></div>{% endfor %}</div><h3>PDFs</h3><ul>{% for pdf in pdfs %}<li>{{ pdf.name }}</li>{% endfor %}</ul></div></body></html>"""
+PRINT_TEMPLATE = """<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Reporte</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><style>@media print {.no-print {display:none;}} img {max-width:100%;}</style></head><body onload="window.print()"><div class="container"><h1>Ficha Técnica</h1><div class="card mb-3"><div class="card-body"><strong>Nombre:</strong> {{ item.nombre }}<br><strong>Tipo:</strong> {{ item.tipo_nombre }}<br><strong>Desc:</strong> {{ item.descripcion }}</div></div><h3>Imágenes</h3><div class="row">{% for img in imgs %}<div class="col-6 mb-3"><img src="data:image/png;base64,{{ img.data }}"><br><small>{{ img.name }}</small></div>{% endfor %}</div><h3>PDFs</h3><ul>{% for pdf in pdfs %}<li>{{ pdf.name }}</li>{% endfor %}</ul></div></body></html>"""
 
-PRINT_ALL_TEMPLATE = """<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Listado</title><link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet"><style>@media print {.no-print {display:none;}} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #ddd;padding:8px;}</style></head><body onload="window.print()"><div class="container"><h2>Listado Inventario</h2><table class="table"><thead><tr><th>ID</th><th>Nombre</th><th>Tipo</th><th>Desc</th></tr></thead><tbody>{% for i in items %}<tr><td>{{ i.id }}</td><td>{{ i.nombre }}</td><td>{{ i.tipo_nombre }}</td><td>{{ i.descripcion }}</td></tr>{% endfor %}</tbody></table></div></body></html>"""
+PRINT_ALL_TEMPLATE = """<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Listado</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><style>@media print {.no-print {display:none;}} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #ddd;padding:8px;}</style></head><body onload="window.print()"><div class="container"><h2>Listado Inventario</h2><table class="table"><thead><tr><th>ID</th><th>Nombre</th><th>Tipo</th><th>Desc</th></tr></thead><tbody>{% for i in items %}<tr><td>{{ i.id }}</td><td>{{ i.nombre }}</td><td>{{ i.tipo_nombre }}</td><td>{{ i.descripcion }}</td></tr>{% endfor %}</tbody></table></div></body></html>"""
 
-PRINT_ACTIVITY_TEMPLATE = """<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Actividad</title><link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet"><style>@media print {.no-print {display:none;}}</style></head><body onload="window.print()"><div class="container"><h1>Actividad: {{ activity.nombre }}</h1><p>Equipo: {{ activity.equipo_nombre }}</p><p>Periodicidad: {{ activity.periodicidad }}</p><p>Operaciones: {{ activity.operaciones }}</p></div></body></html>"""
+PRINT_ACTIVITY_TEMPLATE = """<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Actividad</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><style>@media print {.no-print {display:none;}}</style></head><body onload="window.print()"><div class="container"><h1>Actividad: {{ activity.nombre }}</h1><p>Equipo: {{ activity.equipo_nombre }}</p><p>Periodicidad: {{ activity.periodicidad }}</p><p>Operaciones: {{ activity.operaciones }}</p></div></body></html>"""
 
-PRINT_ALL_ACTIVITIES_TEMPLATE = """<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Actividades</title><link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet"><style>@media print {.no-print {display:none;}} table{width:100%;border:1px solid #ddd;} th,td{border:1px solid #ddd;padding:5px;}</style></head><body onload="window.print()"><div class="container"><h2>Listado Actividades</h2><table><thead><tr><th>Actividad</th><th>Equipo</th><th>Freq</th><th>Ops</th></tr></thead><tbody>{% for a in activities %}<tr><td>{{ a.nombre }}</td><td>{{ a.equipo_nombre }}</td><td>{{ a.periodicidad }}</td><td>{{ a.operaciones }}</td></tr>{% endfor %}</tbody></table></div></body></html>"""
+PRINT_ALL_ACTIVITIES_TEMPLATE = """<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Actividades</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><style>@media print {.no-print {display:none;}} table{width:100%;border:1px solid #ddd;} th,td{border:1px solid #ddd;padding:5px;}</style></head><body onload="window.print()"><div class="container"><h2>Listado Actividades</h2><table><thead><tr><th>Actividad</th><th>Equipo</th><th>Freq</th><th>Ops</th></tr></thead><tbody>{% for a in activities %}<tr><td>{{ a.nombre }}</td><td>{{ a.equipo_nombre }}</td><td>{{ a.periodicidad }}</td><td>{{ a.operaciones }}</td></tr>{% endfor %}</tbody></table></div></body></html>"""
 
-PRINT_OT_TEMPLATE = """<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>OT</title><link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet"><style>@media print {.no-print {display:none;}}</style></head><body onload="window.print()"><div class="container"><h1>Orden de Trabajo #{{ ot.id }}</h1><h3>{{ ot.nombre }}</h3><p><strong>Estado:</strong> {{ ot.estado }}</p><p><strong>Equipo:</strong> {{ ot.equipo_nombre }}</p><p><strong>Fecha Gen:</strong> {{ ot.fecha_generacion }}</p><hr><h5>Operaciones</h5><p>{{ ot.operaciones }}</p><h5>Observaciones</h5><p>{{ ot.observaciones }}</p></div></body></html>"""
+PRINT_OT_TEMPLATE = """<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>OT</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><style>@media print {.no-print {display:none;}}</style></head><body onload="window.print()"><div class="container"><h1>Orden de Trabajo #{{ ot.id }}</h1><h3>{{ ot.nombre }}</h3><p><strong>Estado:</strong> {{ ot.estado }}</p><p><strong>Equipo:</strong> {{ ot.equipo_nombre }}</p><p><strong>Fecha Gen:</strong> {{ ot.fecha_generacion }}</p><hr><h5>Operaciones</h5><p>{{ ot.operaciones }}</p><h5>Observaciones</h5><p>{{ ot.observaciones }}</p></div></body></html>"""
 
-PRINT_ALL_OTS_TEMPLATE = """<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Listado OTs</title><link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet"><style>@media print {.no-print {display:none;}} table{width:100%;border:1px solid #ddd;} th,td{border:1px solid #ddd;padding:5px;}</style></head><body onload="window.print()"><div class="container"><h2>Listado Órdenes de Trabajo</h2><table><thead><tr><th>ID</th><th>Nombre</th><th>Equipo</th><th>Fecha</th><th>Estado</th></tr></thead><tbody>{% for ot in ots %}<tr><td>{{ ot.id }}</td><td>{{ ot.nombre }}</td><td>{{ ot.equipo_nombre }}</td><td>{{ ot.fecha_generacion }}</td><td>{{ ot.estado }}</td></tr>{% endfor %}</tbody></table></div></body></html>"""
+PRINT_ALL_OTS_TEMPLATE = """<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Listado OTs</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><style>@media print {.no-print {display:none;}} table{width:100%;border:1px solid #ddd;} th,td{border:1px solid #ddd;padding:5px;}</style></head><body onload="window.print()"><div class="container"><h2>Listado Órdenes de Trabajo</h2><table><thead><tr><th>ID</th><th>Nombre</th><th>Equipo</th><th>Fecha</th><th>Estado</th></tr></thead><tbody>{% for ot in ots %}<tr><td>{{ ot.id }}</td><td>{{ ot.nombre }}</td><td>{{ ot.equipo_nombre }}</td><td>{{ ot.fecha_generacion }}</td><td>{{ ot.estado }}</td></tr>{% endfor %}</tbody></table></div></body></html>"""
 
 PRINT_CRONOGRAMA_TEMPLATE = """
 <!DOCTYPE html>
@@ -191,8 +191,7 @@ PRINT_CRONOGRAMA_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <title>Cronograma de Mantenimiento {{ year }}</title>
-    <!-- CAMBIO OFFLINE: Carga local de Bootstrap CSS -->
-    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         @media print {
             .no-print { display: none; }
@@ -220,6 +219,7 @@ PRINT_CRONOGRAMA_TEMPLATE = """
         .status-rechazada { background-color: #000000 !important; color: white !important; border-color: #000000; }
         .status-pendiente { background-color: #dc3545 !important; color: white !important; border-color: #dc3545; }
         .status-prevista { background-color: #6c757d !important; color: white !important; border-color: #6c757d; }
+        .status-aplazada { background-color: #6f42c1 !important; color: white !important; border-color: #6f42c1; }
         
         .badge-legend {
             display: inline-block;
@@ -261,7 +261,7 @@ PRINT_CRONOGRAMA_TEMPLATE = """
                         {% if month_idx in row.ots %}
                             {% for ot in row.ots[month_idx] %}
                             <div class="badge-status 
-                                {% if ot.estado == 'Realizada' %}status-realizada{% elif ot.estado == 'En curso' %}status-en-curso{% elif ot.estado == 'Pendiente' %}status-pendiente{% elif ot.estado == 'Prevista' %}status-prevista{% else %}status-rechazada{% endif %}">
+                                {% if ot.estado == 'Realizada' %}status-realizada{% elif ot.estado == 'En curso' %}status-en-curso{% elif ot.estado == 'Pendiente' %}status-pendiente{% elif ot.estado == 'Prevista' %}status-prevista{% elif ot.estado == 'Aplazada' %}status-aplazada{% else %}status-rechazada{% endif %}">
                                 {{ ot.day_day }}
                             </div>
                             {% endfor %}
@@ -280,6 +280,7 @@ PRINT_CRONOGRAMA_TEMPLATE = """
             <span class="badge-legend status-pendiente">Pendiente (Vencida)</span>
             <span class="badge-legend status-prevista">Prevista</span>
             <span class="badge-legend status-rechazada">Rechazada</span>
+            <span class="badge-legend status-aplazada">Aplazada</span>
             <small class="ms-2 text-muted">El número indica el día del mes.</small>
         </div>
         <div class="mt-2 text-end text-muted">
@@ -290,6 +291,6 @@ PRINT_CRONOGRAMA_TEMPLATE = """
 </html>
 """
 
-PRINT_CORRECTIVO_TEMPLATE = """<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Incidencia</title><link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet"><style>@media print {.no-print {display:none;}} img{max-width:100%;}</style></head><body onload="window.print()"><div class="container"><h1>Incidencia: {{ item.nombre }}</h1><p><strong>Estado:</strong> {{ item.estado }}</p><p><strong>Equipo:</strong> {{ item.equipo_nombre }}</p><p><strong>Detectada:</strong> {{ item.fecha_detectada }}</p><p><strong>Comentario:</strong> {{ item.comentario }}</p><p><strong>Solución:</strong> {{ item.solucion }}</p><h3>Fotos</h3><div class="row">{% for img in imgs %}<div class="col-6"><img src="data:image/png;base64,{{ img.data }}"><br>{{ img.name }}</div>{% endfor %}</div><h3>Documentos PDF Adjuntos</h3><ul class="list-group">{% for pdf in pdfs %}<li class="list-group-item d-flex align-items-center"><span style="font-size: 1.5em; color: #dc3545; margin-right: 10px;">📄</span><div><strong>{{ pdf.name }}</strong><br><small class="text-muted">El contenido del PDF se encuentra almacenado digitalmente.</small></div></li>{% else %}<li class="list-group-item">No hay documentos PDF adjuntos.</li>{% endfor %}</ul></div></body></html>"""
+PRINT_CORRECTIVO_TEMPLATE = """<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Incidencia</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><style>@media print {.no-print {display:none;}} img{max-width:100%;}</style></head><body onload="window.print()"><div class="container"><h1>Incidencia: {{ item.nombre }}</h1><p><strong>Estado:</strong> {{ item.estado }}</p><p><strong>Equipo:</strong> {{ item.equipo_nombre }}</p><p><strong>Detectada:</strong> {{ item.fecha_detectada }}</p><p><strong>Comentario:</strong> {{ item.comentario }}</p><p><strong>Solución:</strong> {{ item.solucion }}</p><h3>Fotos</h3><div class="row">{% for img in imgs %}<div class="col-6"><img src="data:image/png;base64,{{ img.data }}"><br>{{ img.name }}</div>{% endfor %}</div><h3>Documentos PDF Adjuntos</h3><ul class="list-group">{% for pdf in pdfs %}<li class="list-group-item d-flex align-items-center"><span style="font-size: 1.5em; color: #dc3545; margin-right: 10px;">📄</span><div><strong>{{ pdf.name }}</strong><br><small class="text-muted">El contenido del PDF se encuentra almacenado digitalmente.</small></div></li>{% else %}<li class="list-group-item">No hay documentos PDF adjuntos.</li>{% endfor %}</ul></div></body></html>"""
 
-PRINT_ALL_CORRECTIVOS_TEMPLATE = """<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Listado Incidencias</title><link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet"><style>@media print {.no-print {display:none;}} table{width:100%;border:1px solid #ddd;} th,td{border:1px solid #ddd;padding:5px;}</style></head><body onload="window.print()"><div class="container"><h2>Listado Incidencias</h2><table><thead><tr><th>ID</th><th>Nombre</th><th>Equipo</th><th>Estado</th><th>Fecha</th></tr></thead><tbody>{% for c in items %}<tr><td>{{ c.id }}</td><td>{{ c.nombre }}</td><td>{{ c.equipo_nombre }}</td><td>{{ c.estado }}</td><td>{{ c.fecha_detectada }}</td></tr>{% endfor %}</tbody></table></div></body></html>"""
+PRINT_ALL_CORRECTIVOS_TEMPLATE = """<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Listado Incidencias</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><style>@media print {.no-print {display:none;}} table{width:100%;border:1px solid #ddd;} th,td{border:1px solid #ddd;padding:5px;}</style></head><body onload="window.print()"><div class="container"><h2>Listado Incidencias</h2><table><thead><tr><th>ID</th><th>Nombre</th><th>Equipo</th><th>Estado</th><th>Fecha</th></tr></thead><tbody>{% for c in items %}<tr><td>{{ c.id }}</td><td>{{ c.nombre }}</td><td>{{ c.equipo_nombre }}</td><td>{{ c.estado }}</td><td>{{ c.fecha_detectada }}</td></tr>{% endfor %}</tbody></table></div></body></html>"""
