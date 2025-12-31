@@ -223,19 +223,50 @@ def view_files(source, tipo, id):
 @utils.login_required
 @utils.permission_required('perm_actividades')
 def activities():
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    offset = (page - 1) * per_page
+    
     f_nombre = request.args.get('f_nombre', '')
     f_equipo = request.args.get('f_equipo', '')
     f_periodicidad = request.args.get('f_periodicidad', '')
+    
     conn = db.get_db_connection()
-    query = 'SELECT a.*, i.nombre as equipo_nombre FROM actividades a JOIN inventario i ON a.equipo_id = i.id WHERE 1=1'
-    p = []
-    if f_nombre: query += " AND a.nombre LIKE ?"; p.append(f'%{f_nombre}%')
-    if f_equipo: query += " AND a.equipo_id = ?"; p.append(f_equipo)
-    if f_periodicidad: query += " AND a.periodicidad = ?"; p.append(f_periodicidad)
-    actividades = conn.execute(query, p).fetchall()
+    
+    # Consulta base para filtros
+    where_clause = "WHERE 1=1"
+    params = []
+    
+    if f_nombre: 
+        where_clause += " AND a.nombre LIKE ?"
+        params.append(f'%{f_nombre}%')
+    if f_equipo: 
+        where_clause += " AND a.equipo_id = ?"
+        params.append(f_equipo)
+    if f_periodicidad: 
+        where_clause += " AND a.periodicidad = ?"
+        params.append(f_periodicidad)
+    
+    # 1. Contar total de registros (para saber si hay página siguiente)
+    count_query = f'SELECT COUNT(*) FROM actividades a {where_clause}'
+    total_count = conn.execute(count_query, params).fetchone()[0]
+    
+    # 2. Obtener registros paginados
+    query = f'SELECT a.*, i.nombre as equipo_nombre FROM actividades a JOIN inventario i ON a.equipo_id = i.id {where_clause} LIMIT ? OFFSET ?'
+    actividades = conn.execute(query, params + [per_page, offset]).fetchall()
+    
     equipos = conn.execute('SELECT i.id, i.nombre, t.nombre as tipo_nombre FROM inventario i JOIN tipos_equipo t ON i.tipo_id = t.id').fetchall()
     conn.close()
-    return render_template_string(tpl_base.BASE_TEMPLATE.replace('<!-- CONTENT_PLACEHOLDER -->', tpl_modules.ACTIVIDADES_TEMPLATE), actividades=actividades, equipos=equipos, active_page='actividades', f_nombre=f_nombre, f_equipo=f_equipo, f_periodicidad=f_periodicidad, system_date=utils.get_system_date())
+    
+    has_next = (page * per_page) < total_count
+    
+    return render_template_string(
+        tpl_base.BASE_TEMPLATE.replace('<!-- CONTENT_PLACEHOLDER -->', tpl_modules.ACTIVIDADES_TEMPLATE), 
+        actividades=actividades, equipos=equipos, active_page='actividades', 
+        f_nombre=f_nombre, f_equipo=f_equipo, f_periodicidad=f_periodicidad, 
+        system_date=utils.get_system_date(),
+        page=page, has_next=has_next
+    )
 
 @app.route('/activities/add', methods=['POST'])
 @utils.login_required
@@ -406,22 +437,54 @@ def print_cronograma():
 @app.route('/correctivos')
 @utils.login_required
 def correctivos():
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    offset = (page - 1) * per_page
+
     f_nombre = request.args.get('f_nombre', '')
     f_equipo = request.args.get('f_equipo', '')
     f_estado = request.args.get('f_estado', '')
     f_fecha_desde = request.args.get('f_fecha_desde', '')
+    
     conn = db.get_db_connection()
-    q = 'SELECT c.*, i.nombre as equipo_nombre FROM correctivos c JOIN inventario i ON c.equipo_id=i.id WHERE 1=1'
-    p = []
-    if f_nombre: q+=" AND c.nombre LIKE ?"; p.append(f'%{f_nombre}%')
-    if f_equipo: q+=" AND c.equipo_id=?"; p.append(f_equipo)
-    if f_estado: q+=" AND c.estado=?"; p.append(f_estado)
-    if f_fecha_desde: q+=" AND c.fecha_detectada>=?"; p.append(f_fecha_desde)
-    q += " ORDER BY c.fecha_detectada DESC"
-    items = conn.execute(q, p).fetchall()
+    
+    # 1. Construir la consulta base y los parámetros
+    where_clause = "WHERE 1=1"
+    params = []
+    
+    if f_nombre: 
+        where_clause += " AND c.nombre LIKE ?"
+        params.append(f'%{f_nombre}%')
+    if f_equipo: 
+        where_clause += " AND c.equipo_id=?"
+        params.append(f_equipo)
+    if f_estado: 
+        where_clause += " AND c.estado=?"
+        params.append(f_estado)
+    if f_fecha_desde: 
+        where_clause += " AND c.fecha_detectada>=?"
+        params.append(f_fecha_desde)
+    
+    # 2. Contar el total de registros para la paginación
+    count_query = f'SELECT COUNT(*) FROM correctivos c JOIN inventario i ON c.equipo_id=i.id {where_clause}'
+    total_count = conn.execute(count_query, params).fetchone()[0]
+
+    # 3. Obtener los registros paginados
+    q = f'SELECT c.*, i.nombre as equipo_nombre FROM correctivos c JOIN inventario i ON c.equipo_id=i.id {where_clause} ORDER BY c.fecha_detectada DESC LIMIT ? OFFSET ?'
+    items = conn.execute(q, params + [per_page, offset]).fetchall()
+    
     equipos = conn.execute('SELECT i.id, i.nombre, t.nombre as tipo_nombre FROM inventario i JOIN tipos_equipo t ON i.tipo_id=t.id').fetchall()
     conn.close()
-    return render_template_string(tpl_base.BASE_TEMPLATE.replace('<!-- CONTENT_PLACEHOLDER -->', tpl_modules.CORRECTIVOS_TEMPLATE), correctivos=items, equipos=equipos, active_page='correctivos', f_nombre=f_nombre, f_equipo=f_equipo, f_estado=f_estado, f_fecha_desde=f_fecha_desde, system_date=utils.get_system_date())
+    
+    has_next = (page * per_page) < total_count
+
+    return render_template_string(
+        tpl_base.BASE_TEMPLATE.replace('<!-- CONTENT_PLACEHOLDER -->', tpl_modules.CORRECTIVOS_TEMPLATE), 
+        correctivos=items, equipos=equipos, active_page='correctivos', 
+        f_nombre=f_nombre, f_equipo=f_equipo, f_estado=f_estado, f_fecha_desde=f_fecha_desde, 
+        system_date=utils.get_system_date(),
+        page=page, has_next=has_next
+    )
 
 @app.route('/correctivos/add', methods=['POST'])
 @utils.login_required

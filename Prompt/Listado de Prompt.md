@@ -245,3 +245,7 @@ Me da otro error: Error: Error: Parse error on line 63:
 -----------------------^
 Expecting 'SQE', 'DOUBLECIRCLEEND', 'PE', '-)', 'STADIUMEND', 'SUBROUTINEEND', 'PIPE', 'CYLINDEREND', 'DIAMOND_STOP', 'TAGEND', 'TRAPEND', 'INVTRAPEND', 'UNICODE_TEXT', 'TEXT', 'TAGSTART', got 'PS'
 
+## Version 5.22
+En gestión de actividades, no aparece la paginación en la tabla. Incluyela para que muestre las actividades de 10 en 10. Actualiza los archivos.
+
+En Correctivos e incidencias, no aparece la paginación en la tabla. Incluyela para que muestre las actividades de 10 en 10.  Actualiza los archivos para que aparezca.
