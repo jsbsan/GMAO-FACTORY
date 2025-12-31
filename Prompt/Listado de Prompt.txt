@@ -1,3 +1,6 @@
+
+## V 0.00 a v 5.11
+
 > Rol: "Actúa como un Arquitecto de Software Senior y Experto en python y desarrollo web."
 > Objetivo: "Diseñaremos un sistema de [gestión de mantenimiento e inspección de equipos de una fábrica incluyendo gestión de correctivos]."
 > Stack Tecnológico: "Usa Python con Flask, sqlite3 para la base de datos y bootstrap para el frontend."
@@ -178,10 +181,53 @@ Dentro de la pestaña "Configuración Global", crea un panel para gestionar los 
 > Comprueba y verifica que todo funciona correctamente. Si encuentras algun error intenta solucionarlo.
 
 
-Nota. comproebo que se producen varios errorres en páginas que se enlazaban. 
+Nota. compruebo que se producen varios errorres en páginas que se enlazaban. 
 Pongo este prompt:
 Cuando intento acceder a la pestaña "Acerca de...", me da el siguiente error: AttributeError AttributeError: module 'ui_templates' has no attribute 'ABOUT_TEMPLATE'
 (intenta solucionarlo)
 No se soluciona, ¿puedes dividir el archivo ui_templates.py en varios, para hacerlos más pequeños? Actualiza todos los archivos del proyecto.
 
 (divide el archivo de plantillas en varios)
+
+## Version 5.2
+Comentario: Paso a otra conversación de gemini-canvas adjuntando los archivos.
+
+Analiza este proyecto
+Necesito saber si el programa puede funcionar sin estar conectado al internet solo a una red local
+Respuesta:
+Estructura que propone:
+/static
+│
+├── /css
+│   ├── bootstrap.min.css
+│   └── all.min.css      <-- Este archivo busca ../webfonts
+│
+├── /js
+│   └── bootstrap.bundle.min.js
+│
+└── /webfonts            <-- Carpeta HERMANA de css (no hija)
+    ├── fa-solid-900.woff2
+    ├── fa-regular-400.woff2
+    └── ... (el resto de archivos de fuentes)
+
+¿tengo que copiar la carpeta completa de webfonts en la carpeta css o solo los archivos?
+Hazme una tabla donde venga el archivo, numero linea, codigo  original,  codigo nuevo
+¿solo hay que cambiar ese archivo? Compruebalo y verificalo con el resto de archivos del proyecto.
+Hazme un esquema gráfico de como esta definida las tablas y campos de la base de datos.
+Haz un diagrama de flujo del programa.
+Me da el siguiente error el diagrama de flujo: 
+Error: Error: Parse error on line 11:
+...olor:black    Start((Inicio Servidor)):
+Crea un documento que explica una a una las funciones y procedimientos del programa completo.
+Dime la lógica de las ordenes de trabajo
+¿cual es la lógica cuando se crea un actividad?
+¿seria sencillo añadir 2 estados más a las ordenes de trabajo, serian "Aplazada" y "Rechazada"
+
+
+
+
+
+
+
+
+
