@@ -249,3 +249,30 @@ Expecting 'SQE', 'DOUBLECIRCLEEND', 'PE', '-)', 'STADIUMEND', 'SUBROUTINEEND', '
 En gestión de actividades, no aparece la paginación en la tabla. Incluyela para que muestre las actividades de 10 en 10. Actualiza los archivos.
 
 En Correctivos e incidencias, no aparece la paginación en la tabla. Incluyela para que muestre las actividades de 10 en 10.  Actualiza los archivos para que aparezca.
+
+## Version 5.30 -> Nueva Pestaña RESUMEN
+Prompt para que gemini-canvas retome el proyecto en una nueva conversación:
+"He subido los archivos fuente de mi proyecto en Python. Por favor, realiza las siguientes tareas antes de que empecemos a trabajar:
+Analiza la arquitectura: Identifica la función principal de cada archivo y cómo interactúan entre sí.
+Resume la lógica: Explica brevemente qué hace el programa, cuál es su entrada de datos y qué resultado genera.
+Identifica dependencias: Confirma qué librerías externas utiliza.
+Una vez que comprendas la estructura completa, confírmamelo con un breve resumen técnico. Después de eso, te pediré mejoras específicas de rendimiento, refactorización y nuevas funcionalidades."
+
+Nueva funcionalidad: En el menu principal haz una nueva entrada llamada "Resumen", en esta pestaña se debe de ver:
+1. Cuadro para elegir fecha inicio resumen (que se lee y almacena en la tabla de configuración de la base de datos). El valor inicial será el dia de hoy menos 365 dias
+2. Cuadro para elegir fecha fin resumen (que se lee y almacena en la tabla de configuración de la base de datos). El valor inicial será el dia de hoy.
+3. Panel con un gráfico tipo tarta donde se dibuje el porcentaje de las distintas ordenes de trabajo existente en el periodo de fecha inicio resumen y fecha fin resumen. Debe de incluir una leyenda. Los colores deben de coincidir con los tipos de ordenes de trabajo que aparecen en el cronograma.
+4. Panel con un gráfico tipo tarta donde se dibuje el porcentaje de los distintos correctivos existente en el periodo de fecha de inicio del resumen y fecha fin resumen. Debe de incluir una leyenda. Los colores deben de coincidir con los tipos de correctivos.
+Intenta que todo el nuevo código que generes para esta pestaña, este en un nuevo fichero llamado "resumen.py". 
+
+¿en que linea de codigo se indica que se vea el inventario primero?
+(responde que se ve primero el inventario por que esta definido por la ruta raiz)
+
+Quiero que en vez del inventario se vea el resumen.
+
+
+
+
+
+
+

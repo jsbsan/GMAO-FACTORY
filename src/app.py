@@ -11,9 +11,14 @@ import database as db
 import utils
 import templates_base as tpl_base
 import templates_modules as tpl_modules
+# Importamos el nuevo módulo
+from resumen import resumen_bp
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key_mantenimiento_factory'
+
+# Registramos el blueprint del Resumen
+app.register_blueprint(resumen_bp, url_prefix='/resumen')
 
 # Registramos el filtro Jinja
 @app.template_filter('json_load')
@@ -37,6 +42,7 @@ def login():
             session['perm_actividades'] = user['perm_actividades']
             session['perm_configuracion'] = user['perm_configuracion']
             utils.log_action(f"Inicio de sesión exitoso: {username}")
+            # Redirige a la raíz, que ahora llevará al Resumen
             return redirect(url_for('index'))
         else:
             flash('Usuario o contraseña incorrectos', 'danger')
@@ -48,10 +54,17 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
-# --- RUTA PRINCIPAL (INICIO/INVENTARIO) ---
+# --- RUTA PRINCIPAL (AHORA REDIRIGE A RESUMEN) ---
 @app.route('/')
 @utils.login_required
 def index():
+    # Redirige por defecto a la vista de Resumen
+    return redirect(url_for('resumen.index'))
+
+# --- RUTA DE INVENTARIO (NUEVA RUTA ESPECÍFICA) ---
+@app.route('/inventory')
+@utils.login_required
+def inventory():
     db.init_db()
     page = request.args.get('page', 1, type=int)
     per_page = 10
@@ -105,7 +118,8 @@ def add_inventory():
         flash('Equipo añadido', 'success')
     except Exception as e: 
         flash(f'Error: {e}', 'danger')
-    return redirect(url_for('index'))
+    # Actualizado: Redirige a inventory, no index
+    return redirect(url_for('inventory'))
 
 @app.route('/inventory/edit/<int:id>')
 @utils.login_required
@@ -115,7 +129,8 @@ def edit_inventory(id):
     item = conn.execute('SELECT * FROM inventario WHERE id=?', (id,)).fetchone()
     tipos = conn.execute('SELECT * FROM tipos_equipo').fetchall()
     conn.close()
-    if not item: return redirect(url_for('index'))
+    # Actualizado: Redirige a inventory si falla
+    if not item: return redirect(url_for('inventory'))
     imgs = utils.normalize_files(json.loads(item['images']) if item['images'] else [])
     pdfs = utils.normalize_files(json.loads(item['pdfs']) if item['pdfs'] else [])
     return render_template_string(tpl_base.BASE_TEMPLATE.replace('<!-- CONTENT_PLACEHOLDER -->', tpl_modules.EDIT_INVENTORY_TEMPLATE), item=item, tipos=tipos, imgs=imgs, pdfs=pdfs, active_page='inventario', system_date=utils.get_system_date())
@@ -147,7 +162,8 @@ def update_inventory(id):
     conn.close()
     utils.log_action(f"Inventario actualizado: ID {id}")
     flash('Actualizado', 'success')
-    return redirect(url_for('index'))
+    # Actualizado: Redirige a inventory
+    return redirect(url_for('inventory'))
 
 @app.route('/inventory/delete/<int:id>', methods=['POST'])
 @utils.login_required
@@ -167,7 +183,8 @@ def delete_inventory(id):
         flash(f'Error al eliminar: {e}', 'danger')
     finally:
         conn.close()
-    return redirect(url_for('index'))
+    # Actualizado: Redirige a inventory
+    return redirect(url_for('inventory'))
 
 @app.route('/inventory/print/<int:id>')
 @utils.login_required
@@ -201,7 +218,8 @@ def view_files(source, tipo, id):
     conn = db.get_db_connection()
     if source == 'inventory':
         item = conn.execute('SELECT * FROM inventario WHERE id=?', (id,)).fetchone()
-        back_url = url_for('index')
+        # Actualizado: Volver al inventario
+        back_url = url_for('inventory')
         title_prefix = "Archivos de Equipo"
     elif source == 'corrective':
         item = conn.execute('SELECT * FROM correctivos WHERE id=?', (id,)).fetchone()
@@ -209,7 +227,8 @@ def view_files(source, tipo, id):
         title_prefix = "Archivos de Incidencia"
     else:
         item = None
-        back_url = url_for('index')
+        # Actualizado: Volver al inventario
+        back_url = url_for('inventory')
         title_prefix = "Archivos"
     conn.close()
     files = []
@@ -604,8 +623,7 @@ def general_settings():
     conn.close()
             
     # Usamos tpl_base para configuraciones
-    return render_template_string(tpl_modules.GENERAL_SETTINGS_TEMPLATE, 
-                                  BASE_TEMPLATE=tpl_base.BASE_TEMPLATE,
+    return render_template_string(tpl_base.BASE_TEMPLATE.replace('<!-- CONTENT_PLACEHOLDER -->', tpl_modules.GENERAL_SETTINGS_TEMPLATE), 
                                   logging_enabled=logging_enabled, log_size=log_size_str, tipos=tipos, users=users,
                                   planned_date=planned_date, active_page='ajustes', system_date=utils.get_system_date())
 
@@ -809,7 +827,8 @@ def add_type():
         conn.commit()
         conn.close()
     except: pass
-    return redirect(url_for('index'))
+    # Actualizado: Redirige a inventory
+    return redirect(url_for('inventory'))
 
 if __name__ == '__main__':
     if not os.path.exists('mantenimiento_factory.db'):

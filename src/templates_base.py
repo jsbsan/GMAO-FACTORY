@@ -41,12 +41,16 @@ BASE_TEMPLATE = """
     {% set navigation %}
         <div class="sidebar-brand">
             <h4>🏭 GMAO</h4>
-            <small>Factory v5.22</small>
+            <small>Factory v5.30</small>
             <div class="mt-2 small text-muted">Usuario: {{ session.get('username', 'Invitado') }}</div>
         </div>
         <div>
+            <!-- NUEVA ENTRADA RESUMEN -->
+            <a href="{{ url_for('resumen.index') }}" class="sidebar-link {{ 'active' if active_page == 'resumen' else '' }}"><i class="fas fa-chart-pie me-2"></i> Resumen</a>
+            
             {% if session.get('perm_inventario') %}
-            <a href="{{ url_for('index') }}" class="sidebar-link {{ 'active' if active_page == 'inventario' else '' }}"><i class="fas fa-boxes me-2"></i> Inventario</a>
+            <!-- ENLACE ACTUALIZADO A INVENTORY -->
+            <a href="{{ url_for('inventory') }}" class="sidebar-link {{ 'active' if active_page == 'inventario' else '' }}"><i class="fas fa-boxes me-2"></i> Inventario</a>
             {% endif %}
             
             {% if session.get('perm_actividades') %}
@@ -151,7 +155,7 @@ ABOUT_TEMPLATE = """
                         <dd class="col-sm-8">Sistema de Gestión de Mantenimiento Asistido por Ordenador</dd>
 
                         <dt class="col-sm-4 text-end">Versión:</dt>
-                        <dd class="col-sm-8"><span class="badge bg-primary">v5.22</span></dd>
+                        <dd class="col-sm-8"><span class="badge bg-primary">v5.30</span></dd>
 
                         <dt class="col-sm-4 text-end">Autor:</dt>
                         <dd class="col-sm-8">Julio Sánchez Berro</dd>

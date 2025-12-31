@@ -67,7 +67,9 @@ def init_db():
                     id INTEGER PRIMARY KEY,
                     fecha_sistema DATE,
                     logging_enabled INTEGER DEFAULT 0,
-                    fecha_prevista DATE
+                    fecha_prevista DATE,
+                    fecha_inicio_resumen DATE,
+                    fecha_fin_resumen DATE
                 )''')
     
     c.execute('''CREATE TABLE IF NOT EXISTS usuarios (
@@ -84,6 +86,10 @@ def init_db():
     try: c.execute("ALTER TABLE configuracion ADD COLUMN logging_enabled INTEGER DEFAULT 0")
     except: pass 
     try: c.execute("ALTER TABLE configuracion ADD COLUMN fecha_prevista DATE")
+    except: pass
+    try: c.execute("ALTER TABLE configuracion ADD COLUMN fecha_inicio_resumen DATE")
+    except: pass
+    try: c.execute("ALTER TABLE configuracion ADD COLUMN fecha_fin_resumen DATE")
     except: pass
 
     # Inicializar configuración con Fecha Prevista a 1 año
