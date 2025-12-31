@@ -115,9 +115,13 @@ def get_cronograma_data(conn, year):
     return cronograma_data
 
 def generate_and_update_work_orders(conn, current_system_date):
+    # Recuperamos la fecha prevista de la configuración
     row = conn.execute('SELECT fecha_prevista FROM configuracion WHERE id=1').fetchone()
     planned_date = datetime.datetime.strptime(row['fecha_prevista'], '%Y-%m-%d').date() if row and row['fecha_prevista'] else None
     
+    # Lógica de Límite de Generación:
+    # Si existe una planned_date (ahora por defecto +365 días) y es futura,
+    # extendemos la generación hasta esa fecha. Si no, hasta hoy.
     generation_limit = current_system_date
     if planned_date and planned_date > current_system_date:
         generation_limit = planned_date
@@ -141,7 +145,7 @@ def generate_and_update_work_orders(conn, current_system_date):
                 count_generated += 1
             f += datetime.timedelta(days=p)
     
-    # MODIFICACIÓN APLAZADA: Se añade 'Aplazada' a la lista de exclusiones para que el sistema no la modifique
+    # Actualización de estados, IGNORANDO las 'Aplazada' para que no se re-calculen
     active_ots = conn.execute("SELECT ot.id, ot.fecha_generacion, ot.estado, a.periodicidad FROM ordenes_trabajo ot JOIN actividades a ON ot.actividad_id=a.id WHERE ot.estado NOT IN ('Realizada', 'Rechazada', 'Aplazada')").fetchall()
     
     for ot in active_ots:

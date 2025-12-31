@@ -86,9 +86,19 @@ def init_db():
     try: c.execute("ALTER TABLE configuracion ADD COLUMN fecha_prevista DATE")
     except: pass
 
-    # Inicializar configuración
+    # Inicializar configuración con Fecha Prevista a 1 año
+    today = datetime.date.today()
+    next_year = today + datetime.timedelta(days=365)
+    
+    # Si la DB ya existe pero tiene fecha_prevista NULL, la actualizamos automáticamente
     try:
-        c.execute("INSERT INTO configuracion (id, fecha_sistema, logging_enabled) VALUES (1, ?, 0)", (datetime.date.today(),))
+        c.execute("UPDATE configuracion SET fecha_prevista = ? WHERE id=1 AND fecha_prevista IS NULL", (next_year,))
+    except: pass
+
+    try:
+        # En una DB nueva, insertamos directamente con la fecha + 365 días
+        c.execute("INSERT INTO configuracion (id, fecha_sistema, logging_enabled, fecha_prevista) VALUES (1, ?, 0, ?)", 
+                  (today, next_year))
     except sqlite3.IntegrityError:
         pass
     
