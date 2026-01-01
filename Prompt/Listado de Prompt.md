@@ -270,7 +270,13 @@ Intenta que todo el nuevo código que generes para esta pestaña, este en un nue
 
 Quiero que en vez del inventario se vea el resumen.
 
+hazme un diagrama de flujo del programa para mermaid, ten en cuenta problemas que se pueden presentar con caracteres (parentesis, comillas, etc)
 
+## Version 5.99 -> Modular aun más el programa y usar paginas html y 
+Analizar el codigo del archivo "templates_modules.py"  y dividelo en varios para que no sea tan grande. Muestra las plantillas en archivos .html reales en vez de usar render_template_string usa render_template en el código.
+
+
+Quiero que refactorice el codigo actual de las tablas para que uses DataTables para dibujar las tablas, incluye la opciones de paginación, búsqueda, ordenadar por columnas y exportarción a excel de la tabla.
 
 
 
