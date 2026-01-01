@@ -34,7 +34,7 @@
     {% macro render_navigation() %}
         <div class="sidebar-brand">
             <h4>🏭 GMAO</h4>
-            <small>Factory v5.30</small>
+            <small>Factory v6.00</small>
             <div class="mt-2 small text-muted">Usuario: {{ session.get('username', 'Invitado') }}</div>
         </div>
         <div>
@@ -98,5 +98,6 @@
         });
     });
     </script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -286,9 +286,85 @@ Actúa como un desarrollador experto en Python Flask. Mi proyecto tiene actualme
 2. Revisa el archivo principal (app.py) cambiando las rutas para que dejen de usar render_template_string y pasen a usar render_template.
 
 
-Quiero que refactorice el codigo actual de las tablas para que uses DataTables para dibujar las tablas, incluye la opciones de paginación, búsqueda, ordenadar por columnas y exportarción a excel de la tabla.
+¿puedes descargarme en un zip todas las carpetas y archivos?
+Respuesta: Genera un fichero py que al ejecutarlo crea un zip con todos los archivos generados y estructura de carpetas.
+
+Quiero que refactorice el codigo actual para la representación de las tablas para que uses DataTables para dibujar las tablas, incluye la opciones de paginación, búsqueda, ordenadar por columnas y exportarción a excel de la tabla.
+
+Error: Cuando se ejecuta la aplicación la pantalla se queda congelada en la pestaña resumen.
+Respuesta: dice que faltan librerias css y js
+
+No, no puede ser eso, ya que inclui manualmente las librerias en la carpeta static, y de echo las gráficas de generan antes de que se congele la aplicacion ¿cual puede ser el error?
+Respuesta: 1) corregir css y 2) corregir enlaces quiere cambiar los enlaces estaticos a online
+
+Solo quiero que apliques la corrección de CSS. No quiero usar CDNs ya que necesito que funciones con librerias locales el programa.
 
 
+Para la tabla de ordenes de trabajo, necesito añadir un filtro entre fechas en la pestaña de Ordenes de trabajo, ¿lo puedes añadir?
+
+## Version 6.00 -> generación de documentación actualizada
+(para el código)
+Quiero cambiar el texto de version en vez de la 5.30 que sea la 6.00
 
 
+### Generación de nueva documentacion:
+#### -> Readme para github:
+Crea un fichero "readme.md" para añadirlo al repositorio de github sobre el proyecto.
 
+#### -> Documentación para usuario:
+Analiza todo el código del proyecto y confírmame cuando estés listo para redactar la documentación
+Actúa como un **Technical Writer** experto en software. Tu objetivo es redactar un manual de usuario completo, profesional y fácil de entender para el programa que acabamos de desarrollar en Canvas.
+**El manual debe incluir las siguientes secciones:**
+ 1. **Introducción:** Qué hace el programa y cuál es su objetivo principal.
+ 2. **Requisitos del Sistema:** Qué necesita el usuario para ejecutarlo (navegador, dependencias, claves de API, etc.).
+ 3. **Guía de Instalación/Configuración:** Paso a paso para ponerlo en marcha.
+ 4. **Interfaz de Usuario:** Descripción de los botones, menús y áreas de trabajo.
+ 5. **Guía de Uso (Paso a Paso):** Ejemplos prácticos de cómo realizar las tareas principales.
+ 6. **Solución de Problemas (FAQ):** Errores comunes y cómo resolverlos, comentar que la aplicación puede funcionar offline.
+ 7. **Notas Técnicas:** Breve explicación de las tecnologías usadas.
+**Tono y Estilo:**
+- Utiliza un lenguaje claro, profesional pero accesible.
+- Usa negritas para resaltar botones o acciones importantes.
+- Formatea el texto en **Markdown** para que sea fácil de leer.
+- Si hay partes del código que requieren una explicación visual, descríbelas detalladamente.
+**Público Objetivo:** para los técnicos y operarios
+
+#### -> Documentación para programador
+Analiza todo este código y confírmame cuando estés listo para redactar la documentación.
+Actúa como un Senior Technical Writer y Arquitecto de Software. Tu tarea es generar la estructura y el contenido detallado de un manual técnico para programadores sobre el sistema GMAO Factory.
+El manual debe seguir este esquema obligatorio:
+1. **Introducción y Stack Tecnológico:** Breve descripción del propósito del software, lenguajes utilizados, frameworks y dependencias principales.
+2. **Arquitectura del Sistema:** Explicación del patrón de diseño (ej. Microservicios, MVC, Hexagonal).
+3. **Guía de Configuración (Setup):** Pasos exactos para clonar, instalar dependencias y configurar variables de entorno.
+4. **Documentación de la API / Puntos de Entrada:** Detalle de endpoints, tipos de datos, autenticación y manejo de errores.
+5. **Flujos de Datos:** Descripción de cómo viaja la información desde el cliente hasta la base de datos.
+6. **Diagrama de flujo:** Descripción de  la secuencia lógica y el flujo de ejecución del programa. Describe los procesos y/o algoritmos de forma clara y secuencial.
+7. **Guía de Contribución:** Estándares de código (Linting), nombres de ramas y proceso de Pull Request.
+#### **Instrucciones para Diagramas:** 
+**Por cada sección relevante, incluye una descripción detallada de qué diagrama debería ir allí (ej. Diagrama de Secuencia para la autenticación, Diagrama de Entidad-Relación para la DB, Diagrama de Infraestructura en AWS, diagrama de flujo). **
+Diagramas como código (Mermaid.js):** Las descripciones de los diagramas se entreguen en sintaxis **Mermaid**. 
+**Instrucciones de formato Mermaid:**
+    Usa siempre comillas dobles "" para el contenido de texto dentro de los nodos.
+    Estructura: Identificador["Texto del nodo (con paréntesis/símbolos)"].
+    No uses el texto descriptivo como ID del nodo.
+    Si hay comillas dentro del texto, usa ' (comilla simple) o escapalas.
+**Diagramas**
+##### Diagramas esenciales que debes incluir
+Para que un manual de programador sea realmente útil, no pueden faltar estos apoyos visuales:
+###### 1. Diagrama de Arquitectura de Alto Nivel
+Muestra cómo interactúan los componentes principales.
+- **Qué incluir:** Balanceadores de carga, servidores de aplicaciones, servicios de caché (Redis), bases de datos y servicios externos (APIs de terceros).
+###### 2. Diagrama de Entidad-Relación (ERD)
+Fundamental para que el programador entienda la persistencia de datos.
+- **Qué incluir:** Tablas, llaves primarias/foráneas y el tipo de relación (1:N, N:M).
+###### 3. Diagramas de Secuencia (UML)
+Ideales para explicar procesos complejos como el flujo de OAuth2 o una transacción de pago.
+- **Qué incluir:** Actores (Usuario, Frontend, API, Auth Server) y el orden cronológico de los mensajes/llamadas entre ellos.
+###### 4. Diagrama de flujo del programa.    
+###### 5. Diagrama de Flujo de CI/CD
+Explica qué pasa desde que el programador hace `git push`.
+- **Qué incluir:** Ejecución de tests unitarios, análisis de SonarQube, construcción de imagen Docker y despliegue en staging/producción.
+- **Usa Swagger/OpenAPI:** Si tienes una API, no escribas los endpoints a mano en el manual; enlaza a la documentación interactiva.
+
+#### **Tono:**
+Profesional, técnico, directo y orientado a la eficiencia. Usa bloques de código de ejemplo donde sea necesario.
