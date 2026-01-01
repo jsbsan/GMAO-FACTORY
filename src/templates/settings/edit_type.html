@@ -1,9 +1,4 @@
 {% extends "base.html" %}
-
 {% block content %}
-<h2>Editar Tipo</h2>
-<form action="{{ url_for('update_type', id=tipo.id) }}" method="POST">
-    <div class="mb-3"><input type="text" class="form-control" name="nombre" value="{{ tipo.nombre }}" required></div>
-    <div class="d-flex justify-content-end gap-2"><a href="{{ url_for('general_settings') }}" class="btn btn-secondary">Cancelar</a><button type="submit" class="btn btn-primary">Actualizar</button></div>
-</form>
+<h2>Editar Tipo</h2><form action="{{ url_for('update_type', id=tipo.id) }}" method="POST"><div class="mb-3"><input type="text" class="form-control" name="nombre" value="{{ tipo.nombre }}" required></div><div class="d-flex justify-content-end gap-2"><a href="{{ url_for('general_settings') }}" class="btn btn-secondary">Cancelar</a><button type="submit" class="btn btn-primary">Actualizar</button></div></form>
 {% endblock %}

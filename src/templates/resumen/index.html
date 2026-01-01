@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+<!-- Chart.js Local -->
 <script src="{{ url_for('static', filename='js/chart.min.js') }}"></script>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -9,46 +10,35 @@
 </div>
 
 <div class="card mb-4 border-primary">
-    <div class="card-header bg-primary text-white">
-        <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i> Configuración del Periodo</h5>
-    </div>
+    <div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i> Configuración del Periodo</h5></div>
     <div class="card-body bg-light">
         <form action="{{ url_for('resumen.update_dates') }}" method="POST" class="row align-items-end g-3">
-            <div class="col-md-5">
-                <label class="form-label fw-bold">Fecha Inicio Resumen</label>
-                <input type="date" class="form-control" name="fecha_inicio" value="{{ fecha_inicio }}" required>
-            </div>
-            <div class="col-md-5">
-                <label class="form-label fw-bold">Fecha Fin Resumen</label>
-                <input type="date" class="form-control" name="fecha_fin" value="{{ fecha_fin }}" required>
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-sync-alt"></i> Actualizar</button>
-            </div>
+            <div class="col-md-5"><label class="form-label fw-bold">Fecha Inicio Resumen</label><input type="date" class="form-control" name="fecha_inicio" value="{{ fecha_inicio }}" required></div>
+            <div class="col-md-5"><label class="form-label fw-bold">Fecha Fin Resumen</label><input type="date" class="form-control" name="fecha_fin" value="{{ fecha_fin }}" required></div>
+            <div class="col-md-2"><button type="submit" class="btn btn-primary w-100"><i class="fas fa-sync-alt"></i> Actualizar</button></div>
         </form>
     </div>
 </div>
 
 <div class="row">
-    <!-- Panel OTs -->
     <div class="col-md-6 mb-4">
         <div class="card h-100 shadow-sm">
             <div class="card-header fw-bold text-center bg-light">Distribución de Órdenes de Trabajo</div>
             <div class="card-body">
-                <div style="position: relative; height: 300px; width: 100%;">
+                <!-- CSS FIX: overflow: hidden evita loop infinito de Chart.js -->
+                <div style="position: relative; height: 300px; width: 100%; overflow: hidden;">
                     <canvas id="chartOTs"></canvas>
                 </div>
                 <div class="mt-3 text-center small text-muted">Total OTs en el periodo: {{ total_ots }}</div>
             </div>
         </div>
     </div>
-
-    <!-- Panel Correctivos -->
     <div class="col-md-6 mb-4">
         <div class="card h-100 shadow-sm">
             <div class="card-header fw-bold text-center bg-light">Distribución de Incidencias (Correctivos)</div>
             <div class="card-body">
-                <div style="position: relative; height: 300px; width: 100%;">
+                <!-- CSS FIX: overflow: hidden evita loop infinito de Chart.js -->
+                <div style="position: relative; height: 300px; width: 100%; overflow: hidden;">
                     <canvas id="chartCorrectivos"></canvas>
                 </div>
                  <div class="mt-3 text-center small text-muted">Total Incidencias en el periodo: {{ total_corr }}</div>
@@ -58,82 +48,39 @@
 </div>
 
 <script>
-    // Configuración Gráfico OTs
     const ctxOT = document.getElementById('chartOTs').getContext('2d');
-    const dataOT = {
-        labels: {{ labels_ot | safe }},
-        datasets: [{
-            data: {{ values_ot | safe }},
-            backgroundColor: [
-                '#198754', // Realizada (Verde)
-                '#ffc107', // En curso (Amarillo)
-                '#dc3545', // Pendiente (Rojo)
-                '#6c757d', // Prevista (Gris)
-                '#6f42c1', // Aplazada (Morado)
-                '#000000'  // Rechazada (Negro)
-            ],
-            borderWidth: 1
-        }]
-    };
     new Chart(ctxOT, {
         type: 'doughnut',
-        data: dataOT,
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'bottom' },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.label || '';
-                            if (label) label += ': ';
-                            let value = context.raw;
-                            let total = context.chart._metasets[context.datasetIndex].total;
-                            let percentage = Math.round((value / total) * 100) + '%';
-                            return label + value + ' (' + percentage + ')';
-                        }
-                    }
-                }
-            }
+        data: {
+            labels: {{ labels_ot | safe }},
+            datasets: [{
+                data: {{ values_ot | safe }},
+                backgroundColor: ['#198754', '#ffc107', '#dc3545', '#6c757d', '#6f42c1', '#000000'],
+                borderWidth: 1
+            }]
+        },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { legend: { position: 'bottom' } } 
         }
     });
 
-    // Configuración Gráfico Correctivos
     const ctxCorr = document.getElementById('chartCorrectivos').getContext('2d');
-    const dataCorr = {
-        labels: {{ labels_corr | safe }},
-        datasets: [{
-            data: {{ values_corr | safe }},
-            backgroundColor: [
-                '#dc3545', // Detectada (Rojo)
-                '#ffc107', // En curso (Amarillo)
-                '#198754'  // Resuelta (Verde)
-            ],
-            borderWidth: 1
-        }]
-    };
     new Chart(ctxCorr, {
         type: 'pie',
-        data: dataCorr,
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'bottom' },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.label || '';
-                            if (label) label += ': ';
-                            let value = context.raw;
-                            let total = context.chart._metasets[context.datasetIndex].total;
-                            let percentage = Math.round((value / total) * 100) + '%';
-                            return label + value + ' (' + percentage + ')';
-                        }
-                    }
-                }
-            }
+        data: {
+            labels: {{ labels_corr | safe }},
+            datasets: [{
+                data: {{ values_corr | safe }},
+                backgroundColor: ['#dc3545', '#ffc107', '#198754'],
+                borderWidth: 1
+            }]
+        },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { legend: { position: 'bottom' } } 
         }
     });
 </script>
