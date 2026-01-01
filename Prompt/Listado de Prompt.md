@@ -273,7 +273,17 @@ Quiero que en vez del inventario se vea el resumen.
 hazme un diagrama de flujo del programa para mermaid, ten en cuenta problemas que se pueden presentar con caracteres (parentesis, comillas, etc)
 
 ## Version 5.99 -> Modular aun más el programa y usar paginas html y 
-Analizar el codigo del archivo "templates_modules.py"  y dividelo en varios para que no sea tan grande. Muestra las plantillas en archivos .html reales en vez de usar render_template_string usa render_template en el código.
+###Prompt para que gemini-canvas retome el proyecto en una nueva conversación:
+"He subido los archivos fuente de mi proyecto en Python. Por favor, realiza las siguientes tareas antes de que empecemos a trabajar:
+Analiza la arquitectura: Identifica la función principal de cada archivo y cómo interactúan entre sí.
+Resume la lógica: Explica brevemente qué hace el programa, cuál es su entrada de datos y qué resultado genera.
+Identifica dependencias: Confirma qué librerías externas utiliza.
+Una vez que comprendas la estructura completa, confírmamelo con un breve resumen técnico. Después de eso, te pediré mejoras específicas de rendimiento, refactorización y nuevas funcionalidades."
+
+
+Actúa como un desarrollador experto en Python Flask. Mi proyecto tiene actualmente todas las plantillas HTML guardadas como variables de texto. Haz una refactorización completa siguiendo estar instrucciones: 
+1. Separación de plantillas generando archivos .html reales dentro de una nueva carpeta llamada templates  
+2. Revisa el archivo principal (app.py) cambiando las rutas para que dejen de usar render_template_string y pasen a usar render_template.
 
 
 Quiero que refactorice el codigo actual de las tablas para que uses DataTables para dibujar las tablas, incluye la opciones de paginación, búsqueda, ordenadar por columnas y exportarción a excel de la tabla.

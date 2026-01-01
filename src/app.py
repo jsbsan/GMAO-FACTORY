@@ -1,7 +1,7 @@
 import sqlite3
 import base64
 import datetime
-from flask import Flask, render_template_string, request, redirect, url_for, flash, send_file, session
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file, session
 import json
 import os
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -9,9 +9,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 # Importamos los módulos locales
 import database as db
 import utils
-import templates_base as tpl_base
-import templates_modules as tpl_modules
-# Importamos el nuevo módulo
+# Importamos el nuevo módulo de resumen
 from resumen import resumen_bp
 
 app = Flask(__name__)
@@ -46,7 +44,7 @@ def login():
             return redirect(url_for('index'))
         else:
             flash('Usuario o contraseña incorrectos', 'danger')
-    return render_template_string(tpl_base.LOGIN_TEMPLATE)
+    return render_template('login.html')
 
 @app.route('/logout')
 def logout():
@@ -89,8 +87,8 @@ def inventory():
     has_next = (page * per_page) < count
     conn.close()
     
-    return render_template_string(
-        tpl_base.BASE_TEMPLATE.replace('<!-- CONTENT_PLACEHOLDER -->', tpl_modules.INVENTARIO_TEMPLATE), 
+    return render_template(
+        'inventory/index.html', 
         items=items, tipos=tipos, page=page, has_next=has_next, 
         active_page='inventario', system_date=utils.get_system_date(), 
         f_nombre=f_nombre, f_tipo=f_tipo
@@ -118,7 +116,6 @@ def add_inventory():
         flash('Equipo añadido', 'success')
     except Exception as e: 
         flash(f'Error: {e}', 'danger')
-    # Actualizado: Redirige a inventory, no index
     return redirect(url_for('inventory'))
 
 @app.route('/inventory/edit/<int:id>')
@@ -129,11 +126,10 @@ def edit_inventory(id):
     item = conn.execute('SELECT * FROM inventario WHERE id=?', (id,)).fetchone()
     tipos = conn.execute('SELECT * FROM tipos_equipo').fetchall()
     conn.close()
-    # Actualizado: Redirige a inventory si falla
     if not item: return redirect(url_for('inventory'))
     imgs = utils.normalize_files(json.loads(item['images']) if item['images'] else [])
     pdfs = utils.normalize_files(json.loads(item['pdfs']) if item['pdfs'] else [])
-    return render_template_string(tpl_base.BASE_TEMPLATE.replace('<!-- CONTENT_PLACEHOLDER -->', tpl_modules.EDIT_INVENTORY_TEMPLATE), item=item, tipos=tipos, imgs=imgs, pdfs=pdfs, active_page='inventario', system_date=utils.get_system_date())
+    return render_template('inventory/edit.html', item=item, tipos=tipos, imgs=imgs, pdfs=pdfs, active_page='inventario', system_date=utils.get_system_date())
 
 @app.route('/inventory/update/<int:id>', methods=['POST'])
 @utils.login_required
@@ -162,7 +158,6 @@ def update_inventory(id):
     conn.close()
     utils.log_action(f"Inventario actualizado: ID {id}")
     flash('Actualizado', 'success')
-    # Actualizado: Redirige a inventory
     return redirect(url_for('inventory'))
 
 @app.route('/inventory/delete/<int:id>', methods=['POST'])
@@ -183,7 +178,6 @@ def delete_inventory(id):
         flash(f'Error al eliminar: {e}', 'danger')
     finally:
         conn.close()
-    # Actualizado: Redirige a inventory
     return redirect(url_for('inventory'))
 
 @app.route('/inventory/print/<int:id>')
@@ -195,7 +189,7 @@ def print_inventory(id):
     imgs = utils.normalize_files(json.loads(item['images']) if item['images'] else [])
     pdfs = utils.normalize_files(json.loads(item['pdfs']) if item['pdfs'] else [])
     utils.log_action(f"Impreso inventario individual: ID {id}")
-    return render_template_string(tpl_base.PRINT_TEMPLATE, item=item, imgs=imgs, pdfs=pdfs, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
+    return render_template('print/inventory.html', item=item, imgs=imgs, pdfs=pdfs, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
 
 @app.route('/inventory/print_all')
 @utils.login_required
@@ -210,7 +204,7 @@ def print_all_inventory():
     items = conn.execute(f'SELECT i.*, t.nombre as tipo_nombre FROM inventario i LEFT JOIN tipos_equipo t ON i.tipo_id=t.id {where} ORDER BY i.nombre', p).fetchall()
     conn.close()
     utils.log_action("Impreso listado completo inventario")
-    return render_template_string(tpl_base.PRINT_ALL_TEMPLATE, items=items, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
+    return render_template('print/all_inventory.html', items=items, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
 
 @app.route('/view_files/<source>/<tipo>/<int:id>')
 @utils.login_required
@@ -218,7 +212,6 @@ def view_files(source, tipo, id):
     conn = db.get_db_connection()
     if source == 'inventory':
         item = conn.execute('SELECT * FROM inventario WHERE id=?', (id,)).fetchone()
-        # Actualizado: Volver al inventario
         back_url = url_for('inventory')
         title_prefix = "Archivos de Equipo"
     elif source == 'corrective':
@@ -227,7 +220,6 @@ def view_files(source, tipo, id):
         title_prefix = "Archivos de Incidencia"
     else:
         item = None
-        # Actualizado: Volver al inventario
         back_url = url_for('inventory')
         title_prefix = "Archivos"
     conn.close()
@@ -235,7 +227,7 @@ def view_files(source, tipo, id):
     if item:
         content = item['images'] if tipo == 'img' else item['pdfs']
         files = utils.normalize_files(json.loads(content) if content else [])
-    return render_template_string(tpl_base.BASE_TEMPLATE.replace('<!-- CONTENT_PLACEHOLDER -->', tpl_base.VIEWER_TEMPLATE), item=item, files=files, tipo=tipo, back_url=back_url, title_prefix=title_prefix, active_page='inventario', system_date=utils.get_system_date())
+    return render_template('viewer.html', item=item, files=files, tipo=tipo, back_url=back_url, title_prefix=title_prefix, active_page='inventario', system_date=utils.get_system_date())
 
 # --- RUTAS DE ACTIVIDADES ---
 @app.route('/activities')
@@ -266,7 +258,7 @@ def activities():
         where_clause += " AND a.periodicidad = ?"
         params.append(f_periodicidad)
     
-    # 1. Contar total de registros (para saber si hay página siguiente)
+    # 1. Contar total de registros
     count_query = f'SELECT COUNT(*) FROM actividades a {where_clause}'
     total_count = conn.execute(count_query, params).fetchone()[0]
     
@@ -279,8 +271,8 @@ def activities():
     
     has_next = (page * per_page) < total_count
     
-    return render_template_string(
-        tpl_base.BASE_TEMPLATE.replace('<!-- CONTENT_PLACEHOLDER -->', tpl_modules.ACTIVIDADES_TEMPLATE), 
+    return render_template(
+        'activities/index.html', 
         actividades=actividades, equipos=equipos, active_page='actividades', 
         f_nombre=f_nombre, f_equipo=f_equipo, f_periodicidad=f_periodicidad, 
         system_date=utils.get_system_date(),
@@ -308,7 +300,7 @@ def edit_activity(id):
     activity = conn.execute('SELECT * FROM actividades WHERE id=?', (id,)).fetchone()
     equipos = conn.execute('SELECT i.id, i.nombre, t.nombre as tipo_nombre FROM inventario i JOIN tipos_equipo t ON i.tipo_id = t.id').fetchall()
     conn.close()
-    return render_template_string(tpl_base.BASE_TEMPLATE.replace('<!-- CONTENT_PLACEHOLDER -->', tpl_modules.EDIT_ACTIVITY_TEMPLATE), activity=activity, equipos=equipos, active_page='actividades', system_date=utils.get_system_date())
+    return render_template('activities/edit.html', activity=activity, equipos=equipos, active_page='actividades', system_date=utils.get_system_date())
 
 @app.route('/activities/update/<int:id>', methods=['POST'])
 @utils.login_required
@@ -348,7 +340,7 @@ def print_activity_single(id):
     activity = conn.execute('SELECT a.*, i.nombre as equipo_nombre, t.nombre as tipo_nombre FROM actividades a JOIN inventario i ON a.equipo_id=i.id JOIN tipos_equipo t ON i.tipo_id=t.id WHERE a.id=?', (id,)).fetchone()
     conn.close()
     utils.log_action(f"Impresa actividad individual: ID {id}")
-    return render_template_string(tpl_base.PRINT_ACTIVITY_TEMPLATE, activity=activity, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
+    return render_template('print/activity.html', activity=activity, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
 
 @app.route('/activities/print_all')
 @utils.login_required
@@ -357,7 +349,7 @@ def print_all_activities():
     activities = conn.execute('SELECT a.*, i.nombre as equipo_nombre FROM actividades a JOIN inventario i ON a.equipo_id=i.id ORDER BY a.nombre').fetchall()
     conn.close()
     utils.log_action("Impreso listado completo actividades")
-    return render_template_string(tpl_base.PRINT_ALL_ACTIVITIES_TEMPLATE, activities=activities, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
+    return render_template('print/all_activities.html', activities=activities, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
 
 # --- RUTAS DE WORK ORDERS ---
 @app.route('/work_orders')
@@ -379,7 +371,7 @@ def work_orders():
     ots = conn.execute(f'SELECT ot.*, a.operaciones, i.nombre as equipo_nombre {q} ORDER BY ot.fecha_generacion DESC LIMIT ? OFFSET ?', p+[per_page, offset]).fetchall()
     has_next = (page*per_page)<count
     conn.close()
-    return render_template_string(tpl_base.BASE_TEMPLATE.replace('<!-- CONTENT_PLACEHOLDER -->', tpl_modules.OTS_TEMPLATE), ots=ots, page=page, has_next=has_next, active_page='ots', estado_filter=estado, fecha_inicio_filter=fecha_inicio, fecha_fin_filter=fecha_fin, system_date=utils.get_system_date())
+    return render_template('work_orders/index.html', ots=ots, page=page, has_next=has_next, active_page='ots', estado_filter=estado, fecha_inicio_filter=fecha_inicio, fecha_fin_filter=fecha_fin, system_date=utils.get_system_date())
 
 @app.route('/work_orders/generate', methods=['POST'])
 @utils.login_required
@@ -412,7 +404,7 @@ def print_ot(id):
     ot = conn.execute('SELECT ot.*, a.operaciones, i.nombre as equipo_nombre, t.nombre as tipo_nombre FROM ordenes_trabajo ot JOIN actividades a ON ot.actividad_id=a.id JOIN inventario i ON a.equipo_id=i.id JOIN tipos_equipo t ON i.tipo_id=t.id WHERE ot.id=?', (id,)).fetchone()
     conn.close()
     utils.log_action(f"Impresa OT individual: ID {id}")
-    return render_template_string(tpl_base.PRINT_OT_TEMPLATE, ot=ot, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
+    return render_template('print/ot.html', ot=ot, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
 
 @app.route('/work_orders/print_all')
 @utils.login_required
@@ -430,7 +422,7 @@ def print_all_ots():
     ots = conn.execute(q, p).fetchall()
     conn.close()
     utils.log_action("Impreso listado OTs filtrado")
-    return render_template_string(tpl_base.PRINT_ALL_OTS_TEMPLATE, ots=ots, filters=[], hoy=utils.get_system_date().strftime('%d/%m/%Y'))
+    return render_template('print/all_ots.html', ots=ots, filters=[], hoy=utils.get_system_date().strftime('%d/%m/%Y'))
 
 @app.route('/cronograma')
 @utils.login_required
@@ -440,7 +432,7 @@ def cronograma():
     conn = db.get_db_connection()
     data = utils.get_cronograma_data(conn, year)
     conn.close()
-    return render_template_string(tpl_base.BASE_TEMPLATE.replace('<!-- CONTENT_PLACEHOLDER -->', tpl_modules.CRONOGRAMA_TEMPLATE), data=data, meses=meses, year=year, active_page='cronograma', system_date=utils.get_system_date())
+    return render_template('work_orders/cronograma.html', data=data, meses=meses, year=year, active_page='cronograma', system_date=utils.get_system_date())
 
 @app.route('/cronograma/print')
 @utils.login_required
@@ -451,7 +443,7 @@ def print_cronograma():
     data = utils.get_cronograma_data(conn, year)
     conn.close()
     utils.log_action(f"Impreso cronograma año {year}")
-    return render_template_string(tpl_base.PRINT_CRONOGRAMA_TEMPLATE, data=data, meses=meses, year=year, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
+    return render_template('print/cronograma.html', data=data, meses=meses, year=year, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
 
 @app.route('/correctivos')
 @utils.login_required
@@ -497,8 +489,8 @@ def correctivos():
     
     has_next = (page * per_page) < total_count
 
-    return render_template_string(
-        tpl_base.BASE_TEMPLATE.replace('<!-- CONTENT_PLACEHOLDER -->', tpl_modules.CORRECTIVOS_TEMPLATE), 
+    return render_template(
+        'correctivos/index.html', 
         correctivos=items, equipos=equipos, active_page='correctivos', 
         f_nombre=f_nombre, f_equipo=f_equipo, f_estado=f_estado, f_fecha_desde=f_fecha_desde, 
         system_date=utils.get_system_date(),
@@ -532,7 +524,7 @@ def edit_correctivo(id):
     conn.close()
     imgs = utils.normalize_files(json.loads(item['images']) if item['images'] else [])
     pdfs = utils.normalize_files(json.loads(item['pdfs']) if item['pdfs'] else [])
-    return render_template_string(tpl_base.BASE_TEMPLATE.replace('<!-- CONTENT_PLACEHOLDER -->', tpl_modules.EDIT_CORRECTIVO_TEMPLATE), item=item, equipos=equipos, imgs=imgs, pdfs=pdfs, active_page='correctivos', system_date=utils.get_system_date())
+    return render_template('correctivos/edit.html', item=item, equipos=equipos, imgs=imgs, pdfs=pdfs, active_page='correctivos', system_date=utils.get_system_date())
 
 @app.route('/correctivos/update/<int:id>', methods=['POST'])
 @utils.login_required
@@ -580,9 +572,9 @@ def print_correctivo(id):
     item = conn.execute('SELECT c.*, i.nombre as equipo_nombre FROM correctivos c JOIN inventario i ON c.equipo_id=i.id WHERE c.id=?', (id,)).fetchone()
     conn.close()
     imgs = utils.normalize_files(json.loads(item['images']) if item['images'] else [])
-    pdfs = utils.normalize_files(json.loads(item['pdfs']) if item['pdfs'] else []) # Extract PDFs
+    pdfs = utils.normalize_files(json.loads(item['pdfs']) if item['pdfs'] else []) 
     utils.log_action(f"Impresa incidencia individual: ID {id}")
-    return render_template_string(tpl_base.PRINT_CORRECTIVO_TEMPLATE, item=item, imgs=imgs, pdfs=pdfs, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
+    return render_template('print/correctivo.html', item=item, imgs=imgs, pdfs=pdfs, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
 
 @app.route('/correctivos/print_all')
 @utils.login_required
@@ -602,9 +594,9 @@ def print_all_correctivos():
     items = conn.execute(q, p).fetchall()
     conn.close()
     utils.log_action("Impreso listado incidencias")
-    return render_template_string(tpl_base.PRINT_ALL_CORRECTIVOS_TEMPLATE, items=items, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
+    return render_template('print/all_correctivos.html', items=items, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
 
-# --- CONFIGURACIÓN GLOBAL (INTEGRADA) ---
+# --- CONFIGURACIÓN GLOBAL ---
 @app.route('/general_settings')
 @utils.login_required
 @utils.permission_required('perm_configuracion')
@@ -622,35 +614,11 @@ def general_settings():
     users = conn.execute('SELECT * FROM usuarios').fetchall()
     conn.close()
             
-    # Usamos tpl_base para configuraciones
-    return render_template_string(tpl_base.BASE_TEMPLATE.replace('<!-- CONTENT_PLACEHOLDER -->', tpl_modules.GENERAL_SETTINGS_TEMPLATE), 
-                                  logging_enabled=logging_enabled, log_size=log_size_str, tipos=tipos, users=users,
-                                  planned_date=planned_date, active_page='ajustes', system_date=utils.get_system_date())
-
-# FIX: GENERAL_SETTINGS_TEMPLATE in tpl_base was slightly wrong in previous context usage.
-# Correction: render_template_string(tpl_base.BASE_TEMPLATE.replace('<!-- CONTENT_PLACEHOLDER -->', tpl_base.GENERAL_SETTINGS_TEMPLATE), ...)
-@app.route('/general_settings')
-@utils.login_required
-@utils.permission_required('perm_configuracion')
-def general_settings_corrected():
-    logging_enabled = utils.is_logging_enabled()
-    log_size_str = "0 KB"
-    if os.path.exists(utils.LOG_FILE):
-        size_bytes = os.path.getsize(utils.LOG_FILE)
-        log_size_str = f"{size_bytes} bytes" if size_bytes < 1024 else f"{size_bytes / 1024:.2f} KB"
-    
-    planned_date = utils.get_planned_date()
-    
-    conn = db.get_db_connection()
-    tipos = conn.execute('SELECT * FROM tipos_equipo').fetchall()
-    users = conn.execute('SELECT * FROM usuarios').fetchall()
-    conn.close()
-            
-    return render_template_string(tpl_base.BASE_TEMPLATE.replace('<!-- CONTENT_PLACEHOLDER -->', tpl_modules.GENERAL_SETTINGS_TEMPLATE), 
-                                  logging_enabled=logging_enabled, log_size=log_size_str, tipos=tipos, users=users,
-                                  planned_date=planned_date, active_page='ajustes', system_date=utils.get_system_date())
-# Overwrite the function to remove the duplicate
-app.view_functions['general_settings'] = general_settings_corrected
+    return render_template(
+        'settings/index.html', 
+        logging_enabled=logging_enabled, log_size=log_size_str, tipos=tipos, users=users,
+        planned_date=planned_date, active_page='ajustes', system_date=utils.get_system_date()
+    )
 
 @app.route('/settings/update_planned_date', methods=['POST'])
 @utils.login_required
@@ -798,7 +766,7 @@ def edit_type(id):
     conn = db.get_db_connection()
     tipo = conn.execute('SELECT * FROM tipos_equipo WHERE id=?', (id,)).fetchone()
     conn.close()
-    return render_template_string(tpl_base.BASE_TEMPLATE.replace('<!-- CONTENT_PLACEHOLDER -->', tpl_modules.EDIT_TYPE_TEMPLATE), tipo=tipo, active_page='ajustes', system_date=utils.get_system_date())
+    return render_template('settings/edit_type.html', tipo=tipo, active_page='ajustes', system_date=utils.get_system_date())
 
 @app.route('/configuration/type/update/<int:id>', methods=['POST'])
 @utils.login_required
@@ -815,7 +783,7 @@ def update_type(id):
 
 @app.route('/about')
 def about():
-    return render_template_string(tpl_base.BASE_TEMPLATE.replace('<!-- CONTENT_PLACEHOLDER -->', tpl_base.ABOUT_TEMPLATE), active_page='about', system_date=utils.get_system_date())
+    return render_template('about.html', active_page='about', system_date=utils.get_system_date())
 
 @app.route('/types/add', methods=['POST'])
 @utils.login_required
@@ -827,7 +795,6 @@ def add_type():
         conn.commit()
         conn.close()
     except: pass
-    # Actualizado: Redirige a inventory
     return redirect(url_for('inventory'))
 
 if __name__ == '__main__':

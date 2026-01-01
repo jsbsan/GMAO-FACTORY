@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Editar Actividad: {{ activity.nombre }}</h2>
+<form action="{{ url_for('update_activity', id=activity.id) }}" method="POST" class="row g-3 mt-4">
+    <div class="col-md-4"><label class="form-label">Nombre</label><input type="text" class="form-control" name="nombre" value="{{ activity.nombre }}" required></div><div class="col-md-4"><label class="form-label">Equipo</label><select class="form-select" name="equipo_id" required>{% for eq in equipos %}<option value="{{ eq.id }}" {{ 'selected' if eq.id == activity.equipo_id }}>{{ eq.nombre }}</option>{% endfor %}</select></div><div class="col-md-2"><label class="form-label">Periodicidad</label><input type="number" class="form-control" name="periodicidad" value="{{ activity.periodicidad }}" required></div><div class="col-md-2"><label class="form-label">Inicio</label><input type="date" class="form-control" name="fecha_inicio" value="{{ activity.fecha_inicio_gen }}" required></div><div class="col-12"><label class="form-label">Operaciones</label><textarea class="form-control" name="operaciones" rows="2" required>{{ activity.operaciones }}</textarea></div><div class="col-12 d-flex justify-content-end gap-2"><a href="{{ url_for('activities') }}" class="btn btn-secondary">Cancelar</a><button type="submit" class="btn btn-primary">Guardar</button></div>
+</form>
+{% endblock %}

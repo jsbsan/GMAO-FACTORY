@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cronograma de Mantenimiento {{ year }}</title>
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <style>
+        @media print {
+            .no-print { display: none; }
+            @page { size: landscape; margin: 1cm; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .badge-status, .badge-legend { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+        }
+        body { padding: 20px; font-family: sans-serif; font-size: 0.8rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 4px; text-align: center; vertical-align: middle; }
+        th { background-color: #f2f2f2; font-weight: bold; }
+        .text-start { text-align: left; }
+        .badge-status {
+            font-size: 0.75em;
+            padding: 2px 4px;
+            border-radius: 3px;
+            display: inline-block;
+            margin: 1px;
+            color: #fff;
+            border: 1px solid #ccc;
+        }
+        .status-realizada { background-color: #198754 !important; color: white !important; border-color: #198754; }
+        .status-en-curso { background-color: #ffc107 !important; color: #212529 !important; border-color: #ffc107; }
+        .status-rechazada { background-color: #000000 !important; color: white !important; border-color: #000000; }
+        .status-pendiente { background-color: #dc3545 !important; color: white !important; border-color: #dc3545; }
+        .status-prevista { background-color: #6c757d !important; color: white !important; border-color: #6c757d; }
+        .status-aplazada { background-color: #6f42c1 !important; color: white !important; border-color: #6f42c1; }
+        
+        .badge-legend {
+            display: inline-block;
+            padding: 3px 6px;
+            font-size: 0.8em;
+            font-weight: bold;
+            border-radius: 4px;
+            margin-right: 5px;
+            border: 1px solid #999;
+            color: white;
+        }
+    </style>
+</head>
+<body onload="window.print()">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Cronograma de Mantenimiento - Año {{ year }}</h2>
+            <button class="btn btn-secondary no-print" onclick="window.close()">Cerrar</button>
+        </div>
+
+        <table class="table table-bordered table-sm">
+            <thead>
+                <tr>
+                    <th style="width: 20%;">Actividad / Equipo</th>
+                    {% for m in meses %}
+                    <th>{{ m }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr>
+                    <td class="text-start bg-light">
+                        <strong>{{ row.actividad }}</strong><br>
+                        <span class="text-muted">{{ row.equipo }}</span>
+                    </td>
+                    {% for month_idx in range(1, 13) %}
+                    <td style="vertical-align: top;">
+                        {% if month_idx in row.ots %}
+                            {% for ot in row.ots[month_idx] %}
+                            <div class="badge-status 
+                                {% if ot.estado == 'Realizada' %}status-realizada{% elif ot.estado == 'En curso' %}status-en-curso{% elif ot.estado == 'Pendiente' %}status-pendiente{% elif ot.estado == 'Prevista' %}status-prevista{% elif ot.estado == 'Aplazada' %}status-aplazada{% else %}status-rechazada{% endif %}">
+                                {{ ot.day_day }}
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="mt-3">
+            <strong>Leyenda:</strong> 
+            <span class="badge-legend status-realizada">Realizada</span>
+            <span class="badge-legend status-en-curso" style="color: #212529 !important;">En Curso</span>
+            <span class="badge-legend status-pendiente">Pendiente (Vencida)</span>
+            <span class="badge-legend status-prevista">Prevista</span>
+            <span class="badge-legend status-rechazada">Rechazada</span>
+            <span class="badge-legend status-aplazada">Aplazada</span>
+            <small class="ms-2 text-muted">El número indica el día del mes.</small>
+        </div>
+        <div class="mt-2 text-end text-muted">
+            <small>Generado: {{ hoy }}</small>
+        </div>
+    </div>
+</body>
+</html>

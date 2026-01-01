@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mb-3"><a href="{{ back_url }}" class="btn btn-secondary">&larr; Volver</a><h3>{{ title_prefix }}: {{ item.nombre }}</h3></div>
+<div class="row">
+    {% if tipo == 'img' %}{% for file in files %}<div class="col-md-6 mb-4"><div class="card"><img src="data:image/png;base64,{{ file.data }}" class="card-img-top"><div class="card-footer text-muted">{{ file.name }}</div></div></div>{% endfor %}
+    {% elif tipo == 'pdf' %}{% for file in files %}<div class="col-12 mb-5"><div class="card h-100"><div class="card-header">{{ file.name }}</div><div class="card-body p-0" style="height: 600px;"><embed src="data:application/pdf;base64,{{ file.data }}" type="application/pdf" width="100%" height="100%"></div></div></div>{% endfor %}
+    {% endif %}
+</div>
+{% if not files %}<div class="alert alert-warning">No hay archivos.</div>{% endif %}
+{% endblock %}
