@@ -17,6 +17,42 @@
         .content { padding: 20px; }
         .mobile-navbar { background-color: #2c3e50; }
         .dataTables_length, .dataTables_filter { margin-bottom: 1rem; }
+
+        /* Estilo manual para checkboxes DataTables Select */
+        table.dataTable tbody td.select-checkbox,
+        table.dataTable tbody th.select-checkbox {
+            position: relative;
+        }
+        table.dataTable tbody td.select-checkbox:before,
+        table.dataTable tbody th.select-checkbox:before {
+            content: ' ';
+            margin-top: -6px;
+            margin-left: -6px;
+            border: 1px solid black;
+            border-radius: 3px;
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+            box-sizing: border-box;
+        }
+        table.dataTable tr.selected td.select-checkbox:after,
+        table.dataTable tr.selected th.select-checkbox:after {
+            content: '✓';
+            font-size: 20px;
+            margin-top: -19px;
+            margin-left: -6px;
+            text-align: center;
+            text-shadow: 1px 1px #B0BED9, -1px -1px #B0BED9, 1px -1px #B0BED9, -1px 1px #B0BED9;
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+        }
         
         /* ESTADOS */
         .status-realizada, .corr-resuelta { background-color: #198754; color: white; }
@@ -90,11 +126,27 @@
 
     <script>
     $(document).ready(function() {
+        // Inicialización genérica sin alerta, asumiendo que los archivos estáticos correctos están presentes.
         $('.datatable').DataTable({
             language: { url: "{{ url_for('static', filename='js/es-ES.json') }}" },
             dom: 'Bfrtip',
-            buttons: ['excel', 'pdf', 'print'],
-            pageLength: 25
+            buttons: [
+                { 
+                    extend: 'collection', 
+                    text: 'Exportar', 
+                    buttons: [
+                        { extend: 'copy', exportOptions: { modifier: { selected: true } } },
+                        { extend: 'excel', exportOptions: { modifier: { selected: true } } },
+                        { extend: 'pdf', exportOptions: { modifier: { selected: true } } },
+                        { extend: 'print', exportOptions: { modifier: { selected: true } } }
+                    ], 
+                    className: 'btn-secondary' 
+                }
+            ],
+            select: { style: 'multi', selector: 'td:first-child' },
+            columnDefs: [{ orderable: false, className: 'select-checkbox', targets: 0 }],
+            pageLength: 25,
+            order: [[ 1, 'asc' ]]
         });
     });
     </script>

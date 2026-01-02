@@ -31,6 +31,7 @@
     <table class="table table-hover align-middle datatable" id="tablaOTs">
         <thead class="table-dark">
             <tr>
+                <th></th>
                 <th>ID</th>
                 <th>Nombre OT</th>
                 <th>Equipo</th>
@@ -42,6 +43,7 @@
         <tbody>
             {% for ot in ots %}
             <tr>
+                <td></td>
                 <td>{{ ot.id }}</td>
                 <td>{{ ot.nombre }}</td>
                 <td>{{ ot.equipo_nombre }}</td>
@@ -115,7 +117,7 @@ $(document).ready(function() {
             
             var min = $('#min').val();
             var max = $('#max').val();
-            var date = data[3]; // Index 3 is Fecha Gen. (YYYY-MM-DD)
+            var date = data[4]; // Index 4 is Fecha Gen. (YYYY-MM-DD) - Remember index shifted by checkbox
 
             if (
                 ( min === "" && max === "" ) ||

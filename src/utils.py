@@ -114,7 +114,7 @@ def generate_and_update_work_orders(conn, current_system_date):
         p = act['periodicidad']
         while f <= generation_limit:
             if not conn.execute('SELECT id FROM ordenes_trabajo WHERE actividad_id=? AND fecha_generacion=?', (act['id'], f)).fetchone():
-                # Logic for new OTs strictly based on Month/Year
+                # Logic for new OTs based on requested criteria
                 if f.year < current_system_date.year or (f.year == current_system_date.year and f.month < current_system_date.month):
                     st = 'Pendiente'
                 elif f.year == current_system_date.year and f.month == current_system_date.month:
@@ -127,15 +127,15 @@ def generate_and_update_work_orders(conn, current_system_date):
                 count_generated += 1
             f += datetime.timedelta(days=p)
             
-    # Update logic for active OTs
-    # Filter active OTs + NULL states. Excludes: Realizada, Rechazada, Aplazada
+    # Update logic for existing OTs based on new criteria
+    # Ignore: Aplazada, Rechazada, Realizada. Process: En curso, Pendiente, Prevista, NULL
     active_ots = conn.execute("SELECT ot.id, ot.fecha_generacion, ot.estado FROM ordenes_trabajo ot WHERE ot.estado NOT IN ('Realizada', 'Rechazada', 'Aplazada') OR ot.estado IS NULL").fetchall()
     
     for ot in active_ots:
         if not ot['fecha_generacion']: continue
         gen = datetime.datetime.strptime(ot['fecha_generacion'], '%Y-%m-%d').date()
         
-        # Determine correct state based on date
+        # Determine correct state
         if gen.year < current_system_date.year or (gen.year == current_system_date.year and gen.month < current_system_date.month):
             new_state = 'Pendiente'
         elif gen.year == current_system_date.year and gen.month == current_system_date.month:

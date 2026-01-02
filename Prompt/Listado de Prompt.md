@@ -385,3 +385,7 @@ Revisar todas las ordenes de trabajo de forma que:
 5. Estado "En Curso": solo las Ordenes de trabajo cuya fecha de generación pertenece al mes y año actual del sistema
 6. Estado "Pendiente": las ordenes de trabajo con fecha anterior (pasado) al mes y año actual del sistema
 7. Estado "Prevista": las ordenes de trabajo con fechas posterior (futuro) al mes y año actual del sistema.
+
+Nueva funcionalidad: casillas de verificación para exportación de filtrado
+Quiero que añadas una nueva funcionalidad a las datatable , que se puedan marcar las filas usando la propiedad "modifier" y asi tener en las filas casillas de verificación y botones de exportación de filtrado. Quiero que lo añadas en todos los ficheros donde se use datatable. 
+

@@ -471,8 +471,16 @@ def update_planned_date():
         while current_calc <= planned_date:
              if not conn.execute('SELECT id FROM ordenes_trabajo WHERE actividad_id=? AND fecha_generacion=?', (act['id'], current_calc)).fetchone():
                  nombre_ot = f"{act['nombre']} - {current_calc.strftime('%d/%m/%Y')}"
+                 # Modified Logic: Based on Month/Year strict comparison
+                 if current_calc.year < system_date.year or (current_calc.year == system_date.year and current_calc.month < system_date.month):
+                     st = 'Pendiente'
+                 elif current_calc.year == system_date.year and current_calc.month == system_date.month:
+                     st = 'En curso'
+                 else:
+                     st = 'Prevista'
+                     
                  conn.execute('INSERT INTO ordenes_trabajo (actividad_id, nombre, fecha_generacion, estado) VALUES (?,?,?,?)', 
-                              (act['id'], nombre_ot, current_calc, 'Prevista'))
+                              (act['id'], nombre_ot, current_calc, st))
                  count_generated += 1
              current_calc += datetime.timedelta(days=periodicity)
     conn.commit()
