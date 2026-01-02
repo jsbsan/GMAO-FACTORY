@@ -389,3 +389,6 @@ Revisar todas las ordenes de trabajo de forma que:
 Nueva funcionalidad: casillas de verificación para exportación de filtrado
 Quiero que añadas una nueva funcionalidad a las datatable , que se puedan marcar las filas usando la propiedad "modifier" y asi tener en las filas casillas de verificación y botones de exportación de filtrado. Quiero que lo añadas en todos los ficheros donde se use datatable. 
 
+-> Error: Revisa el diseño, porque los checkbox  de las filas no se ven 
+-> Error: cuando intento seleccionar el checkbox, no se selecciona, parece que no hay código asociado.
+-> Error: Cuando me muestra la tabla, sale el mensaje la alerta de falta libreria Select, pero si le doy aceptar al mensaje, ya salen la columna de seleccionar y funciona correctemente ¿porque puede ser?
