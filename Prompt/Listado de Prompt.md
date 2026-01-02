@@ -373,3 +373,15 @@ Profesional, técnico, directo y orientado a la eficiencia. Usa bloques de códi
 ## Version v6.99
 ------
 Cambio en la lógica de generación de ordenes de trabajo:
+
+
+Revisa el archivo utils.py, en concreto la funcion generate_and_update_work_orders
+
+Revisar todas las ordenes de trabajo de forma que:
+1. Estado NULL: ponerlo como "Prevista"
+2. Estado "Aplazada": no hacer nada.
+3. Estado "Rechazada": no hacer nada.
+4. Estado "Realizada": no hacer nada.
+5. Estado "En Curso": solo las Ordenes de trabajo cuya fecha de generación pertenece al mes y año actual del sistema
+6. Estado "Pendiente": las ordenes de trabajo con fecha anterior (pasado) al mes y año actual del sistema
+7. Estado "Prevista": las ordenes de trabajo con fechas posterior (futuro) al mes y año actual del sistema.
