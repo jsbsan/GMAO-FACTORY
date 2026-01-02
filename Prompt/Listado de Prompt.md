@@ -368,3 +368,8 @@ Explica qué pasa desde que el programador hace `git push`.
 
 #### **Tono:**
 Profesional, técnico, directo y orientado a la eficiencia. Usa bloques de código de ejemplo donde sea necesario.
+
+------
+## Version v6.99
+------
+Cambio en la lógica de generación de ordenes de trabajo:
