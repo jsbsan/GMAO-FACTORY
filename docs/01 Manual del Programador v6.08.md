@@ -206,7 +206,7 @@ erDiagram
     INVENTARIO ||--o{ ACTIVIDADES : tiene
     ACTIVIDADES ||--o{ ORDENES_TRABAJO : genera
     INVENTARIO ||--o{ CORRECTIVOS : reporta
-´´´
+```
 
 ## **6\. Diagrama de Flujo (Lógica Core)**
 
