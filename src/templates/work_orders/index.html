@@ -49,10 +49,10 @@
                 <td>{{ ot.equipo_nombre }}</td>
                 <td>{{ ot.fecha_generacion }}</td>
                 <td>
-                    {% if ot.estado == 'Realizada' %}<span class="badge bg-success">Realizada</span>
-                    {% elif ot.estado == 'En curso' %}<span class="badge bg-warning text-dark">En curso</span>
-                    {% elif ot.estado == 'Pendiente' %}<span class="badge bg-danger">Pendiente</span>
-                    {% elif ot.estado == 'Prevista' %}<span class="badge bg-secondary">Prevista</span>
+                    {% if ot.estado == 'Realizada' %}<span class="badge status-realizada">Realizada</span>
+                    {% elif ot.estado == 'En curso' %}<span class="badge status-en-curso">En curso</span>
+                    {% elif ot.estado == 'Pendiente' %}<span class="badge status-pendiente">Pendiente</span>
+                    {% elif ot.estado == 'Prevista' %}<span class="badge status-prevista">Prevista</span>
                     {% elif ot.estado == 'Aplazada' %}<span class="badge status-aplazada">Aplazada</span>
                     {% else %}<span class="badge bg-dark">Rechazada</span>{% endif %}
                 </td>

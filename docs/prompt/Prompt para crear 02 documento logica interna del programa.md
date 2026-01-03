@@ -1,1 +1,1 @@
-Crea un texto explicando la lógica del programa
+Crea un documento extenso y con detalle explicando la lógica del programa

@@ -370,7 +370,7 @@ Explica qué pasa desde que el programador hace `git push`.
 Profesional, técnico, directo y orientado a la eficiencia. Usa bloques de código de ejemplo donde sea necesario.
 
 ------
-## Version v6.99
+## Version v6.01
 ------
 Cambio en la lógica de generación de ordenes de trabajo:
 Revisa el archivo utils.py, en concreto la funcion generate_and_update_work_orders
@@ -391,7 +391,7 @@ Quiero que añadas una nueva funcionalidad a las datatable , que se puedan marca
 -> Error: Cuando me muestra la tabla, sale el mensaje la alerta de falta libreria Select, pero si le doy aceptar al mensaje, ya salen la columna de seleccionar y funciona correctemente ¿porque puede ser?
 
 ------
-## Version v6.991
+## Version v6.08
 ------
 Quiero que añadas en la pestaña "Resumen" dos datatable que estarán debajo de las gráficas:
 La primera mostrará las Ordenes de Trabajos filtradas según la fecha de inicio y fecha fin del panel "Configuración del Periodo".
