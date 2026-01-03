@@ -47,6 +47,84 @@
     </div>
 </div>
 
+<hr class="my-4">
+
+<!-- Tabla de OTs filtradas -->
+<h3 class="mb-3">Órdenes de Trabajo del Periodo</h3>
+<div class="table-responsive mb-4">
+    <table class="table table-striped table-hover datatable" id="tablaResumenOTs">
+        <thead class="table-dark">
+            <tr>
+                <th></th>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Equipo</th>
+                <th>Fecha Gen.</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ot in ots %}
+            <tr>
+                <td></td>
+                <td>{{ ot.id }}</td>
+                <td>{{ ot.nombre }}</td>
+                <td>{{ ot.equipo_nombre }}</td>
+                <td>{{ ot.fecha_generacion }}</td>
+                <td>
+                    {% if ot.estado == 'Realizada' %}<span class="badge status-realizada">Realizada</span>
+                    {% elif ot.estado == 'En curso' %}<span class="badge status-en-curso">En curso</span>
+                    {% elif ot.estado == 'Pendiente' %}<span class="badge status-pendiente">Pendiente</span>
+                    {% elif ot.estado == 'Prevista' %}<span class="badge status-prevista">Prevista</span>
+                    {% elif ot.estado == 'Aplazada' %}<span class="badge status-aplazada">Aplazada</span>
+                    {% else %}<span class="badge bg-dark">Rechazada</span>{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Tabla de Correctivos filtrados -->
+<h3 class="mb-3">Incidencias del Periodo</h3>
+<div class="table-responsive mb-4">
+    <table class="table table-striped table-hover datatable" id="tablaResumenCorrectivos">
+        <thead class="table-dark">
+            <tr>
+                <th></th>
+                <th>ID</th>
+                <th>Incidencia</th>
+                <th>Equipo</th>
+                <th>Fecha Detectada</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in correctivos %}
+            <tr>
+                <td></td>
+                <td>{{ c.id }}</td>
+                <td>{{ c.nombre }}</td>
+                <td>{{ c.equipo_nombre }}</td>
+                <td>{{ c.fecha_detectada }}</td>
+                <td>
+                    {% if c.estado == 'Detectada' %}<span class="badge corr-detectada">Detectada</span>
+                    {% elif c.estado == 'En curso' %}<span class="badge corr-en-curso">En curso</span>
+                    {% elif c.estado == 'Resuelta' %}<span class="badge corr-resuelta">Resuelta</span>{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Botón de Imprimir Informe -->
+<div class="text-center mb-5">
+    <button onclick="window.print()" class="btn btn-lg btn-success">
+        <i class="fas fa-print me-2"></i> Imprimir Informe Completo
+    </button>
+</div>
+
 <script>
     const ctxOT = document.getElementById('chartOTs').getContext('2d');
     new Chart(ctxOT, {

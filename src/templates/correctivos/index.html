@@ -1,6 +1,55 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4"><h1 class="h2">Correctivos e Incidencias</h1><div><button class="btn btn-primary btn-sm me-2" type="button" data-bs-toggle="collapse" data-bs-target="#formNuevoCorrectivo"><i class="fas fa-plus"></i> Nueva Incidencia</button><a href="{{ url_for('print_all_correctivos') }}" class="btn btn-secondary btn-sm" target="_blank"><i class="fas fa-print"></i> Imprimir Todo</a></div></div><div class="collapse mb-4" id="formNuevoCorrectivo"><div class="card card-body bg-light"><h5 class="card-title mb-3">Registrar Nueva Incidencia</h5><form action="{{ url_for('add_correctivo') }}" method="POST" enctype="multipart/form-data" class="row g-3"><div class="col-md-6"><label class="form-label">Nombre del Correctivo</label><input type="text" class="form-control" name="nombre" required></div><div class="col-md-6"><label class="form-label">Equipo Afectado</label><select class="form-select" name="equipo_id" required>{% for eq in equipos %}<option value="{{ eq.id }}">{{ eq.nombre }} ({{ eq.tipo_nombre }})</option>{% endfor %}</select></div><div class="col-12"><label class="form-label">Comentario</label><textarea class="form-control" name="comentario" rows="2"></textarea></div><div class="col-md-3"><label class="form-label">Fecha Detectada</label><input type="date" class="form-control" name="fecha_detectada" value="{{ system_date }}" required></div><div class="col-md-3"><label class="form-label">Estado Inicial</label><select class="form-select" name="estado"><option value="Detectada">Detectada</option><option value="En curso">En curso</option><option value="Resuelta">Resuelta</option></select></div><div class="col-md-3"><label class="form-label">Imágenes</label><input type="file" class="form-control" name="images" multiple accept="image/*"></div><div class="col-md-3"><label class="form-label">PDFs</label><input type="file" class="form-control" name="pdfs" multiple accept="application/pdf"></div><div class="col-12 text-end"><button type="button" class="btn btn-secondary me-2" data-bs-toggle="collapse" data-bs-target="#formNuevoCorrectivo">Cancelar</button><button type="submit" class="btn btn-danger">Guardar Incidencia</button></div></form></div></div>
+
+<!-- Filter Row -->
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label for="min-corr" class="form-label">Fecha Desde:</label>
+                <input type="date" id="min-corr" name="min-corr" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label for="max-corr" class="form-label">Fecha Hasta:</label>
+                <input type="date" id="max-corr" name="max-corr" class="form-control">
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="table-responsive"><table class="table table-hover align-middle datatable" id="tablaCorrectivos"><thead class="table-dark"><tr><th></th><th>ID</th><th>Incidencia</th><th>Equipo</th><th>Estado</th><th>Detectada</th><th>Resolución</th><th>Archivos</th><th>Acciones</th></tr></thead><tbody>{% for c in correctivos %}<tr><td></td><td>{{ c.id }}</td><td>{{ c.nombre }}</td><td>{{ c.equipo_nombre }}</td><td>{% if c.estado == 'Detectada' %}<span class="badge corr-detectada">Detectada</span>{% elif c.estado == 'En curso' %}<span class="badge corr-en-curso">En curso</span>{% elif c.estado == 'Resuelta' %}<span class="badge corr-resuelta">Resuelta</span>{% endif %}</td><td>{{ c.fecha_detectada }}</td><td>{{ c.fecha_resolucion or '-' }}</td><td>{% set imgs = c.images|json_load %}{% set pdfs = c.pdfs|json_load %}{% if imgs or pdfs %}<span class="badge bg-secondary">{{ imgs|length }} <i class="fas fa-image"></i></span> <span class="badge bg-secondary">{{ pdfs|length }} <i class="fas fa-file-pdf"></i></span>{% else %}-{% endif %}</td><td><a href="{{ url_for('print_correctivo', id=c.id) }}" class="btn btn-sm btn-secondary" target="_blank"><i class="fas fa-print"></i></a> <a href="{{ url_for('edit_correctivo', id=c.id) }}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a> <form action="{{ url_for('delete_correctivo', id=c.id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Borrar?');"><button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button></form></td></tr>{% endfor %}</tbody></table></div>
 <script>function verGaleria(source, tipo, id) {window.location.href = "/view_files/" + source + "/" + tipo + "/" + id;}</script>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    $.fn.dataTable.ext.search.push(
+        function(settings, data, dataIndex) {
+            if ( settings.nTable.id !== 'tablaCorrectivos' ) {
+                return true;
+            }
+            
+            var min = $('#min-corr').val();
+            var max = $('#max-corr').val();
+            var date = data[5]; // Index 5 is Fecha Detectada (YYYY-MM-DD)
+
+            if (
+                ( min === "" && max === "" ) ||
+                ( min === "" && date <= max ) ||
+                ( min <= date && max === "" ) ||
+                ( min <= date && date <= max )
+            ) {
+                return true;
+            }
+            return false;
+        }
+    );
+ 
+    $('#min-corr, #max-corr').on('change', function () {
+        $('#tablaCorrectivos').DataTable().draw();
+    });
+});
+</script>
 {% endblock %}

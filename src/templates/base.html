@@ -125,8 +125,26 @@
     <script src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
 
     <script>
+    // Custom Smart Export Config
+    function smartExportConfig(type) {
+        return {
+            extend: type,
+            exportOptions: {
+                rows: function ( idx, data, node ) {
+                    var dt = new $.fn.dataTable.Api(node);
+                    var selected = dt.rows( { selected: true } ).indexes();
+                    // Smart Logic: If selection exists, export selected. If 0 selected, export all (visible/filtered)
+                    if ( selected.length === 0 ) {
+                        return true; 
+                    }
+                    return selected.indexOf( idx ) !== -1;
+                }
+            }
+        };
+    }
+
     $(document).ready(function() {
-        // Inicialización genérica sin alerta, asumiendo que los archivos estáticos correctos están presentes.
+        // Inicialización genérica sin alerta
         $('.datatable').DataTable({
             language: { url: "{{ url_for('static', filename='js/es-ES.json') }}" },
             dom: 'Bfrtip',
@@ -135,10 +153,10 @@
                     extend: 'collection', 
                     text: 'Exportar', 
                     buttons: [
-                        { extend: 'copy', exportOptions: { modifier: { selected: true } } },
-                        { extend: 'excel', exportOptions: { modifier: { selected: true } } },
-                        { extend: 'pdf', exportOptions: { modifier: { selected: true } } },
-                        { extend: 'print', exportOptions: { modifier: { selected: true } } }
+                        smartExportConfig('copy'),
+                        smartExportConfig('excel'),
+                        smartExportConfig('pdf'),
+                        smartExportConfig('print')
                     ], 
                     className: 'btn-secondary' 
                 }

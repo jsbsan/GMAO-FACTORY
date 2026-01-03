@@ -373,10 +373,7 @@ Profesional, técnico, directo y orientado a la eficiencia. Usa bloques de códi
 ## Version v6.99
 ------
 Cambio en la lógica de generación de ordenes de trabajo:
-
-
 Revisa el archivo utils.py, en concreto la funcion generate_and_update_work_orders
-
 Revisar todas las ordenes de trabajo de forma que:
 1. Estado NULL: ponerlo como "Prevista"
 2. Estado "Aplazada": no hacer nada.
@@ -389,6 +386,23 @@ Revisar todas las ordenes de trabajo de forma que:
 Nueva funcionalidad: casillas de verificación para exportación de filtrado
 Quiero que añadas una nueva funcionalidad a las datatable , que se puedan marcar las filas usando la propiedad "modifier" y asi tener en las filas casillas de verificación y botones de exportación de filtrado. Quiero que lo añadas en todos los ficheros donde se use datatable. 
 
--> Error: Revisa el diseño, porque los checkbox  de las filas no se ven 
+-> Error: Revisa el diseño, porque los checkbox de las filas no se ven 
 -> Error: cuando intento seleccionar el checkbox, no se selecciona, parece que no hay código asociado.
 -> Error: Cuando me muestra la tabla, sale el mensaje la alerta de falta libreria Select, pero si le doy aceptar al mensaje, ya salen la columna de seleccionar y funciona correctemente ¿porque puede ser?
+
+------
+## Version v6.991
+------
+Quiero que añadas en la pestaña "Resumen" dos datatable que estarán debajo de las gráficas:
+La primera mostrará las Ordenes de Trabajos filtradas según la fecha de inicio y fecha fin del panel "Configuración del Periodo".
+La segunda mostrará los Correctivos filtrados según la fecha de inicio y fecha fin del panel "Configuración del Periodo".
+Si hay un cambio en las fechas de inicio y/o fecha fin, se actualizarán las datatables.
+Debajo de las datatables, añade un botón para hacer un informe que incluya las gráficas y las datatables de la pestaña "Resumen"
+
+A las datatable que has añadido en resumen, les falta colorear el texto del valor mostrado de la columna estado. Por ejemplo: En la datatable de Orden de Trabajo, las de estado Realizada es de color verde, las "En curso" van en amarillo, etc. Y en la datatable de Incidencias, las "Detectada" van en color rojo, las "Resuelta" van en color verde.
+
+
+Nueva mejora: en la pestaña de correctivo, añadir un filtro de fecha, "Fecha Desde" y "Fecha Hasta", para filtrar el datatable del listado de Correctivos e incidencias.
+
+Nueva mejora a aplicar en todos los datatable: Si se exporta y no se han seleccionado ninguna fila, se seleccionaran todas las filas.
+
