@@ -41,40 +41,40 @@ El sistema sigue un patrón arquitectónico **Monolítico Modular** basado en **
 ### **Diagrama de Arquitectura de Alto Nivel**
 ``` mermaid
 graph TD  
-    User\["Usuario (Navegador Web)"\]  
+    User["Usuario (Navegador Web)"]  
       
     subgraph "Cliente (Front-End)"  
-        Browser\["Motor de Renderizado HTML/CSS"\]  
-        Static\["Assets Locales (static/js, static/css)"\]  
-        JS\_Engine\["Motor JS (DataTables \+ Chart.js)"\]  
+        Browser["Motor de Renderizado HTML/CSS"]  
+        Static["Assets Locales (static/js, static/css)"]  
+        JS_Engine["Motor JS (DataTables + Chart.js)"]  
     end
 
     subgraph "Servidor de Aplicaciones (Backend)"  
-        WSGI\["Servidor WSGI (Waitress/Gunicorn)"\]  
-        FlaskCore\["Flask App Router (app.py)"\]  
+        WSGI["Servidor WSGI (Waitress/Gunicorn)"]  
+        FlaskCore["Flask App Router (app.py)"]  
           
         subgraph "Controladores"  
-            Auth\["Módulo Auth"\]  
-            Core\["Módulo Inventario/OTs"\]  
-            Dashboard\["Blueprint Resumen"\]  
+            Auth["Módulo Auth"]  
+            Core["Módulo Inventario/OTs"]  
+            Dashboard["Blueprint Resumen"]  
         end  
           
-        Logic\["Lógica de Negocio (utils.py)"\]  
+        Logic["Lógica de Negocio (utils.py)"]  
     end
 
     subgraph "Capa de Datos"  
-        SQLite\[("SQLite DB (.db)")\]  
-        FS\["Sistema de Archivos (Logs)"\]  
+        SQLite[("SQLite DB (.db)")]  
+        FS["Sistema de Archivos (Logs)"]  
     end
 
-    User \-- "HTTP Request (Port 5000)" \--\> WSGI  
-    WSGI \-- "Proxy Pass" \--\> FlaskCore  
-    FlaskCore \-- "Dispatch" \--\> Core & Dashboard  
-    Core \-- "Invoca" \--\> Logic  
-    Logic \-- "SQL Query" \--\> SQLite  
-    FlaskCore \-- "HTML Response" \--\> User  
-    User \-- "Load Assets" \--\> Static  
-    User \-- "Render & Interact" \--\> JS\_Engine
+    User -- "HTTP Request (Port 5000)" --> WSGI  
+    WSGI -- "Proxy Pass" --> FlaskCore  
+    FlaskCore -- "Dispatch" --> Core & Dashboard  
+    Core -- "Invoca" --> Logic  
+    Logic -- "SQL Query" --> SQLite  
+    FlaskCore -- "HTML Response" --> User  
+    User -- "Load Assets" --> Static  
+    User -- "Render & Interact" --> JS_Engine
 ```
 
 ## **3\. Guía de Configuración (Setup)**
@@ -132,23 +132,23 @@ Se utilizan cookies de sesión firmadas (session\['user\_id'\]).
 ### **Diagrama de Secuencia: Autenticación**
 ``` mermaid
 sequenceDiagram  
-    actor User as "Usuario"  
-    participant Browser as "Navegador"  
-    participant Controller as "Flask (app.py)"  
-    participant DB as "SQLite"
+    actor User as Usuario  
+    participant Browser as Navegador  
+    participant Controller as Flask (app.py)  
+    participant DB as SQLite
 
-    User-\>\>Browser: "Accede a /inventory"  
-    Browser-\>\>Controller: "GET /inventory"  
-    Controller-\>\>Controller: "Verificar Session Cookie"  
+    User->>Browser: Accede a /inventory  
+    Browser->>Controller: GET /inventory  
+    Controller->>Controller: Verificar Session Cookie  
       
     alt No Autenticado  
-        Controller--\>\>Browser: "Redirect 302 \-\> /login"  
-        Browser-\>\>Controller: "GET /login"  
-        Controller--\>\>Browser: "HTML Login Form"  
+        Controller-->>Browser: Redirect 302 -> /login  
+        Browser->>Controller: GET /login  
+        Controller-->>Browser: HTML Login Form  
     else Autenticado  
-        Controller-\>\>DB: "SELECT \* FROM inventario"  
-        DB--\>\>Controller: "Result Set"  
-        Controller--\>\>Browser: "HTML Renderizado (Inventory Table)"  
+        Controller->>DB: SELECT * FROM inventario  
+        DB-->>Controller: Result Set  
+        Controller-->>Browser: HTML Renderizado (Inventory Table)  
     end
 ```
 
@@ -163,48 +163,48 @@ La información fluye desde formularios HTML hacia la base de datos SQLite. Los 
 
 ### **Diagrama de Entidad-Relación (ERD)**
 ``` mermaid
-erDiagram  
-    USUARIOS {  
-        int id PK  
-        string username  
-        string password\_hash  
-        boolean perm\_inventario  
-        boolean perm\_actividades  
-    }  
-    INVENTARIO {  
-        int id PK  
-        string nombre  
-        int tipo\_id FK  
-        text images "JSON Array (Base64)"  
-        text pdfs "JSON Array (Base64)"  
-    }  
-    ACTIVIDADES {  
-        int id PK  
-        int equipo\_id FK  
-        int periodicidad "Días"  
-        date fecha\_inicio\_gen  
-    }  
-    ORDENES\_TRABAJO {  
-        int id PK  
-        int actividad\_id FK  
-        date fecha\_generacion  
-        string estado "Enum: Pendiente, EnCurso..."  
-    }  
-    CORRECTIVOS {  
-        int id PK  
-        int equipo\_id FK  
-        date fecha\_detectada  
-        string estado  
-        text images "JSON Array (Base64)"  
-    }  
-    CONFIGURACION {  
-        int id PK  
-        date fecha\_sistema "Simulación"  
-        date fecha\_prevista "Horizonte"  
+erDiagram
+    USUARIOS {
+        int id PK
+        string username
+        string password_hash
+        boolean perm_inventario
+        boolean perm_actividades
+    }
+    INVENTARIO {
+        int id PK
+        string nombre
+        int tipo_id FK
+        text images "JSON Array (Base64)"
+        text pdfs "JSON Array (Base64)"
+    }
+    ACTIVIDADES {
+        int id PK
+        int equipo_id FK
+        int periodicidad "Días"
+        date fecha_inicio_gen
+    }
+    ORDENES_TRABAJO {
+        int id PK
+        int actividad_id FK
+        date fecha_generacion
+        string estado "Enum: Pendiente, EnCurso..."
+    }
+    CORRECTIVOS {
+        int id PK
+        int equipo_id FK
+        date fecha_detectada
+        string estado
+        text images "JSON Array (Base64)"
+    }
+    CONFIGURACION {
+        int id PK
+        date fecha_sistema "Simulación"
+        date fecha_prevista "Horizonte"
     }
 
-    INVENTARIO ||--o{ ACTIVIDADES : tiene  
-    ACTIVIDADES ||--o{ ORDENES\_TRABAJO : genera  
+    INVENTARIO ||--o{ ACTIVIDADES : tiene
+    ACTIVIDADES ||--o{ ORDENES_TRABAJO : genera
     INVENTARIO ||--o{ CORRECTIVOS : reporta
 ´´´
 
@@ -220,32 +220,32 @@ El algoritmo más complejo del sistema es la **Generación y Actualización de �
 
 ``` mermaid
 flowchart TD  
-    Start(\[Inicio Proceso\]) \--\> GetContext\[Obtener Fecha Sistema FS y Fecha Límite FL\]  
-    GetContext \--\> GetActs\[SELECT \* FROM actividades\]  
+    Start([Inicio Proceso]) --> GetContext[Obtener Fecha Sistema FS y Fecha Límite FL]  
+    GetContext --> GetActs[SELECT * FROM actividades]  
       
     subgraph "Bucle de Generación"  
-        GetActs \--\> CalcDate\[Calcular Fecha Objetivo: F \= Inicio \+ (N \* Periodo)\]  
-        CalcDate \--\> CheckLimit{¿F \<= FL?}  
+        GetActs --> CalcDate[Calcular Fecha Objetivo: F = Inicio + N * Periodo]  
+        CalcDate --> CheckLimit{¿F <= FL?}  
           
-        CheckLimit \-- No \--\> EndGen(\[Fin Generación\])  
-        CheckLimit \-- Si \--\> CheckDB{¿Existe OT para ID+F?}  
+        CheckLimit -- No --> EndGen([Fin Generación])  
+        CheckLimit -- Si --> CheckDB{¿Existe OT para ID+F?}  
           
-        CheckDB \-- Si \--\> IncN\[N \= N \+ 1\]  
-        IncN \--\> CalcDate  
+        CheckDB -- Si --> IncN[N = N + 1]  
+        IncN --> CalcDate  
           
-        CheckDB \-- No \--\> DetermineState{Comparar Mes/Año F vs FS}  
+        CheckDB -- No --> DetermineState{Comparar Mes/Año F vs FS}  
           
-        DetermineState \-- "F \> FS" \--\> StPrev\[Estado: PREVISTA\]  
-        DetermineState \-- "F \== FS" \--\> StCurso\[Estado: EN CURSO\]  
-        DetermineState \-- "F \< FS" \--\> StPend\[Estado: PENDIENTE\]  
+        DetermineState -- "F > FS" --> StPrev[Estado: PREVISTA]  
+        DetermineState -- "F == FS" --> StCurso[Estado: EN CURSO]  
+        DetermineState -- "F < FS" --> StPend[Estado: PENDIENTE]  
           
-        StPrev & StCurso & StPend \--\> InsertDB\[INSERT INTO ordenes\_trabajo\]  
-        InsertDB \--\> IncN  
+        StPrev & StCurso & StPend --> InsertDB[INSERT INTO ordenes_trabajo]  
+        InsertDB --> IncN  
     end  
       
-    EndGen \--\> UpdateLoop\[Bucle Actualización OTs Existentes\]  
-    UpdateLoop \--\> ApplyLogic\[Aplicar misma lógica de Estado por Mes/Año\]  
-    ApplyLogic \--\> End(\[Fin Proceso\])
+    EndGen --> UpdateLoop[Bucle Actualización OTs Existentes]  
+    UpdateLoop --> ApplyLogic[Aplicar misma lógica de Estado por Mes/Año]  
+    ApplyLogic --> End([Fin Proceso])
 ```
 
 ## **7\. Guía de Contribución**
@@ -258,18 +258,18 @@ flowchart TD
 Dado el despliegue offline, el pipeline finaliza en la creación de un artefacto .zip.  
 ``` mermaid
 graph LR  
-    Dev\["Desarrollador"\] \--\>|Commit| Git\[Repositorio\]  
-    Git \--\>|Pull| BuildServer\[Entorno de Build\]  
+    Dev["Desarrollador"] -->|Commit| Git[Repositorio]  
+    Git -->|Pull| BuildServer[Entorno de Build]  
       
-    subgraph "Pipeline de Build (generar\_zip.py)"  
-        BuildServer \--\>|Inyecta| PyCode\[Código Python\]  
-        BuildServer \--\>|Inyecta| Templates\[Plantillas HTML\]  
-        BuildServer \--\>|Define| Static\[Estructura Static\]  
-        Static \--\>|Empaqueta| Zip\[Artefacto .zip\]  
+    subgraph "Pipeline de Build (generar_zip.py)"  
+        BuildServer -->|Inyecta| PyCode[Código Python]  
+        BuildServer -->|Inyecta| Templates[Plantillas HTML]  
+        BuildServer -->|Define| Static[Estructura Static]  
+        Static -->|Empaqueta| Zip[Artefacto .zip]  
     end  
       
-    Zip \--\>|Copia Manual/USB| Prod\[Servidor Producción Offline\]  
-    Prod \--\>|Unzip & Run| AppRunning\[GMAO Factory Live\]
+    Zip -->|Copia Manual/USB| Prod[Servidor Producción Offline]  
+    Prod -->|Unzip & Run| AppRunning[GMAO Factory Live]
 ```
 
 ### **Gestión de Ramas**

@@ -40,41 +40,42 @@ El sistema sigue un patrón arquitectónico **Monolítico Modular** basado en **
 
 ### **Diagrama de Arquitectura de Alto Nivel**
 ```mermaid
-graph TD  
-    User\["Usuario (Navegador Web)"\]  
-      
-    subgraph "Cliente (Front-End)"  
-        Browser\["Motor de Renderizado HTML/CSS"\]  
-        Static\["Assets Locales (/static/js, /static/css)"\]  
-        JS\_Engine\["Motor JS (DataTables \+ Chart.js)"\]  
+graph TD
+    User["Usuario (Navegador Web)"]
+
+    subgraph "Cliente (Front-End)"
+        Browser["Motor de Renderizado HTML/CSS"]
+        Static["Assets Locales (/static/js, /static/css)"]
+        JS_Engine["Motor JS (DataTables + Chart.js)"]
     end
 
-    subgraph "Servidor de Aplicaciones (Backend)"  
-        WSGI\["Servidor WSGI (Waitress/Gunicorn)"\]  
-        FlaskCore\["Flask App Router (app.py)"\]  
-          
-        subgraph "Controladores"  
-            Auth\["Módulo Auth"\]  
-            Core\["Módulo Inventario/OTs"\]  
-            Dashboard\["Blueprint Resumen"\]  
-        end  
-          
-        Logic\["Lógica de Negocio (utils.py)"\]  
+    subgraph "Servidor de Aplicaciones (Backend)"
+        WSGI["Servidor WSGI (Waitress/Gunicorn)"]
+        FlaskCore["Flask App Router (app.py)"]
+
+        subgraph "Controladores"
+            Auth["Módulo Auth"]
+            Core["Módulo Inventario/OTs"]
+            Dashboard["Blueprint Resumen"]
+        end
+
+        Logic["Lógica de Negocio (utils.py)"]
     end
 
-    subgraph "Capa de Datos"  
-        SQLite\[("SQLite DB (mantenimiento\_factory.db)")\]  
-        FS\["Sistema de Archivos (Logs)"\]  
+    subgraph "Capa de Datos"
+        %% Aquí estaba el error de la línea 24
+        SQLite[("SQLite DB (mantenimiento_factory.db)")]
+        FS["Sistema de Archivos (Logs)"]
     end
 
-    User \-- "HTTP Request (Port 5000)" \--\> WSGI  
-    WSGI \-- "Proxy Pass" \--\> FlaskCore  
-    FlaskCore \-- "Dispatch" \--\> Core & Dashboard  
-    Core \-- "Invoca" \--\> Logic  
-    Logic \-- "SQL Query" \--\> SQLite  
-    FlaskCore \-- "HTML Response" \--\> User  
-    User \-- "Load Assets" \--\> Static  
-    User \-- "Render & Interact" \--\> JS\_Engine
+    User -- "HTTP Request (Port 5000)" --> WSGI
+    WSGI -- "Proxy Pass" --> FlaskCore
+    FlaskCore -- "Dispatch" --> Core & Dashboard
+    Core -- "Invoca" --> Logic
+    Logic -- "SQL Query" --> SQLite
+    FlaskCore -- "HTML Response" --> User
+    User -- "Load Assets" --> Static
+    User -- "Render & Interact" --> JS_Engine
 ```
 ## **3\. Guía de Configuración (Setup)**
 
@@ -131,49 +132,61 @@ El sistema utiliza **Server-Side Rendering**. Los endpoints devuelven HTML compl
 
 La persistencia de archivos se realiza almacenando cadenas **Base64** en columnas TEXT, lo que permite backups mediante copia simple del archivo .db.  
 ```mermaid
-erDiagram  
-    USUARIOS {  
-        int id PK  
-        string username  
-        string password\_hash  
-        boolean perm\_inventario  
-        boolean perm\_actividades  
-    }  
-    INVENTARIO {  
-        int id PK  
-        string nombre  
-        int tipo\_id FK  
-        text images "JSON Array (Base64)"  
-        text pdfs "JSON Array (Base64)"  
-    }  
-    ACTIVIDADES {  
-        int id PK  
-        int equipo\_id FK  
-        int periodicidad "Días"  
-        date fecha\_inicio\_gen  
-    }  
-    ORDENES\_TRABAJO {  
-        int id PK  
-        int actividad\_id FK  
-        date fecha\_generacion  
-        string estado "Enum: Pendiente, EnCurso..."  
-    }  
-    CORRECTIVOS {  
-        int id PK  
-        int equipo\_id FK  
-        date fecha\_detectada  
-        string estado  
-        text images "JSON Array (Base64)"  
-    }  
-    CONFIGURACION {  
-        int id PK  
-        date fecha\_sistema "Simulación"  
-        date fecha\_prevista "Horizonte"  
+erDiagram
+    USUARIOS {
+        int id PK
+        string username
+        string password_hash
+        boolean perm_inventario
+        boolean perm_actividades
     }
 
-    INVENTARIO ||--o{ ACTIVIDADES : tiene  
-    INVENTARIO }|--|| TIPOS\_EQUIPO : clasifica  
-    ACTIVIDADES ||--o{ ORDENES\_TRABAJO : genera  
+    INVENTARIO {
+        int id PK
+        string nombre
+        int tipo_id FK
+        text images "JSON Array (Base64)"
+        text pdfs "JSON Array (Base64)"
+    }
+
+    ACTIVIDADES {
+        int id PK
+        int equipo_id FK
+        int periodicidad "Días"
+        date fecha_inicio_gen
+    }
+
+    ORDENES_TRABAJO {
+        int id PK
+        int actividad_id FK
+        date fecha_generacion
+        string estado "Enum: Pendiente, EnCurso..."
+    }
+
+    CORRECTIVOS {
+        int id PK
+        int equipo_id FK
+        date fecha_detectada
+        string estado
+        text images "JSON Array (Base64)"
+    }
+
+    CONFIGURACION {
+        int id PK
+        date fecha_sistema "Simulación"
+        date fecha_prevista "Horizonte"
+    }
+
+    %% Definición mínima para que la relación funcione visualmente
+    TIPOS_EQUIPO {
+        int id PK
+        string nombre
+    }
+
+    %% Relaciones (sin barras invertidas)
+    INVENTARIO ||--o{ ACTIVIDADES : tiene
+    INVENTARIO }|--|| TIPOS_EQUIPO : clasifica
+    ACTIVIDADES ||--o{ ORDENES_TRABAJO : genera
     INVENTARIO ||--o{ CORRECTIVOS : reporta
 ```
 ### **Diagrama de Secuencia: Flujo de Autenticación**
@@ -209,32 +222,32 @@ El proceso crítico es **generate\_and\_update\_work\_orders** en utils.py. Dete
 3. **Prevista:** Fecha OT es **posterior** al mes/año actual.
 ```mermaid
 flowchart TD  
-    Start(\[Inicio Proceso\]) \--\> GetContext\[Obtener Fecha Sistema FS y Fecha Límite FL\]  
-    GetContext \--\> GetActs\[SELECT \* FROM actividades\]  
+    Start([Inicio Proceso]) --> GetContext[Obtener Fecha Sistema FS y Fecha Límite FL]  
+    GetContext --> GetActs[SELECT * FROM actividades]  
       
     subgraph "Bucle de Generación"  
-        GetActs \--\> CalcDate\[Calcular Fecha Objetivo: F \= Inicio \+ (N \* Periodo)\]  
-        CalcDate \--\> CheckLimit{¿F \<= FL?}  
+        GetActs --> CalcDate[Calcular Fecha Objetivo: F = Inicio + N * Periodo]  
+        CalcDate --> CheckLimit{¿F <= FL?}  
           
-        CheckLimit \-- No \--\> EndGen(\[Fin Generación\])  
-        CheckLimit \-- Si \--\> CheckDB{¿Existe OT para ID+F?}  
+        CheckLimit -- No --> EndGen([Fin Generación])  
+        CheckLimit -- Si --> CheckDB{¿Existe OT para ID+F?}  
           
-        CheckDB \-- Si \--\> IncN\[N \= N \+ 1\]  
-        IncN \--\> CalcDate  
+        CheckDB -- Si --> IncN[N = N + 1]  
+        IncN --> CalcDate  
           
-        CheckDB \-- No \--\> DetermineState{Comparar Mes/Año F vs FS}  
+        CheckDB -- No --> DetermineState{Comparar Mes/Año F vs FS}  
           
-        DetermineState \-- "F \> FS (Futuro)" \--\> StPrev\[Estado: PREVISTA\]  
-        DetermineState \-- "F \== FS (Actual)" \--\> StCurso\[Estado: EN CURSO\]  
-        DetermineState \-- "F \< FS (Pasado)" \--\> StPend\[Estado: PENDIENTE\]  
+        DetermineState -- "F > FS (Futuro)" --> StPrev[Estado: PREVISTA]  
+        DetermineState -- "F == FS (Actual)" --> StCurso[Estado: EN CURSO]  
+        DetermineState -- "F < FS (Pasado)" --> StPend[Estado: PENDIENTE]  
           
-        StPrev & StCurso & StPend \--\> InsertDB\[INSERT INTO ordenes\_trabajo\]  
-        InsertDB \--\> IncN  
+        StPrev & StCurso & StPend --> InsertDB[INSERT INTO ordenes_trabajo]  
+        InsertDB --> IncN  
     end  
       
-    EndGen \--\> UpdateLoop\[Actualizar Estados Existentes\]  
-    UpdateLoop \--\> ApplyLogic\[Aplicar misma lógica Mes/Año a OTs activas\]  
-    ApplyLogic \--\> End(\[Fin Proceso\])
+    EndGen --> UpdateLoop[Actualizar Estados Existentes]  
+    UpdateLoop --> ApplyLogic[Aplicar misma lógica Mes/Año a OTs activas]  
+    ApplyLogic --> End([Fin Proceso])
 ```
 ## **7\. Guía de Contribución y CI/CD**
 
@@ -251,16 +264,16 @@ El desarrollo se centra en la estabilidad y la capacidad offline.
 Dado el despliegue mediante copia de archivos, el "CI/CD" es la generación del artefacto.  
 ```mermaid
 graph LR  
-    Dev\["Desarrollador"\] \--\>|Commit| Git\[Repositorio Git\]  
-    Git \--\>|Pull| BuildEnv\[Entorno de Build\]  
+    Dev["Desarrollador"] -->|Commit| Git[Repositorio Git]  
+    Git -->|Pull| BuildEnv[Entorno de Build]  
       
-    subgraph "Script Build (generar\_zip.py)"  
-        BuildEnv \--\>|Lee| Py\[Código Python\]  
-        BuildEnv \--\>|Lee| Html\[Plantillas HTML\]  
-        BuildEnv \--\>|Define| Static\[Estructura Static & Placeholders\]  
-        Static \--\>|Empaqueta| Zip\[Artefacto .zip\]  
+    subgraph "Script Build (generar_zip.py)"  
+        BuildEnv -->|Lee| Py[Código Python]  
+        BuildEnv -->|Lee| Html[Plantillas HTML]  
+        BuildEnv -->|Define| Static[Estructura Static & Placeholders]  
+        Static -->|Empaqueta| Zip[Artefacto .zip]  
     end  
       
-    Zip \--\>|Copia Manual/USB| Server\[Servidor Offline\]  
-    Server \--\>|Unzip & Run| Live\[GMAO Factory Live\]  
+    Zip -->|Copia Manual/USB| Server[Servidor Offline]  
+    Server -->|Unzip & Run| Live[GMAO Factory Live]
 ```
