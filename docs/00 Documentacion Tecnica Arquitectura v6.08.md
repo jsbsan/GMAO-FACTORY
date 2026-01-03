@@ -192,23 +192,23 @@ erDiagram
 ### **Diagrama de Secuencia: Flujo de Autenticación**
 ```mermaid
 sequenceDiagram  
-    actor User as "Usuario"  
-    participant Browser as "Navegador"  
-    participant Controller as "Flask (app.py)"  
-    participant DB as "SQLite"
+    actor User as Usuario  
+    participant Browser as Navegador  
+    participant Controller as Flask (app.py)  
+    participant DB as SQLite
 
-    User-\>\>Browser: "Accede a /inventory"  
-    Browser-\>\>Controller: "GET /inventory"  
-    Controller-\>\>Controller: "Verificar Session Cookie"  
+    User->>Browser: Accede a /inventory  
+    Browser->>Controller: GET /inventory  
+    Controller->>Controller: Verificar Session Cookie  
       
     alt No Autenticado  
-        Controller--\>\>Browser: "Redirect 302 \-\> /login"  
-        Browser-\>\>Controller: "GET /login"  
-        Controller--\>\>Browser: "HTML Login Form"  
+        Controller-->>Browser: Redirect 302 -> /login  
+        Browser->>Controller: GET /login  
+        Controller-->>Browser: HTML Login Form  
     else Autenticado  
-        Controller-\>\>DB: "SELECT \* FROM inventario"  
-        DB--\>\>Controller: "Result Set"  
-        Controller--\>\>Browser: "HTML Renderizado (Table)"  
+        Controller->>DB: SELECT * FROM inventario  
+        DB-->>Controller: Result Set  
+        Controller-->>Browser: HTML Renderizado (Table)  
     end
 ```
 ## **6\. Diagrama de Flujo (Lógica Core)**

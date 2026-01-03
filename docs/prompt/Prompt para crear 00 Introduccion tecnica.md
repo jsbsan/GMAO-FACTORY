@@ -12,7 +12,9 @@ Genera un Manual Tecnico con los siguientes puntos:
 ## **7\. Seguridad**
 ## **8\. Procedimiento de Despliegue**
 **Instrucciones de formato Mermaid:**
-    Usa siempre comillas dobles "" para el contenido de texto dentro de los nodos.
-    Estructura: Identificador["Texto del nodo (con paréntesis/símbolos)"].
-    No uses el texto descriptivo como ID del nodo.
-    Si hay comillas dentro del texto, usa ' (comilla simple) o escapalas.
+Reglas estrictas de formato:
+1.No uses barras invertidas (\) para escapar caracteres. Mermaid acepta guiones bajos (_), paréntesis y corchetes dentro de comillas o nombres de nodos directamente.
+2.Usa comillas dobles para textos que contengan caracteres especiales o espacios, por ejemplo: Nodo["Texto (con paréntesis)"].
+3.Asegúrate de que las flechas tengan la sintaxis correcta según el diagrama (ej. --> para flowcharts, ->> para secuencia).
+4.Entrega el código dentro de un bloque de código estándar con la etiqueta mermaid.
+5.Evita usar caracteres de formato de texto enriquecido; genera texto plano (ASCII).
