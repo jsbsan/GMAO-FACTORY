@@ -406,3 +406,70 @@ Nueva mejora: en la pestaña de correctivo, añadir un filtro de fecha, "Fecha D
 
 Nueva mejora a aplicar en todos los datatable: Si se exporta y no se han seleccionado ninguna fila, se seleccionaran todas las filas.
 
+------
+## Version v6.09
+------
+Cuando en la aplicación y en la pestaña de Ordenes de Trabajo y paso a editar en otra ventana, cuando vuelvo he perdido el filtro que tenía activado en el datatables, como lo puedo recuperar?
+Respuesta: aplica propiedad stateSave de las DataTables
+Comprueba que no se usan CDN, sino el directorio static donde estarán alamacenadas todas los fichero js y css necesarios para ejecutar la aplicación offline.
+
+------
+## Version v6.10
+------
+P:Me da el siguiente error:
+"Error: DataTables warning: table id=tablaOTs - Requested unknown parameter '1' for row 0, column 1. For more information about this error, please see https://datatables.net/tn/4"
+
+------
+## Version v6.11
+------
+P: Ya no da el error, pero vuelvo de la otra ventana no se listan las filas de la datatable.
+
+R:¡Entendido! Si al volver a la página la tabla aparece vacía o no se listan las filas, suele deberse a un conflicto entre el stateSave (que intenta restaurar la tabla tal como la dejaste) y el filtro personalizado de fechas (que se aplica después de cargar la página).
+El problema técnico suele ser que DataTables restaura su estado interno, pero el filtro de fecha se aplica "encima" un instante después, y si la tabla no se redibuja en el orden correcto o si los índices de las columnas varían, falla silenciosamente y oculta todo.
+He generado la versión v6.11 con una solución robusta:
+    Inicialización Diferida: He ajustado el JavaScript para que la configuración de filtros y la restauración de valores (localStorage) ocurra de manera segura.
+    Limpieza de Filtros: Antes de añadir el filtro de fechas, limpiamos cualquier filtro previo residual para evitar conflictos.
+    Forzado de Redibujado: Se asegura un draw() limpio al cargar la página si hay fechas guardadas.
+
+------
+## Version v6.12 y 6.13
+------
+gmao_factory_v6_12_datatables_fix
+Se presentan los siguientes errores:
+1. En la pestaña correctivo: Al entrar en dicha pestaña sale el siguiente mensaje:
+DataTables warning: table id=tablaCorrectivos - Requested unknown parameter '1' for row 0, column 1. For more information about this error, please see https://datatables.net/tn/4
+2. Al entrar en la pestaña "Ordenes de trabajo", sale el siguiente error:
+DataTables warning: table id=tablaOTs - Requested unknown parameter '1' for row 0, column 1. For more information about this error, please see https://datatables.net/tn/4
+3. En la pestaña "Correctivos", sale el siguiente error:
+DataTables warning: table id=tablaCorrectivos - Requested unknown parameter '1' for row 0, column 1. For more information about this error, please see https://datatables.net/tn/4
+Nota Importante: Ten en cuenta que la primera columna se usa para seleccionar/deseleccionar con un checkbox la fila.
+
+
+
+------
+## Version v6.14: 6.13 bug fixes
+------
+Se producen dos nuevos errores:
+1. Al entrar en la pestaña "Inventario", sale el siguiente error:
+    TemplateSyntaxError
+    jinja2.exceptions.TemplateSyntaxError: Encountered unknown tag 'endfor'. You probably made a nesting mistake. Jinja is expecting this tag, but currently looking for 'elif' or 'else' or 'endif'. The innermost block that needs to be closed is 'if'.
+    File "C:\Users\USER\OneDrive\Documentos\GitHub\GMAO-FACTORY\src\templates\inventory\index.html", line 4, in template
+
+2. En la pestaña de "Cronogramas OTs", al pulsar en el botón "Imprimir PDF", sale el siguiente error:
+    TemplateSyntaxError
+    jinja2.exceptions.TemplateSyntaxError: Encountered unknown tag 'endblock'.
+    File "C:\Users\USER\OneDrive\Documentos\GitHub\GMAO-FACTORY\src\templates\print\cronograma.html", line 74, in template
+
+
+
+Se produce error al entrar en la pestañal inventario: TemplateSyntaxError
+jinja2.exceptions.TemplateSyntaxError: Encountered unknown tag 'endfor'. You probably made a nesting mistake. Jinja is expecting this tag, but currently looking for 'elif' or 'else' or 'endif'. The innermost block that needs to be closed is 'if'. 
+
+
+
+
+------
+## Version v6.16
+------
+P: Te  comento un error que me aparece a veces cuando entro en la pestañ Ordenes de Trabjo: Sale este error: DataTables warning: table id=tablaOTs - Requested unknown parameter '1' for row 0, column 1. For more information about this error, please see https://datatables.net/tn/4
+R: Implemente sistema de versionado de estado en la configuración de datatables en base.html

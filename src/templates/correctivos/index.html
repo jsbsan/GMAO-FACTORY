@@ -25,6 +25,13 @@
 {% block scripts %}
 <script>
 $(document).ready(function() {
+    // Restaurar filtros de fecha desde localStorage
+    var savedMin = localStorage.getItem('corr_min_date');
+    var savedMax = localStorage.getItem('corr_max_date');
+    
+    if (savedMin) $('#min-corr').val(savedMin);
+    if (savedMax) $('#max-corr').val(savedMax);
+
     $.fn.dataTable.ext.search.push(
         function(settings, data, dataIndex) {
             if ( settings.nTable.id !== 'tablaCorrectivos' ) {
@@ -36,9 +43,9 @@ $(document).ready(function() {
             var date = data[5]; // Index 5 is Fecha Detectada (YYYY-MM-DD)
 
             if (
-                ( min === "" && max === "" ) ||
-                ( min === "" && date <= max ) ||
-                ( min <= date && max === "" ) ||
+                ( min === "" || min === null ) && ( max === "" || max === null ) ||
+                ( min === "" || min === null ) && date <= max ||
+                ( min <= date ) && ( max === "" || max === null ) ||
                 ( min <= date && date <= max )
             ) {
                 return true;
@@ -48,8 +55,17 @@ $(document).ready(function() {
     );
  
     $('#min-corr, #max-corr').on('change', function () {
+        // Guardar en localStorage
+        localStorage.setItem('corr_min_date', $('#min-corr').val());
+        localStorage.setItem('corr_max_date', $('#max-corr').val());
         $('#tablaCorrectivos').DataTable().draw();
     });
+
+    if (savedMin || savedMax) {
+        setTimeout(function(){
+            $('#tablaCorrectivos').DataTable().draw();
+        }, 100);
+    }
 });
 </script>
 {% endblock %}

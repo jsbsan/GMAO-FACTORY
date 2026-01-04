@@ -70,7 +70,7 @@
     {% macro render_navigation() %}
         <div class="sidebar-brand">
             <h4>🏭 GMAO</h4>
-            <small>Factory v6.08</small>
+            <small>Factory v6.15</small>
             <div class="mt-2 small text-muted">Usuario: {{ session.get('username', 'Invitado') }}</div>
         </div>
         <div>
@@ -133,7 +133,6 @@
                 rows: function ( idx, data, node ) {
                     var dt = new $.fn.dataTable.Api(node);
                     var selected = dt.rows( { selected: true } ).indexes();
-                    // Smart Logic: If selection exists, export selected. If 0 selected, export all (visible/filtered)
                     if ( selected.length === 0 ) {
                         return true; 
                     }
@@ -144,10 +143,19 @@
     }
 
     $(document).ready(function() {
-        // Inicialización genérica sin alerta
+        // Inicialización genérica sin alerta, asumiendo que los archivos estáticos correctos están presentes.
         $('.datatable').DataTable({
             language: { url: "{{ url_for('static', filename='js/es-ES.json') }}" },
             dom: 'Bfrtip',
+            stateSave: true, // Persistencia de estado
+            stateSaveParams: function (settings, data) {
+                data.version = "6.16"; // Versión para invalidar caché antigua
+            },
+            stateLoadParams: function (settings, data) {
+                if (data.version !== "6.16") {
+                    return false; // Borrar estado si la versión no coincide
+                }
+            },
             buttons: [
                 { 
                     extend: 'collection', 
