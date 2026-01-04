@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GMAO Factory</title>
+    <!-- Estilos Locales (Bootstrap, FontAwesome, DataTables) -->
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/all.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/datatables.min.css') }}" rel="stylesheet">
+
+    <style>
+        .sidebar-container { background-color: #2c3e50; color: white; min-height: 100vh; }
+        .sidebar-link { color: #bdc3c7; text-decoration: none; display: block; padding: 12px 15px; border-bottom: 1px solid #34495e; }
+        .sidebar-link:hover, .sidebar-link.active { background-color: #34495e; color: white; border-left: 4px solid #3498db; }
+        .sidebar-brand { padding: 20px; text-align: center; background-color: #1a252f; margin-bottom: 10px; }
+        .content { padding: 20px; }
+        .mobile-navbar { background-color: #2c3e50; }
+        .dataTables_length, .dataTables_filter { margin-bottom: 1rem; }
+        
+        /* Estilo manual para checkboxes DataTables Select */
+        table.dataTable tbody td.select-checkbox,
+        table.dataTable tbody th.select-checkbox {
+            position: relative;
+        }
+        table.dataTable tbody td.select-checkbox:before,
+        table.dataTable tbody th.select-checkbox:before {
+            content: ' ';
+            margin-top: -6px;
+            margin-left: -6px;
+            border: 1px solid black;
+            border-radius: 3px;
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+            box-sizing: border-box;
+        }
+        table.dataTable tr.selected td.select-checkbox:after,
+        table.dataTable tr.selected th.select-checkbox:after {
+            content: '✓';
+            font-size: 20px;
+            margin-top: -19px;
+            margin-left: -6px;
+            text-align: center;
+            text-shadow: 1px 1px #B0BED9, -1px -1px #B0BED9, 1px -1px #B0BED9, -1px 1px #B0BED9;
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+        }
+        
+        /* ESTADOS */
+        .status-realizada, .corr-resuelta { background-color: #198754; color: white; }
+        .status-en-curso, .corr-en-curso { background-color: #ffc107; color: #212529; }
+        .status-rechazada { background-color: #000000; color: white; }
+        .status-pendiente, .corr-detectada { background-color: #dc3545; color: white; }
+        .status-prevista { background-color: #6c757d; color: white; }
+        .status-aplazada { background-color: #6f42c1; color: white; }
+        
+        .badge-status { font-size: 0.8em; padding: 5px; border-radius: 4px; display: inline-block; margin-bottom: 2px; cursor: pointer; transition: transform 0.1s; }
+        .badge-status:hover { transform: scale(1.1); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+    {% macro render_navigation() %}
+        <div class="sidebar-brand">
+            <h4>🏭 GMAO</h4>
+            <small>Factory v6.16</small>
+            <div class="mt-2 small text-muted">Usuario: {{ session.get('username', 'Invitado') }}</div>
+        </div>
+        <div>
+            <a href="{{ url_for('resumen.index') }}" class="sidebar-link {{ 'active' if active_page == 'resumen' else '' }}"><i class="fas fa-chart-pie me-2"></i> Resumen</a>
+            {% if session.get('perm_inventario') %}
+            <a href="{{ url_for('inventory') }}" class="sidebar-link {{ 'active' if active_page == 'inventario' else '' }}"><i class="fas fa-boxes me-2"></i> Inventario</a>
+            {% endif %}
+            {% if session.get('perm_actividades') %}
+            <a href="{{ url_for('activities') }}" class="sidebar-link {{ 'active' if active_page == 'actividades' else '' }}"><i class="fas fa-clipboard-list me-2"></i> Actividades</a>
+            {% endif %}
+            <a href="{{ url_for('work_orders') }}" class="sidebar-link {{ 'active' if active_page == 'ots' else '' }}"><i class="fas fa-tools me-2"></i> Órdenes de Trabajo</a>
+            <a href="{{ url_for('cronograma') }}" class="sidebar-link {{ 'active' if active_page == 'cronograma' else '' }}"><i class="fas fa-calendar-alt me-2"></i> Cronogramas OTs</a>
+            <a href="{{ url_for('correctivos') }}" class="sidebar-link {{ 'active' if active_page == 'correctivos' else '' }}"><i class="fas fa-exclamation-triangle me-2"></i> Correctivos</a>
+            {% if session.get('perm_configuracion') %}
+            <div class="border-top border-secondary my-2"></div>
+            <a href="{{ url_for('general_settings') }}" class="sidebar-link {{ 'active' if active_page == 'ajustes' else '' }}"><i class="fas fa-cog me-2"></i> Configuración Global</a>
+            {% endif %}
+            <div class="border-top border-secondary my-2"></div>
+            <a href="{{ url_for('about') }}" class="sidebar-link {{ 'active' if active_page == 'about' else '' }}"><i class="fas fa-info-circle me-2"></i> Acerca de...</a>
+            <a href="{{ url_for('logout') }}" class="sidebar-link text-danger"><i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión</a>
+        </div>
+    {% endmacro %}
+
+    <nav class="navbar navbar-dark mobile-navbar d-md-none sticky-top">
+      <div class="container-fluid">
+        <span class="navbar-brand mb-0 h1">🏭 GMAO Factory</span>
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu"><span class="navbar-toggler-icon"></span></button>
+      </div>
+    </nav>
+
+    <div class="offcanvas offcanvas-start mobile-navbar text-white d-md-none" tabindex="-1" id="mobileMenu">
+      <div class="offcanvas-header"><h5 class="offcanvas-title">Menú</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div>
+      <div class="offcanvas-body p-0">{{ render_navigation() }}</div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-3 col-lg-2 d-none d-md-block sidebar-container p-0">{{ render_navigation() }}</nav>
+            <main class="col-md-9 ms-sm-auto col-lg-10 content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}{% for category, message in messages %}<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>{% endfor %}{% endif %}
+                {% endwith %}
+                <div class="alert alert-secondary py-1 px-3 mb-3 d-flex justify-content-between align-items-center"><small><i class="fas fa-calendar-day"></i> Fecha Sistema: <strong>{{ system_date }}</strong></small></div>
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+    
+    <!-- Scripts Locales (Bootstrap, jQuery, DataTables) -->
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+
+    <script>
+    // Custom Smart Export Config
+    function smartExportConfig(type) {
+        return {
+            extend: type,
+            exportOptions: {
+                rows: function ( idx, data, node ) {
+                    var dt = new $.fn.dataTable.Api(node);
+                    var selected = dt.rows( { selected: true } ).indexes();
+                    if ( selected.length === 0 ) {
+                        return true; 
+                    }
+                    return selected.indexOf( idx ) !== -1;
+                }
+            }
+        };
+    }
+
+    $(document).ready(function() {
+        // Inicialización genérica sin alerta, asumiendo que los archivos estáticos correctos están presentes.
+        $('.datatable').DataTable({
+            language: { url: "{{ url_for('static', filename='js/es-ES.json') }}" },
+            dom: 'Bfrtip',
+            stateSave: true, // Persistencia de estado
+            stateSaveParams: function (settings, data) {
+                data.version = "6.16"; // Versión para invalidar caché antigua
+            },
+            stateLoadParams: function (settings, data) {
+                if (data.version !== "6.16") {
+                    return false; // Borrar estado si la versión no coincide
+                }
+            },
+            buttons: [
+                { 
+                    extend: 'collection', 
+                    text: 'Exportar', 
+                    buttons: [
+                        smartExportConfig('copy'),
+                        smartExportConfig('excel'),
+                        smartExportConfig('pdf'),
+                        smartExportConfig('print')
+                    ], 
+                    className: 'btn-secondary' 
+                }
+            ],
+            select: { style: 'multi', selector: 'td:first-child' },
+            columnDefs: [{ orderable: false, className: 'select-checkbox', targets: 0 }],
+            pageLength: 25,
+            order: [[ 1, 'asc' ]]
+        });
+    });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

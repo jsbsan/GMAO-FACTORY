@@ -1,0 +1,1 @@
+crea un fichero "readme.md" para añadirlo al repositorio de github sobre el proyecto.

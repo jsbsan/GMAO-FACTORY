@@ -270,9 +270,206 @@ Intenta que todo el nuevo código que generes para esta pestaña, este en un nue
 
 Quiero que en vez del inventario se vea el resumen.
 
+hazme un diagrama de flujo del programa para mermaid, ten en cuenta problemas que se pueden presentar con caracteres (parentesis, comillas, etc)
+
+## Version 5.99 -> Modular aun más el programa y usar paginas html y 
+###Prompt para que gemini-canvas retome el proyecto en una nueva conversación:
+"He subido los archivos fuente de mi proyecto en Python. Por favor, realiza las siguientes tareas antes de que empecemos a trabajar:
+Analiza la arquitectura: Identifica la función principal de cada archivo y cómo interactúan entre sí.
+Resume la lógica: Explica brevemente qué hace el programa, cuál es su entrada de datos y qué resultado genera.
+Identifica dependencias: Confirma qué librerías externas utiliza.
+Una vez que comprendas la estructura completa, confírmamelo con un breve resumen técnico. Después de eso, te pediré mejoras específicas de rendimiento, refactorización y nuevas funcionalidades."
+
+
+Actúa como un desarrollador experto en Python Flask. Mi proyecto tiene actualmente todas las plantillas HTML guardadas como variables de texto. Haz una refactorización completa siguiendo estar instrucciones: 
+1. Separación de plantillas generando archivos .html reales dentro de una nueva carpeta llamada templates  
+2. Revisa el archivo principal (app.py) cambiando las rutas para que dejen de usar render_template_string y pasen a usar render_template.
+
+
+¿puedes descargarme en un zip todas las carpetas y archivos?
+Respuesta: Genera un fichero py que al ejecutarlo crea un zip con todos los archivos generados y estructura de carpetas.
+
+Quiero que refactorice el codigo actual para la representación de las tablas para que uses DataTables para dibujar las tablas, incluye la opciones de paginación, búsqueda, ordenadar por columnas y exportarción a excel de la tabla.
+
+Error: Cuando se ejecuta la aplicación la pantalla se queda congelada en la pestaña resumen.
+Respuesta: dice que faltan librerias css y js
+
+No, no puede ser eso, ya que inclui manualmente las librerias en la carpeta static, y de echo las gráficas de generan antes de que se congele la aplicacion ¿cual puede ser el error?
+Respuesta: 1) corregir css y 2) corregir enlaces quiere cambiar los enlaces estaticos a online
+
+Solo quiero que apliques la corrección de CSS. No quiero usar CDNs ya que necesito que funciones con librerias locales el programa.
+
+
+Para la tabla de ordenes de trabajo, necesito añadir un filtro entre fechas en la pestaña de Ordenes de trabajo, ¿lo puedes añadir?
+
+## Version 6.00 -> generación de documentación actualizada
+(para el código)
+Quiero cambiar el texto de version en vez de la 5.30 que sea la 6.00
+
+
+### Generación de nueva documentacion:
+#### -> Readme para github:
+Crea un fichero "readme.md" para añadirlo al repositorio de github sobre el proyecto.
+
+#### -> Documentación para usuario:
+Analiza todo el código del proyecto y confírmame cuando estés listo para redactar la documentación
+Actúa como un **Technical Writer** experto en software. Tu objetivo es redactar un manual de usuario completo, profesional y fácil de entender para el programa que acabamos de desarrollar en Canvas.
+**El manual debe incluir las siguientes secciones:**
+ 1. **Introducción:** Qué hace el programa y cuál es su objetivo principal.
+ 2. **Requisitos del Sistema:** Qué necesita el usuario para ejecutarlo (navegador, dependencias, claves de API, etc.).
+ 3. **Guía de Instalación/Configuración:** Paso a paso para ponerlo en marcha.
+ 4. **Interfaz de Usuario:** Descripción de los botones, menús y áreas de trabajo.
+ 5. **Guía de Uso (Paso a Paso):** Ejemplos prácticos de cómo realizar las tareas principales.
+ 6. **Solución de Problemas (FAQ):** Errores comunes y cómo resolverlos, comentar que la aplicación puede funcionar offline.
+ 7. **Notas Técnicas:** Breve explicación de las tecnologías usadas.
+**Tono y Estilo:**
+- Utiliza un lenguaje claro, profesional pero accesible.
+- Usa negritas para resaltar botones o acciones importantes.
+- Formatea el texto en **Markdown** para que sea fácil de leer.
+- Si hay partes del código que requieren una explicación visual, descríbelas detalladamente.
+**Público Objetivo:** para los técnicos y operarios
+
+#### -> Documentación para programador
+Analiza todo este código y confírmame cuando estés listo para redactar la documentación.
+Actúa como un Senior Technical Writer y Arquitecto de Software. Tu tarea es generar la estructura y el contenido detallado de un manual técnico para programadores sobre el sistema GMAO Factory.
+El manual debe seguir este esquema obligatorio:
+1. **Introducción y Stack Tecnológico:** Breve descripción del propósito del software, lenguajes utilizados, frameworks y dependencias principales.
+2. **Arquitectura del Sistema:** Explicación del patrón de diseño (ej. Microservicios, MVC, Hexagonal).
+3. **Guía de Configuración (Setup):** Pasos exactos para clonar, instalar dependencias y configurar variables de entorno.
+4. **Documentación de la API / Puntos de Entrada:** Detalle de endpoints, tipos de datos, autenticación y manejo de errores.
+5. **Flujos de Datos:** Descripción de cómo viaja la información desde el cliente hasta la base de datos.
+6. **Diagrama de flujo:** Descripción de  la secuencia lógica y el flujo de ejecución del programa. Describe los procesos y/o algoritmos de forma clara y secuencial.
+7. **Guía de Contribución:** Estándares de código (Linting), nombres de ramas y proceso de Pull Request.
+#### **Instrucciones para Diagramas:** 
+**Por cada sección relevante, incluye una descripción detallada de qué diagrama debería ir allí (ej. Diagrama de Secuencia para la autenticación, Diagrama de Entidad-Relación para la DB, Diagrama de Infraestructura en AWS, diagrama de flujo). **
+Diagramas como código (Mermaid.js):** Las descripciones de los diagramas se entreguen en sintaxis **Mermaid**. 
+**Instrucciones de formato Mermaid:**
+    Usa siempre comillas dobles "" para el contenido de texto dentro de los nodos.
+    Estructura: Identificador["Texto del nodo (con paréntesis/símbolos)"].
+    No uses el texto descriptivo como ID del nodo.
+    Si hay comillas dentro del texto, usa ' (comilla simple) o escapalas.
+**Diagramas**
+##### Diagramas esenciales que debes incluir
+Para que un manual de programador sea realmente útil, no pueden faltar estos apoyos visuales:
+###### 1. Diagrama de Arquitectura de Alto Nivel
+Muestra cómo interactúan los componentes principales.
+- **Qué incluir:** Balanceadores de carga, servidores de aplicaciones, servicios de caché (Redis), bases de datos y servicios externos (APIs de terceros).
+###### 2. Diagrama de Entidad-Relación (ERD)
+Fundamental para que el programador entienda la persistencia de datos.
+- **Qué incluir:** Tablas, llaves primarias/foráneas y el tipo de relación (1:N, N:M).
+###### 3. Diagramas de Secuencia (UML)
+Ideales para explicar procesos complejos como el flujo de OAuth2 o una transacción de pago.
+- **Qué incluir:** Actores (Usuario, Frontend, API, Auth Server) y el orden cronológico de los mensajes/llamadas entre ellos.
+###### 4. Diagrama de flujo del programa.    
+###### 5. Diagrama de Flujo de CI/CD
+Explica qué pasa desde que el programador hace `git push`.
+- **Qué incluir:** Ejecución de tests unitarios, análisis de SonarQube, construcción de imagen Docker y despliegue en staging/producción.
+- **Usa Swagger/OpenAPI:** Si tienes una API, no escribas los endpoints a mano en el manual; enlaza a la documentación interactiva.
+
+#### **Tono:**
+Profesional, técnico, directo y orientado a la eficiencia. Usa bloques de código de ejemplo donde sea necesario.
+
+------
+## Version v6.01
+------
+Cambio en la lógica de generación de ordenes de trabajo:
+Revisa el archivo utils.py, en concreto la funcion generate_and_update_work_orders
+Revisar todas las ordenes de trabajo de forma que:
+1. Estado NULL: ponerlo como "Prevista"
+2. Estado "Aplazada": no hacer nada.
+3. Estado "Rechazada": no hacer nada.
+4. Estado "Realizada": no hacer nada.
+5. Estado "En Curso": solo las Ordenes de trabajo cuya fecha de generación pertenece al mes y año actual del sistema
+6. Estado "Pendiente": las ordenes de trabajo con fecha anterior (pasado) al mes y año actual del sistema
+7. Estado "Prevista": las ordenes de trabajo con fechas posterior (futuro) al mes y año actual del sistema.
+
+Nueva funcionalidad: casillas de verificación para exportación de filtrado
+Quiero que añadas una nueva funcionalidad a las datatable , que se puedan marcar las filas usando la propiedad "modifier" y asi tener en las filas casillas de verificación y botones de exportación de filtrado. Quiero que lo añadas en todos los ficheros donde se use datatable. 
+
+-> Error: Revisa el diseño, porque los checkbox de las filas no se ven 
+-> Error: cuando intento seleccionar el checkbox, no se selecciona, parece que no hay código asociado.
+-> Error: Cuando me muestra la tabla, sale el mensaje la alerta de falta libreria Select, pero si le doy aceptar al mensaje, ya salen la columna de seleccionar y funciona correctemente ¿porque puede ser?
+
+------
+## Version v6.08
+------
+Quiero que añadas en la pestaña "Resumen" dos datatable que estarán debajo de las gráficas:
+La primera mostrará las Ordenes de Trabajos filtradas según la fecha de inicio y fecha fin del panel "Configuración del Periodo".
+La segunda mostrará los Correctivos filtrados según la fecha de inicio y fecha fin del panel "Configuración del Periodo".
+Si hay un cambio en las fechas de inicio y/o fecha fin, se actualizarán las datatables.
+Debajo de las datatables, añade un botón para hacer un informe que incluya las gráficas y las datatables de la pestaña "Resumen"
+
+A las datatable que has añadido en resumen, les falta colorear el texto del valor mostrado de la columna estado. Por ejemplo: En la datatable de Orden de Trabajo, las de estado Realizada es de color verde, las "En curso" van en amarillo, etc. Y en la datatable de Incidencias, las "Detectada" van en color rojo, las "Resuelta" van en color verde.
+
+
+Nueva mejora: en la pestaña de correctivo, añadir un filtro de fecha, "Fecha Desde" y "Fecha Hasta", para filtrar el datatable del listado de Correctivos e incidencias.
+
+Nueva mejora a aplicar en todos los datatable: Si se exporta y no se han seleccionado ninguna fila, se seleccionaran todas las filas.
+
+------
+## Version v6.09
+------
+Cuando en la aplicación y en la pestaña de Ordenes de Trabajo y paso a editar en otra ventana, cuando vuelvo he perdido el filtro que tenía activado en el datatables, como lo puedo recuperar?
+Respuesta: aplica propiedad stateSave de las DataTables
+Comprueba que no se usan CDN, sino el directorio static donde estarán alamacenadas todas los fichero js y css necesarios para ejecutar la aplicación offline.
+
+------
+## Version v6.10
+------
+P:Me da el siguiente error:
+"Error: DataTables warning: table id=tablaOTs - Requested unknown parameter '1' for row 0, column 1. For more information about this error, please see https://datatables.net/tn/4"
+
+------
+## Version v6.11
+------
+P: Ya no da el error, pero vuelvo de la otra ventana no se listan las filas de la datatable.
+
+R:¡Entendido! Si al volver a la página la tabla aparece vacía o no se listan las filas, suele deberse a un conflicto entre el stateSave (que intenta restaurar la tabla tal como la dejaste) y el filtro personalizado de fechas (que se aplica después de cargar la página).
+El problema técnico suele ser que DataTables restaura su estado interno, pero el filtro de fecha se aplica "encima" un instante después, y si la tabla no se redibuja en el orden correcto o si los índices de las columnas varían, falla silenciosamente y oculta todo.
+He generado la versión v6.11 con una solución robusta:
+    Inicialización Diferida: He ajustado el JavaScript para que la configuración de filtros y la restauración de valores (localStorage) ocurra de manera segura.
+    Limpieza de Filtros: Antes de añadir el filtro de fechas, limpiamos cualquier filtro previo residual para evitar conflictos.
+    Forzado de Redibujado: Se asegura un draw() limpio al cargar la página si hay fechas guardadas.
+
+------
+## Version v6.12 y 6.13
+------
+gmao_factory_v6_12_datatables_fix
+Se presentan los siguientes errores:
+1. En la pestaña correctivo: Al entrar en dicha pestaña sale el siguiente mensaje:
+DataTables warning: table id=tablaCorrectivos - Requested unknown parameter '1' for row 0, column 1. For more information about this error, please see https://datatables.net/tn/4
+2. Al entrar en la pestaña "Ordenes de trabajo", sale el siguiente error:
+DataTables warning: table id=tablaOTs - Requested unknown parameter '1' for row 0, column 1. For more information about this error, please see https://datatables.net/tn/4
+3. En la pestaña "Correctivos", sale el siguiente error:
+DataTables warning: table id=tablaCorrectivos - Requested unknown parameter '1' for row 0, column 1. For more information about this error, please see https://datatables.net/tn/4
+Nota Importante: Ten en cuenta que la primera columna se usa para seleccionar/deseleccionar con un checkbox la fila.
+
+
+
+------
+## Version v6.14: 6.13 bug fixes
+------
+Se producen dos nuevos errores:
+1. Al entrar en la pestaña "Inventario", sale el siguiente error:
+    TemplateSyntaxError
+    jinja2.exceptions.TemplateSyntaxError: Encountered unknown tag 'endfor'. You probably made a nesting mistake. Jinja is expecting this tag, but currently looking for 'elif' or 'else' or 'endif'. The innermost block that needs to be closed is 'if'.
+    File "C:\Users\USER\OneDrive\Documentos\GitHub\GMAO-FACTORY\src\templates\inventory\index.html", line 4, in template
+
+2. En la pestaña de "Cronogramas OTs", al pulsar en el botón "Imprimir PDF", sale el siguiente error:
+    TemplateSyntaxError
+    jinja2.exceptions.TemplateSyntaxError: Encountered unknown tag 'endblock'.
+    File "C:\Users\USER\OneDrive\Documentos\GitHub\GMAO-FACTORY\src\templates\print\cronograma.html", line 74, in template
+
+
+
+Se produce error al entrar en la pestañal inventario: TemplateSyntaxError
+jinja2.exceptions.TemplateSyntaxError: Encountered unknown tag 'endfor'. You probably made a nesting mistake. Jinja is expecting this tag, but currently looking for 'elif' or 'else' or 'endif'. The innermost block that needs to be closed is 'if'. 
 
 
 
 
-
-
+------
+## Version v6.16
+------
+P: Te  comento un error que me aparece a veces cuando entro en la pestañ Ordenes de Trabjo: Sale este error: DataTables warning: table id=tablaOTs - Requested unknown parameter '1' for row 0, column 1. For more information about this error, please see https://datatables.net/tn/4
+R: Implemente sistema de versionado de estado en la configuración de datatables en base.html

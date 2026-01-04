@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">Órdenes de Trabajo</h1>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('print_all_ots') }}" class="btn btn-secondary" target="_blank"><i class="fas fa-print"></i> Imprimir Todo</a>
+        <form action="{{ url_for('generate_work_orders') }}" method="POST">
+            <button type="submit" class="btn btn-warning"><i class="fas fa-sync-alt"></i> Generar OTs</button>
+        </form>
+    </div>
+</div>
+
+<!-- Date Filter Row -->
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label for="min" class="form-label">Fecha Desde:</label>
+                <input type="date" id="min" name="min" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label for="max" class="form-label">Fecha Hasta:</label>
+                <input type="date" id="max" name="max" class="form-control">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle datatable" id="tablaOTs">
+        <thead class="table-dark">
+            <tr>
+                <th></th>
+                <th>ID</th>
+                <th>Nombre OT</th>
+                <th>Equipo</th>
+                <th>Fecha Gen.</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ot in ots %}
+            <tr>
+                <td></td>
+                <td>{{ ot.id }}</td>
+                <td>{{ ot.nombre }}</td>
+                <td>{{ ot.equipo_nombre }}</td>
+                <td>{{ ot.fecha_generacion }}</td>
+                <td>
+                    {% if ot.estado == 'Realizada' %}<span class="badge status-realizada">Realizada</span>
+                    {% elif ot.estado == 'En curso' %}<span class="badge status-en-curso">En curso</span>
+                    {% elif ot.estado == 'Pendiente' %}<span class="badge status-pendiente">Pendiente</span>
+                    {% elif ot.estado == 'Prevista' %}<span class="badge status-prevista">Prevista</span>
+                    {% elif ot.estado == 'Aplazada' %}<span class="badge status-aplazada">Aplazada</span>
+                    {% else %}<span class="badge status-rechazada">Rechazada</span>{% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('print_ot', id=ot.id) }}" class="btn btn-sm btn-secondary" target="_blank"><i class="fas fa-print"></i></a> 
+                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalOT{{ ot.id }}">Gestionar</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% for ot in ots %}
+<div class="modal fade" id="modalOT{{ ot.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('update_ot', id=ot.id) }}" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ ot.nombre }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-secondary"><strong>Operaciones:</strong><br>{{ ot.operaciones }}</div>
+                    <div class="mb-3">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select" name="estado">
+                            <option value="En curso" {{ 'selected' if ot.estado == 'En curso' }}>En curso</option>
+                            <option value="Pendiente" {{ 'selected' if ot.estado == 'Pendiente' }}>Pendiente</option>
+                            <option value="Prevista" {{ 'selected' if ot.estado == 'Prevista' }}>Prevista</option>
+                            <option value="Realizada" {{ 'selected' if ot.estado == 'Realizada' }}>Realizada</option>
+                            <option value="Aplazada" {{ 'selected' if ot.estado == 'Aplazada' }}>Aplazada</option>
+                            <option value="Rechazada" {{ 'selected' if ot.estado == 'Rechazada' }}>Rechazada</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Observaciones</label>
+                        <textarea class="form-control" name="observaciones">{{ ot.observaciones }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fecha Realización</label>
+                        <input type="date" class="form-control" name="fecha_realizada" value="{{ ot.fecha_realizada }}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Actualizar OT</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    // Restaurar filtros de fecha desde localStorage
+    var savedMin = localStorage.getItem('ot_min_date');
+    var savedMax = localStorage.getItem('ot_max_date');
+    
+    if (savedMin) $('#min').val(savedMin);
+    if (savedMax) $('#max').val(savedMax);
+
+    // Clear any existing search functions to avoid stacking on reloads if not full reload
+    $.fn.dataTable.ext.search = [];
+
+    // Custom filtering function which will search data in column four between two values
+    $.fn.dataTable.ext.search.push(
+        function(settings, data, dataIndex) {
+            // Check if this is the correct table (optional, but good if multiple tables exist)
+            if ( settings.nTable.id !== 'tablaOTs' ) {
+                return true;
+            }
+            
+            var min = $('#min').val();
+            var max = $('#max').val();
+            var date = data[4]; // Index 4 is Fecha Gen. (YYYY-MM-DD) - Remember index shifted by checkbox
+
+            if (
+                ( min === "" || min === null ) && ( max === "" || max === null ) ||
+                ( min === "" || min === null ) && date <= max ||
+                ( min <= date ) && ( max === "" || max === null ) ||
+                ( min <= date && date <= max )
+            ) {
+                return true;
+            }
+            return false;
+        }
+    );
+ 
+    // Event listener to the two range filtering inputs to redraw on input
+    $('#min, #max').on('change', function () {
+        // Guardar en localStorage
+        localStorage.setItem('ot_min_date', $('#min').val());
+        localStorage.setItem('ot_max_date', $('#max').val());
+        $('#tablaOTs').DataTable().draw();
+    });
+
+    // Force draw if filters exist
+    if (savedMin || savedMax) {
+        setTimeout(function(){
+            $('#tablaOTs').DataTable().draw();
+        }, 100);
+    }
+});
+</script>
+{% endblock %}

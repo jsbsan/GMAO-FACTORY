@@ -1,91 +1,115 @@
-# GMAO Factory v5.1 🏭
+# **🏭 GMAO Factory v6.00**
 
-GMAO Factory es un Sistema de Gestión de Mantenimiento Asistido por Ordenador diseñado para entornos industriales. Permite la gestión integral de inventarios, planes de mantenimiento preventivo, órdenes de trabajo y control de incidencias (correctivos).
+**Sistema de Gestión de Mantenimiento Asistido por Ordenador (CMMS)**  
+GMAO Factory es una aplicación web ligera y potente construida con **Python (Flask)** y **SQLite**, diseñada para gestionar el mantenimiento integral de activos industriales o instalaciones. Permite el control de inventario, planificación de mantenimientos preventivos, gestión de incidencias (correctivos) y generación automática de órdenes de trabajo.
 
-Desarrollado en Python con Flask y SQLite.
+## **📋 Características Principales**
 
-## 🚀 Características Principales
+* **📊 Resumen Ejecutivo:** Dashboard con indicadores clave (KPIs) y gráficas de cumplimiento (Chart.js) sobre Órdenes de Trabajo e Incidencias.  
+* **📦 Inventario de Activos:** Registro detallado de equipos con soporte para adjuntar imágenes y documentación técnica (PDFs).  
+* **🔄 Mantenimiento Preventivo:** Definición de planes de mantenimiento con periodicidad personalizada y generación automática de Órdenes de Trabajo (OTs).  
+* **🛠️ Gestión de Correctivos:** Registro y seguimiento de averías e incidencias imprevistas.  
+* **📅 Cronograma Visual:** Vista anual del estado de las tareas (Realizadas, Pendientes, En Curso, etc.).  
+* **🖨️ Reportes e Impresión:** Generación de informes en formato amigable para impresión o PDF.  
+* **⚙️ Simulación Temporal:** Capacidad para alterar la "Fecha del Sistema" para simulaciones y pruebas de generación de tareas.  
+* **🔐 Control de Acceso:** Sistema de usuarios con roles y permisos granulares por módulo.  
+* **⚡ Interfaz Reactiva:** Tablas interactivas con búsqueda, filtrado y ordenación (DataTables) sin recargas innecesarias.
 
-- Inventario Digital: Gestión de fichas técnicas de equipos con imágenes y manuales PDF.
+## **🚀 Instalación y Despliegue**
 
-- Preventivos: Planificación automática de tareas recurrentes.
+Este proyecto está diseñado para funcionar en entornos **Offline** (Intranet/Local), por lo que requiere configurar las librerías estáticas manualmente si no se usan CDNs.
 
-- Órdenes de Trabajo (OTs): Ciclo de vida completo (Prevista -> En Curso -> Pendiente/Realizada).
+### **1\. Prerrequisitos**
 
-- Correctivos: Gestión de averías e incidencias.
+* Python 3.8 o superior.  
+* Navegador Web moderno.
 
-- Simulación: Herramienta de "Fecha del Sistema" para simular escenarios futuros.
+### **2\. Clonar el repositorio**
 
-- Gestión Documental: Archivos adjuntos almacenados directamente en base de datos (portabilidad total).
+git clone \[https://github.com/tu-usuario/gmao-factory.git\](https://github.com/tu-usuario/gmao-factory.git)  
+cd gmao-factory
 
-- Seguridad: Control de acceso basado en roles (RBAC) y Logs de auditoría.
+### **3\. Configurar el Entorno Virtual**
 
-## 📋 Requisitos
+Se recomienda usar un entorno virtual para aislar las dependencias:  
+\# Windows  
+python \-m venv venv  
+venv\\Scripts\\activate
 
-- Python 3.8 o superior.
+\# Linux/Mac  
+python3 \-m venv venv  
+source venv/bin/activate
 
-- Navegador web moderno (Chrome, Edge, Firefox).
+### **4\. Instalar Dependencias**
 
+Instala Flask y las librerías necesarias:  
+pip install Flask
 
-## 🛠️ Instalación y Puesta en Marcha
+*(Nota: El proyecto utiliza principalmente la librería estándar de Python \+ Flask)*
 
-1. Clonar el repositorio o descargar los archivos en una carpeta local.
+### **5\. Configurar Archivos Estáticos (Modo Local)**
 
-2. Instalar dependencias:
-Abre una terminal en la carpeta del proyecto y ejecuta:
+Para que el sistema funcione correctamente sin internet, descarga las siguientes librerías y colócalas en la carpeta static/:  
+**En static/css/:**
 
-```` bash
-pip install flask werkzeug
-```` 
+* bootstrap.min.css (Bootstrap 5\)  
+* datatables.min.css (DataTables \+ Bootstrap 5 Theme)  
+* all.min.css (FontAwesome 6\)
 
-3. Iniciar la aplicación:
-Ejecuta el archivo principal:
+**En static/js/:**
 
-```` bash
+* bootstrap.bundle.min.js  
+* jquery.min.js (jQuery 3.x)  
+* datatables.min.js (DataTables Bundle: incluye Buttons, JSZip, PDFMake, HTML5 export, Print)  
+* chart.min.js (Chart.js 4.x)  
+* es-ES.json (Archivo de traducción de DataTables incluido en el proyecto)
+
+### **6\. Ejecutar la Aplicación**
+
 python app.py
-```` 
 
-4. Acceder:
-Abre tu navegador y ve a:
-http://localhost:5000
+La aplicación se iniciará en http://0.0.0.0:5000 (accesible desde cualquier equipo en la red local).
 
-## 🔑 Credenciales por Defecto
+## **🔑 Credenciales por Defecto**
 
-El sistema creará automáticamente un usuario administrador en el primer arranque:
+Al iniciar la aplicación por primera vez, se creará automáticamente un usuario administrador:
 
-- Usuario: Administrador
-- Contraseña: 123456
+* **Usuario:** Administrador  
+* **Contraseña:** 123456
 
-**Importante:** Se recomienda cambiar esta contraseña inmediatamente desde el menú "Configuración Global".
+**Importante:** Cambie esta contraseña inmediatamente desde el menú "Configuración Global".
 
-## 📂 Estructura del Proyecto
+## **📂 Estructura del Proyecto**
 
-El proyecto sigue una arquitectura modular en un solo nivel para facilitar el despliegue:
+GMAO\_FACTORY/  
+│  
+├── app.py                  \# Controlador Principal (Rutas y Lógica)  
+├── database.py             \# Modelo de Datos y Conexión SQLite  
+├── utils.py                \# Funciones Auxiliares y Seguridad  
+├── resumen.py              \# Blueprint del Dashboard  
+│  
+├── static/                 \# Archivos CSS/JS/Imágenes (Local)  
+│   ├── css/  
+│   └── js/  
+│  
+├── templates/              \# Vistas HTML (Jinja2)  
+│   ├── base.html           \# Layout Principal  
+│   ├── inventory/          \# Módulo de Inventario  
+│   ├── work\_orders/        \# Módulo de OTs  
+│   ├── ...                 \# Otros módulos  
+│   └── print/              \# Vistas para impresión  
+│  
+└── mantenimiento\_factory.db \# Base de datos (Generada autom.)
 
-- app.py: Controlador principal y rutas web.
+## **🛠️ Tecnologías Utilizadas**
 
-- database.py: Gestión de conexión y esquema de la base de datos SQLite.
+* **Backend:** Python 3, Flask.  
+* **Base de Datos:** SQLite 3\.  
+* **Frontend:** HTML5, Bootstrap 5\.  
+* **Scripts:** jQuery, DataTables (Tablas avanzadas), Chart.js (Gráficos).  
+* **Iconos:** FontAwesome 6\.
 
-- utils.py: Lógica de negocio, algoritmos de generación de OTs y utilidades.
+## **📄 Licencia**
 
-- templates_base.py: Plantillas HTML base (Layout, Login, Impresión).
-
-- templates_modules.py: Plantillas HTML de los módulos funcionales.
-
-- mantenimiento_factory.db: Base de datos (se genera automáticamente al iniciar).
-
-- gmao_app.log: Registro de actividad (si se activa el logging).
-
-
-## 📖 Documentación Adicional
-
-Para más detalles, consulta los manuales incluidos en el repositorio, carpeta docs:
-
-Manual Usuario GMAO.md:  Guía paso a paso para el usuario final.
-
-Manual Programador GMAO.md: Detalles de arquitectura para desarrolladores.
-
-
-Autor: Julio Sánchez Berro
-
-Licencia: GPL-3.0
+Este proyecto está bajo la Licencia **GPL 3.0**. Eres libre de usarlo, modificarlo y distribuirlo manteniendo la autoría original.  
+**Autor:** Julio Sánchez Berro.
