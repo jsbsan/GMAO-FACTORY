@@ -212,7 +212,7 @@ erDiagram
 
 El algoritmo más complejo del sistema es la **Generación y Actualización de Órdenes de Trabajo** (utils.generate\_and\_update\_work\_orders). Este proceso determina qué tareas preventivas deben lanzarse y actualiza los estados de las existentes.
 
-### **Reglas de Negocio (v6.08)**
+### **Reglas de Negocio (v6.16)**
 
 1. **En Curso:** Fecha OT \== Mes/Año actual del sistema.  
 2. **Pendiente:** Fecha OT \< Mes/Año actual del sistema.  

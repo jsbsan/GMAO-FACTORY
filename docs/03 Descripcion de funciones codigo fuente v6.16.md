@@ -1,12 +1,9 @@
-# ---
-
-**Documentación Técnica del Código Fuente: GMAO Factory**
-
+---
+## **Documentación Técnica del Código Fuente: GMAO Factory**
 Fecha: 04 de Enero de 2026  
 Tecnología: Python (Flask) \+ SQLite  
 Arquitectura: Monolito Modular con Vistas Embebidas
-
-## ---
+---
 
 **1\. Visión General de la Estructura**
 
@@ -20,9 +17,7 @@ El proyecto está estructurado como una aplicación web Flask que integra la ló
 * **resumen.py**: *Blueprint* (módulo) específico para el cuadro de mando (Dashboard).  
 * **templates\_base.py / templates\_modules.py**: Capa de vista. Contienen el código HTML/Jinja2 almacenado en cadenas de texto.
 
-## ---
-
-**2\. Análisis Detallado por Archivo**
+## **2\. Análisis Detallado por Archivo**
 
 ### **2.1 app.py (Controlador Principal)**
 
@@ -89,9 +84,7 @@ Módulo dedicado a la inteligencia de negocio.
 * Prepara los datos (labels y values) para ser consumidos por la librería gráfica Chart.js en el frontend.  
 * Permite actualizar dinámicamente el rango de fechas de análisis.
 
-## ---
-
-**3\. Flujo de Datos**
+## **3\. Flujo de Datos**
 
 1. **Entrada:** El usuario interactúa con las vistas HTML (generadas por templates\_\*.py).  
 2. **Procesamiento:** app.py recibe la petición.  
