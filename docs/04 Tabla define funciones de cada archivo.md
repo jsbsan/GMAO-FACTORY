@@ -1,65 +1,65 @@
 ## Estructura del Proyecto
-GMAO_FACTORY/
-│
-├── app.py                  # Controlador Principal (Rutas y configuración Flask)
-├── database.py             # Modelo de Base de Datos (Conexión y tablas)
-├── utils.py                # Lógica de Negocio (Algoritmos de OTs, seguridad)
-├── resumen.py              # Blueprint (Módulo) del Dashboard
-│
-├── static/                 # Archivos Estáticos (CSS, JS, Imágenes)
-│   ├── css/
-│   │   ├── bootstrap.min.css
-│   │   ├── datatables.min.css
-│   │   └── all.min.css     # FontAwesome
-│   │
-│   └── js/
-│       ├── bootstrap.bundle.min.js
-│       ├── jquery.min.js
-│       ├── datatables.min.js
-│       ├── es-ES.json      # Traducción de DataTables
-│       └── chart.min.js
-│
-├── templates/              # Vistas HTML (Motor Jinja2)
-│   ├── base.html           # Layout Maestro (Menú lateral, cabecera)
-│   ├── login.html          # Pantalla de acceso
-│   ├── viewer.html         # Visor de archivos adjuntos
-│   ├── about.html          # Página "Acerca de"
+GMAO_FACTORY/  
+│  
+├── app.py                  # Controlador Principal (Rutas y configuración Flask)  
+├── database.py             # Modelo de Base de Datos (Conexión y tablas)  
+├── utils.py                # Lógica de Negocio (Algoritmos de OTs, seguridad)  
+├── resumen.py              # Blueprint (Módulo) del Dashboard  
+│  
+├── static/                 # Archivos Estáticos (CSS, JS, Imágenes)  
+│   ├── css/  
+│   │   ├── bootstrap.min.css  
+│   │   ├── datatables.min.css  
+│   │   └── all.min.css     # FontAwesome  
+│   │  
+│   └── js/  
+│       ├── bootstrap.bundle.min.js  
+│       ├── jquery.min.js  
+│       ├── datatables.min.js  
+│       ├── es-ES.json      # Traducción de DataTables  
+│       └── chart.min.js  
+│  
+├── templates/              # Vistas HTML (Motor Jinja2)  
+│   ├── base.html           # Layout Maestro (Menú lateral, cabecera)  
+│   ├── login.html          # Pantalla de acceso  
+│   ├── viewer.html         # Visor de archivos adjuntos  
+│   ├── about.html          # Página "Acerca de"  
 │   │
 │   ├── resumen/
-│   │   └── index.html      # Dashboard con gráficas y tablas resumen
-│   │
-│   ├── inventory/
-│   │   ├── index.html      # Tabla de inventario
-│   │   └── edit.html       # Formulario de edición
-│   │
-│   ├── activities/
-│   │   ├── index.html      # Tabla de actividades
-│   │   └── edit.html       # Formulario de edición
-│   │
-│   ├── work_orders/
-│   │   ├── index.html      # Tabla de Órdenes de Trabajo
-│   │   └── cronograma.html # Vista de calendario anual
-│   │
-│   ├── correctivos/
-│   │   ├── index.html      # Tabla de incidencias
-│   │   └── edit.html       # Formulario de edición
-│   │
-│   ├── settings/
-│   │   ├── index.html      # Configuración global y usuarios
-│   │   └── edit_type.html  # Edición de tipos de equipo
-│   │
-│   └── print/              # Vistas limpias para imprimir
-│       ├── inventory.html
-│       ├── all_inventory.html
-│       ├── activity.html
-│       ├── all_activities.html
-│       ├── ot.html
-│       ├── all_ots.html
-│       ├── cronograma.html
-│       ├── correctivo.html
-│       └── all_correctivos.html
-│
-└── mantenimiento_factory.db # Archivo de Base de Datos (Generado automáticamente al arrancar)
+│   │   └── index.html      # Dashboard con gráficas y tablas resumen  
+│   │  
+│   ├── inventory/  
+│   │   ├── index.html      # Tabla de inventario  
+│   │   └── edit.html       # Formulario de edición  
+│   │  
+│   ├── activities/  
+│   │   ├── index.html      # Tabla de actividades  
+│   │   └── edit.html       # Formulario de edición  
+│   │  
+│   ├── work_orders/  
+│   │   ├── index.html      # Tabla de Órdenes de Trabajo  
+│   │   └── cronograma.html # Vista de calendario anual  
+│   │  
+│   ├── correctivos/  
+│   │   ├── index.html      # Tabla de incidencias  
+│   │   └── edit.html       # Formulario de edición  
+│   │  
+│   ├── settings/  
+│   │   ├── index.html      # Configuración global y usuarios  
+│   │   └── edit_type.html  # Edición de tipos de equipo  
+│   │  
+│   └── print/              # Vistas limpias para imprimir  
+│       ├── inventory.html  
+│       ├── all_inventory.html  
+│       ├── activity.html  
+│       ├── all_activities.html  
+│       ├── ot.html  
+│       ├── all_ots.html  
+│       ├── cronograma.html  
+│       ├── correctivo.html  
+│       └── all_correctivos.html  
+│  
+└── mantenimiento_factory.db # Archivo de Base de Datos (Generado automáticamente al arrancar)  
 
 
 ## Descripción y funcion princial.
