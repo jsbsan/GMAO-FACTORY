@@ -1,7 +1,7 @@
 # **📘 Manual de Usuario: GMAO Factory**
 
-Versión del Software: 6.08  
-Fecha de Actualización: 03/01/2026
+Versión del Software: 6.15
+Fecha de Actualización: 04/01/2026
 
 ## **1\. Introducción**
 
@@ -30,7 +30,7 @@ Siga estos pasos para poner en marcha el sistema por primera vez.
 
 ### **Paso 1: Ubicación de Archivos**
 
-Descomprima el archivo gmao\_factory\_v6\_08.zip en una carpeta de su ordenador o servidor (ej: C:\\GMAO\_Factory). Asegúrese de que la estructura contiene las carpetas templates, static y el archivo app.py.
+Descomprima el archivo gmao\_factory\_v6\_16.zip en una carpeta de su ordenador o servidor (ej: C:\\GMAO\_Factory). Asegúrese de que la estructura contiene las carpetas templates, static y el archivo app.py.
 
 ### **Paso 2: Verificación de Librerías (Importante para Modo Offline)**
 

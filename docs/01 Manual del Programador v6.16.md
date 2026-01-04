@@ -1,7 +1,7 @@
 # **🛠️ Manual Técnico del Desarrollador: GMAO Factory**
 
-Versión del Software: v6.08 (Stable / Offline)  
-Fecha de Revisión: 03/01/2026  
+Versión del Software: v6.16 (Stable / Offline)  
+Fecha de Revisión: 04/01/2026  
 Audiencia: Desarrolladores Backend, Arquitectos de Software, DevOps.
 
 ## **1\. Introducción y Stack Tecnológico**

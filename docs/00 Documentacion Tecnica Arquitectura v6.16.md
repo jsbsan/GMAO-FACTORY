@@ -1,7 +1,7 @@
 # **🛠️ Manual Técnico del Desarrollador: GMAO Factory**
 
-Versión del Software: v6.08 (Stable / Offline Edition)  
-Fecha de Revisión: 03/01/2026  
+Versión del Software: v6.16 (Stable / Offline Edition)  
+Fecha de Revisión: 04/01/2026  
 Audiencia: Desarrolladores Backend, Arquitectos de Software, DevOps.
 
 ## **1\. Introducción y Stack Tecnológico**
@@ -215,7 +215,7 @@ sequenceDiagram
 
 El proceso crítico es **generate\_and\_update\_work\_orders** en utils.py. Determina los estados de las OTs basándose en la comparación de Mes/Año.
 
-### **Lógica de Estados (v6.08)**
+### **Lógica de Estados (v6.16)**
 
 1. **En Curso:** Fecha OT pertenece al **mismo mes y año** que la fecha del sistema.  
 2. **Pendiente:** Fecha OT es **anterior** al mes/año actual.  

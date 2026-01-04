@@ -1,6 +1,6 @@
 # **📘 Documentación Técnica: Lógica y Arquitectura de GMAO Factory**
 
-Versión del Software: v6.08 (Referencia)  
+Versión del Software: v6.16 (Referencia)  
 Tecnología Base: Python (Flask) \+ SQLite \+ Jinja2 \+ Bootstrap 5
 
 ## **1\. Visión General de la Arquitectura**
