@@ -1,115 +1,112 @@
-# **🏭 GMAO Factory v6.00**
+# **🏭 GMAO Factory v6.16**
 
-**Sistema de Gestión de Mantenimiento Asistido por Ordenador (CMMS)**  
-GMAO Factory es una aplicación web ligera y potente construida con **Python (Flask)** y **SQLite**, diseñada para gestionar el mantenimiento integral de activos industriales o instalaciones. Permite el control de inventario, planificación de mantenimientos preventivos, gestión de incidencias (correctivos) y generación automática de órdenes de trabajo.
+**Sistema de Gestión de Mantenimiento Asistido por Ordenador (CMMS)**
 
-## **📋 Características Principales**
+## **1\. Descripción general**
 
-* **📊 Resumen Ejecutivo:** Dashboard con indicadores clave (KPIs) y gráficas de cumplimiento (Chart.js) sobre Órdenes de Trabajo e Incidencias.  
-* **📦 Inventario de Activos:** Registro detallado de equipos con soporte para adjuntar imágenes y documentación técnica (PDFs).  
-* **🔄 Mantenimiento Preventivo:** Definición de planes de mantenimiento con periodicidad personalizada y generación automática de Órdenes de Trabajo (OTs).  
-* **🛠️ Gestión de Correctivos:** Registro y seguimiento de averías e incidencias imprevistas.  
-* **📅 Cronograma Visual:** Vista anual del estado de las tareas (Realizadas, Pendientes, En Curso, etc.).  
-* **🖨️ Reportes e Impresión:** Generación de informes en formato amigable para impresión o PDF.  
-* **⚙️ Simulación Temporal:** Capacidad para alterar la "Fecha del Sistema" para simulaciones y pruebas de generación de tareas.  
-* **🔐 Control de Acceso:** Sistema de usuarios con roles y permisos granulares por módulo.  
-* **⚡ Interfaz Reactiva:** Tablas interactivas con búsqueda, filtrado y ordenación (DataTables) sin recargas innecesarias.
+**GMAO Factory** es una solución de software integral, ligera y robusta diseñada para la gestión del mantenimiento en entornos industriales o de servicios. Desarrollada bajo una arquitectura monolítica con **Python (Flask)** y **SQLite**, esta aplicación permite centralizar la información técnica, planificar el mantenimiento preventivo y gestionar incidencias correctivas de manera eficiente.  
+Su diseño **"Offline-First"** permite el despliegue en entornos de intranet o aislados (air-gapped) sin dependencia de conexión a internet, garantizando la autonomía operativa de la planta.
 
-## **🚀 Instalación y Despliegue**
+## **2\. Características Principales**
 
-Este proyecto está diseñado para funcionar en entornos **Offline** (Intranet/Local), por lo que requiere configurar las librerías estáticas manualmente si no se usan CDNs.
+* **📊 Dashboard Ejecutivo:** Visualización en tiempo real de KPIs mediante gráficos interactivos (Chart.js) y tablas resumen para la toma de decisiones.  
+* **📦 Gestión de Inventario:** Catalogación detallada de activos con soporte para almacenamiento de adjuntos (Imágenes y manuales PDF) directamente en la base de datos.  
+* **🔄 Planificación Preventiva:** Motor de generación automática de Órdenes de Trabajo (OTs) basado en periodicidad y fechas de sistema simuladas.  
+* **🛠️ Gestión de Correctivos:** Ciclo completo de reporte y resolución de averías e incidencias no planificadas.  
+* **📅 Cronograma Visual:** Vista anual matricial para el seguimiento del cumplimiento del plan de mantenimiento.  
+* **⚡ Interfaz Reactiva:** Tablas de datos avanzadas (DataTables) con filtrado, ordenación y exportación (Excel, PDF, Impresión) en el cliente.  
+* **🔐 Seguridad y Auditoría:** Sistema de autenticación, control de acceso basado en roles (RBAC) y registro de logs de actividad.
 
-### **1\. Prerrequisitos**
+## **3\. Instalación y Despliegue**
 
-* Python 3.8 o superior.  
-* Navegador Web moderno.
+Siga estos pasos para desplegar la aplicación en un entorno local o servidor de intranet.
 
-### **2\. Clonar el repositorio**
+### **Prerrequisitos**
 
-git clone \[https://github.com/tu-usuario/gmao-factory.git\](https://github.com/tu-usuario/gmao-factory.git)  
-cd gmao-factory
+* **Python 3.8** o superior.  
+* Navegador web moderno (Chrome, Firefox, Edge).
 
-### **3\. Configurar el Entorno Virtual**
+### **Pasos de Instalación**
 
-Se recomienda usar un entorno virtual para aislar las dependencias:  
-\# Windows  
-python \-m venv venv  
-venv\\Scripts\\activate
+1. **Clonar el repositorio:**  
+   git clone \[https://github.com/jsbsan/GMAO-FACTORY](https://github.com/tu-usuario/gmao-factory.git)  
+   git clone \[https://github.com/jsbsan/GMAO-FACTORY.git\](https://github.com/jsbsan/GMAO-FACTORY.git)  
+   cd GMAO-FACTORY
 
-\# Linux/Mac  
-python3 \-m venv venv  
-source venv/bin/activate
+2. **Crear un entorno virtual (Recomendado):**  
+   \# Windows  
+   python \-m venv venv  
+   venv\\Scripts\\activate
 
-### **4\. Instalar Dependencias**
+   \# Linux/Mac  
+   python3 \-m venv venv  
+   source venv/bin/activate
 
-Instala Flask y las librerías necesarias:  
-pip install Flask
+3. **Instalar dependencias:**  
+   pip install Flask Werkzeug waitress
 
-*(Nota: El proyecto utiliza principalmente la librería estándar de Python \+ Flask)*
+4. Configuración de Archivos Estáticos (Modo Offline):  
+   Para garantizar el funcionamiento sin internet, asegúrese de que la carpeta static/ contenga las librerías necesarias (Bootstrap 5, DataTables, jQuery, Chart.js). Nota: El proyecto está configurado para buscar estos recursos localmente.  
+5. Iniciar la aplicación:  
+   Al ejecutar el programa por primera vez, se creará automáticamente la base de datos mantenimiento\_factory.db.  
+   python app.py
 
-### **5\. Configurar Archivos Estáticos (Modo Local)**
+6. Acceso:  
+   Abra su navegador y navegue a: http://localhost:5000
 
-Para que el sistema funcione correctamente sin internet, descarga las siguientes librerías y colócalas en la carpeta static/:  
-**En static/css/:**
+## **4\. Credenciales por defecto**
 
-* bootstrap.min.css (Bootstrap 5\)  
-* datatables.min.css (DataTables \+ Bootstrap 5 Theme)  
-* all.min.css (FontAwesome 6\)
-
-**En static/js/:**
-
-* bootstrap.bundle.min.js  
-* jquery.min.js (jQuery 3.x)  
-* datatables.min.js (DataTables Bundle: incluye Buttons, JSZip, PDFMake, HTML5 export, Print)  
-* chart.min.js (Chart.js 4.x)  
-* es-ES.json (Archivo de traducción de DataTables incluido en el proyecto)
-
-### **6\. Ejecutar la Aplicación**
-
-python app.py
-
-La aplicación se iniciará en http://0.0.0.0:5000 (accesible desde cualquier equipo en la red local).
-
-## **🔑 Credenciales por Defecto**
-
-Al iniciar la aplicación por primera vez, se creará automáticamente un usuario administrador:
+El sistema genera automáticamente un usuario administrador en el primer despliegue. Se recomienda cambiar la contraseña inmediatamente desde el menú de configuración.
 
 * **Usuario:** Administrador  
 * **Contraseña:** 123456
 
-**Importante:** Cambie esta contraseña inmediatamente desde el menú "Configuración Global".
+## **5\. Estructura del proyecto**
 
-## **📂 Estructura del Proyecto**
-
+La arquitectura del proyecto sigue el patrón MVC (Modelo-Vista-Controlador) de forma modular:  
 GMAO\_FACTORY/  
 │  
-├── app.py                  \# Controlador Principal (Rutas y Lógica)  
-├── database.py             \# Modelo de Datos y Conexión SQLite  
-├── utils.py                \# Funciones Auxiliares y Seguridad  
-├── resumen.py              \# Blueprint del Dashboard  
+├── app.py                  \# \[Controlador\] Punto de entrada, rutas y orquestación.  
+├── database.py             \# \[Modelo\] Esquema de base de datos y conexión.  
+├── utils.py                \# \[Lógica\] Algoritmos Core (Generación OTs) y seguridad.  
+├── resumen.py              \# \[Blueprint\] Módulo específico del Dashboard.  
 │  
-├── static/                 \# Archivos CSS/JS/Imágenes (Local)  
+├── static/                 \# Recursos estáticos (CSS, JS, Imágenes) para modo Offline.  
 │   ├── css/  
 │   └── js/  
 │  
-├── templates/              \# Vistas HTML (Jinja2)  
-│   ├── base.html           \# Layout Principal  
-│   ├── inventory/          \# Módulo de Inventario  
-│   ├── work\_orders/        \# Módulo de OTs  
-│   ├── ...                 \# Otros módulos  
-│   └── print/              \# Vistas para impresión  
+├── templates/              \# \[Vistas\] Plantillas HTML (Jinja2).  
+│   ├── base.html           \# Layout maestro.  
+│   ├── inventory/          \# Vistas de Inventario.  
+│   ├── activities/         \# Vistas de Actividades.  
+│   ├── work\_orders/        \# Vistas de OTs y Cronograma.  
+│   ├── correctivos/        \# Vistas de Incidencias.  
+│   ├── settings/           \# Configuración y Usuarios.  
+│   └── print/              \# Plantillas para impresión de reportes.  
 │  
-└── mantenimiento\_factory.db \# Base de datos (Generada autom.)
+├── mantenimiento\_factory.db \# Base de Datos SQLite (Persistencia).  
+└── gmao\_app.log             \# Logs del sistema.
 
-## **🛠️ Tecnologías Utilizadas**
+## **6\. Tecnologías Utilizadas**
 
-* **Backend:** Python 3, Flask.  
-* **Base de Datos:** SQLite 3\.  
-* **Frontend:** HTML5, Bootstrap 5\.  
-* **Scripts:** jQuery, DataTables (Tablas avanzadas), Chart.js (Gráficos).  
-* **Iconos:** FontAwesome 6\.
+### **Backend**
 
-## **📄 Licencia**
+* **Python:** Lenguaje principal.  
+* **Flask:** Framework web ligero y modular.  
+* **SQLite:** Base de datos relacional embebida (Zero-configuration).  
+* **Werkzeug:** Utilidades WSGI y hashing seguro de contraseñas.
 
-Este proyecto está bajo la Licencia **GPL 3.0**. Eres libre de usarlo, modificarlo y distribuirlo manteniendo la autoría original.  
+### **Frontend**
+
+* **HTML5 / Jinja2:** Renderizado de vistas en el servidor (SSR).  
+* **Bootstrap 5:** Framework CSS para diseño responsivo y componentes UI.  
+* **JavaScript:**  
+  * **jQuery:** Manipulación del DOM.  
+  * **DataTables:** Tablas interactivas avanzadas (Filtrado, Paginación, Exportación).  
+  * **Chart.js:** Visualización de datos y gráficas.
+
+## **7\. Licencia**
+
+Este proyecto está bajo la Licencia GPL 3.0.  
+Eres libre de usarlo, modificarlo y distribuirlo manteniendo la autoría original.  
 **Autor:** Julio Sánchez Berro.
