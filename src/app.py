@@ -8,6 +8,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import database as db
 import utils
 from resumen import resumen_bp
+from waitress import serve
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key_mantenimiento_factory'
@@ -635,4 +636,5 @@ if __name__ == '__main__':
     except Exception as e: print(f"Error en sincronización inicial: {e}")
     print("Iniciando Sistema GMAO...")
     print("Accesible en tu red local. Busca tu IP (ej: ipconfig o ifconfig)")
-    app.run(debug=True, port=5000, host='0.0.0.0')
+    ## app.run(debug=True, port=5000, host='0.0.0.0')
+    serve(app, port=5000, host='0.0.0.0')
