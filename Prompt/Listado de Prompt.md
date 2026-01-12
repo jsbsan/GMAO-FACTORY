@@ -473,3 +473,11 @@ jinja2.exceptions.TemplateSyntaxError: Encountered unknown tag 'endfor'. You pro
 ------
 P: Te  comento un error que me aparece a veces cuando entro en la pestañ Ordenes de Trabjo: Sale este error: DataTables warning: table id=tablaOTs - Requested unknown parameter '1' for row 0, column 1. For more information about this error, please see https://datatables.net/tn/4
 R: Implemente sistema de versionado de estado en la configuración de datatables en base.html
+
+
+------
+## Version v6.XX: Nueva opción del menu calendario
+------
+Analiza todo este código y confirmame cuando estes listo para añadir una neuva mejora al proyecto.
+Quiero añadir una nueva pestaña al menu principal, llamada Calendario, y quiero añadir un calendario  tipo "fullcalendar" para ver las Ordenes de Trabajo.
+
