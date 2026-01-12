@@ -288,13 +288,16 @@ def generate_work_orders():
 @utils.login_required
 def update_ot(id):
     conn = db.get_db_connection()
+    # Si viene del calendario, el redirect_to debe devolvemos allí
+    redirect_target = 'calendar_view' if request.form.get('redirect_to') == 'calendar' else 'work_orders'
+    if request.form.get('redirect_to') == 'cronograma': redirect_target = 'cronograma'
+    
     conn.execute('UPDATE ordenes_trabajo SET estado=?, observaciones=?, fecha_realizada=? WHERE id=?', (request.form['estado'], request.form['observaciones'], request.form['fecha_realizada'], id))
     conn.commit()
     conn.close()
     utils.log_action(f"OT actualizada: ID {id}")
     flash('OT actualizada', 'success')
-    if request.form.get('redirect_to')=='cronograma': return redirect(url_for('cronograma'))
-    return redirect(url_for('work_orders'))
+    return redirect(url_for(redirect_target))
 
 @app.route('/work_orders/print/<int:id>')
 @utils.login_required
@@ -632,7 +635,8 @@ def calendar_view():
 @utils.login_required
 def get_calendar_events():
     conn = db.get_db_connection()
-    ots = conn.execute('SELECT id, nombre, fecha_generacion, estado FROM ordenes_trabajo').fetchall()
+    # AÑADIDO: observaciones al select
+    ots = conn.execute('SELECT id, nombre, fecha_generacion, estado, observaciones FROM ordenes_trabajo').fetchall()
     conn.close()
     
     events = []
@@ -653,7 +657,11 @@ def get_calendar_events():
             'title': ot['nombre'],
             'start': ot['fecha_generacion'],
             'color': color,
-            'url': url_for('work_orders')
+            'url': url_for('work_orders'), # Se mantiene como fallback
+            'extendedProps': {
+                'estado': estado,
+                'observaciones': ot['observaciones'] or ''
+            }
         })
         
     return json.dumps(events)

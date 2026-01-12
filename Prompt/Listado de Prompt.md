@@ -554,3 +554,25 @@ Quiero que añadas un título con el mes y el año del calendario al imprimirlo
 Quiero que el color de la letras de las OT en curso esten en negro en el calendario, para que se vea mejor el texto.
 
 Cuando se imprima, no quiero que salga el boton de imprimir
+
+
+ ¿que pasa si hago click en una orden de trabajo en el calendario? 
+ Respuesta:
+     Actualmente, tal como está configurado el código en `app.py` (propiedad `'url': url_for('work_orders')`), al hacer clic en un evento **te redirige a la pantalla de listado general de Órdenes de Trabajo**.
+
+    Esto no es muy práctico porque pierdes el contexto del calendario. Lo ideal sería abrir una **ventana modal (popup)** que te permita ver los detalles y **editar el estado o añadir observaciones** sin salir del calendario.
+
+    Para lograr esto, necesitamos hacer dos ajustes:
+
+    1. **En `app.py`:** Enviar más datos en la API (como las `observaciones`) para mostrarlas en el modal.
+    2. **En `index.html`:** Añadir el código HTML del modal y configurar la acción del clic.
+
+    Aquí tienes los archivos actualizados:
+
+    ### 1. Actualizar `app.py`
+
+    Modificamos la función `get_calendar_events` para incluir `observaciones` y pasar los datos extra en una propiedad llamada `extendedProps`.
+
+    ### 2. Actualizar `templates/calendar/index.html`
+
+    Añadimos el Modal de Bootstrap y el JavaScript para interceptar el clic y rellenar los datos.

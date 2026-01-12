@@ -20,7 +20,7 @@
 
 <div class="card shadow">
     <div class="card-body">
-        <!-- Leyenda de colores (Actualizada) -->
+        <!-- Leyenda de colores -->
         <div class="mb-3 d-flex flex-wrap gap-3 align-items-center">
             <strong>Leyenda:</strong>
             <span class="badge bg-danger">Pendiente</span>
@@ -36,48 +36,103 @@
     </div>
 </div>
 
+<!-- Modal para Editar OT -->
+<div class="modal fade" id="editOTModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="editOTForm" method="POST" action="">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Editar Orden de Trabajo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="redirect_to" value="calendar">
+          
+          <div class="mb-3">
+            <label class="form-label">Orden de Trabajo</label>
+            <input type="text" class="form-control" id="otTitle" readonly>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Fecha Programada</label>
+            <input type="text" class="form-control" id="otDate" readonly>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Estado</label>
+            <select class="form-select" name="estado" id="otStatus">
+                <option value="Pendiente">Pendiente</option>
+                <option value="En curso">En curso</option>
+                <option value="Realizada">Realizada</option>
+                <option value="Prevista">Prevista</option>
+                <option value="Aplazada">Aplazada</option>
+                <option value="Rechazada">Rechazada</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+             <label class="form-label">Fecha Realización</label>
+             <input type="date" class="form-control" name="fecha_realizada" id="otFechaRealizada">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Observaciones</label>
+            <textarea class="form-control" name="observaciones" id="otObservaciones" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <!-- Enlace para imprimir -->
+          <a href="#" id="printOTLink" class="btn btn-outline-secondary" target="_blank">
+             <i class="fas fa-print"></i> Imprimir
+          </a>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- Estilos y Scripts de FullCalendar (LOCAL) -->
-<!-- Asegúrate de haber descargado fullcalendar.min.js en static/js/ -->
 <script src="{{ url_for('static', filename='js/fullcalendar.min.js') }}"></script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
     var printTitleEl = document.getElementById('print-month-year');
+    
+    // Elementos del Modal
+    var editModal = new bootstrap.Modal(document.getElementById('editOTModal'));
+    var modalTitleInput = document.getElementById('otTitle');
+    var modalDateInput = document.getElementById('otDate');
+    var modalStatusSelect = document.getElementById('otStatus');
+    var modalObsInput = document.getElementById('otObservaciones');
+    var modalForm = document.getElementById('editOTForm');
+    var modalPrintLink = document.getElementById('printOTLink');
 
     var calendar = new FullCalendar.Calendar(calendarEl, {
       initialView: 'dayGridMonth',
       locale: 'es', // Idioma español
-      firstDay: 1,  // 1 = Lunes, 0 = Domingo
+      firstDay: 1,  // 1 = Lunes
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
         right: 'dayGridMonth,timeGridWeek,listWeek'
       },
       buttonText: {
-        today:    'Hoy',
-        month:    'Mes',
-        week:     'Semana',
-        day:      'Día',
-        list:     'Lista'
+        today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día', list: 'Lista'
       },
-      events: '/api/calendar_events', // Carga los eventos desde nuestra API en app.py
+      events: '/api/calendar_events', 
       
-      // Actualizar el título de impresión cada vez que cambia la fecha
       datesSet: function(info) {
         if(printTitleEl) {
-            // info.view.title contiene el texto "Enero 2026", etc.
             printTitleEl.innerText = info.view.title;
         }
       },
 
-      // Personalización de estilos al renderizar el evento
       eventDidMount: function(info) {
-        // Si el evento es "En curso" (Amarillo #ffc107), forzar texto en negro
         if (info.event.backgroundColor === '#ffc107') {
             info.el.style.color = '#000000';
-            
-            // Asegurar que los elementos hijos (titulo, hora) también sean negros
             var content = info.el.querySelectorAll('.fc-event-main, .fc-event-title, .fc-event-time');
             content.forEach(function(element) {
                 element.style.color = '#000000';
@@ -85,8 +140,34 @@
         }
       },
 
+      // NUEVO: Manejo del clic para abrir modal
       eventClick: function(info) {
-        // Opcional: acciones al hacer clic
+        info.jsEvent.preventDefault(); // Evitar navegar a la URL por defecto
+
+        // Rellenar datos del modal
+        modalTitleInput.value = info.event.title;
+        
+        // Formatear fecha bonita
+        var d = info.event.start;
+        var datestring = d.getDate() + "/" + (d.getMonth()+1) + "/" + d.getFullYear();
+        modalDateInput.value = datestring;
+
+        // Recuperar props extendidas (estado, observaciones)
+        var props = info.event.extendedProps;
+        if (props) {
+            modalStatusSelect.value = props.estado;
+            modalObsInput.value = props.observaciones;
+        }
+
+        // Configurar acción del formulario para apuntar a la ruta de update correcta
+        // Ruta: /work_orders/update/<id>
+        modalForm.action = "/work_orders/update/" + info.event.id;
+        
+        // Configurar enlace de impresión
+        modalPrintLink.href = "/work_orders/print/" + info.event.id;
+
+        // Mostrar modal
+        editModal.show();
       }
     });
     calendar.render();
@@ -98,7 +179,6 @@
     #calendar {
         max-height: 800px;
     }
-    /* Mejora visual de los eventos */
     .fc-event {
         cursor: pointer;
         border: none;
@@ -111,8 +191,6 @@
             size: landscape;
             margin: 5mm;
         }
-
-        /* RESETEO TOTAL DEL LAYOUT */
         html, body {
             width: 100% !important;
             margin: 0 !important;
@@ -120,8 +198,6 @@
             border: none !important;
             background: white !important;
         }
-
-        /* El contenedor principal debe fluir */
         .content, .container-fluid, .row, main, .card, .card-body {
             width: 100% !important;
             max-width: none !important;
@@ -131,37 +207,23 @@
             box-shadow: none !important;
             display: block !important;
         }
-
-        /* Mostrar el título de impresión */
         .d-print-block {
             display: block !important;
         }
-
-        /* AJUSTES CRÍTICOS PARA ALINEACIÓN */
         #calendar {
             width: 100% !important;
             max-width: none !important;
             height: auto !important;
             overflow: visible !important;
         }
-
-        /* FORZAR ALINEACIÓN DE TABLAS */
-        .fc-scrollgrid, 
-        .fc-col-header, 
-        .fc-daygrid-body, 
-        .fc-daygrid-body table, 
-        .fc table {
+        .fc-scrollgrid, .fc-col-header, .fc-daygrid-body, .fc-daygrid-body table, .fc table {
             width: 100% !important;
             table-layout: fixed !important;
         }
-        
-        /* Asegurar que el contenido del calendario sea visible */
         .fc-view-harness {
             width: 100% !important;
             height: auto !important;
         }
-
-        /* Desactivar scrollbars y posicionamiento absoluto */
         .fc-scroller {
             overflow: visible !important;
             height: auto !important;
@@ -169,26 +231,16 @@
         .fc-scroller-liquid-absolute {
             position: static !important;
         }
-
-        /* Tamaño de fuente ajustado para caber en A4 Horizontal */
         .fc {
             font-size: 10pt !important;
         }
-        
-        /* Ocultar toolbar */
         .fc-toolbar {
             display: none !important;
         }
-
-        /* Colores de fondo */
         body {
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
-
-        /* REGLA CRÍTICA MOVIDA AL FINAL: 
-           Ocultar elementos aquí para asegurar que esta regla gana sobre 'display: block' de arriba.
-        */
         .sidebar-container, .mobile-navbar, .alert, .btn-print-hide, footer, .d-print-none {
             display: none !important;
         }
