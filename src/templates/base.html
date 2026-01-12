@@ -83,6 +83,9 @@
             {% endif %}
             <a href="{{ url_for('work_orders') }}" class="sidebar-link {{ 'active' if active_page == 'ots' else '' }}"><i class="fas fa-tools me-2"></i> Órdenes de Trabajo</a>
             <a href="{{ url_for('cronograma') }}" class="sidebar-link {{ 'active' if active_page == 'cronograma' else '' }}"><i class="fas fa-calendar-alt me-2"></i> Cronogramas OTs</a>
+            <!-- Nuevo enlace al Calendario -->
+            <a href="{{ url_for('calendar_view') }}" class="sidebar-link {{ 'active' if active_page == 'calendario' else '' }}"><i class="fas fa-calendar me-2"></i> Calendario</a>
+            
             <a href="{{ url_for('correctivos') }}" class="sidebar-link {{ 'active' if active_page == 'correctivos' else '' }}"><i class="fas fa-exclamation-triangle me-2"></i> Correctivos</a>
             {% if session.get('perm_configuracion') %}
             <div class="border-top border-secondary my-2"></div>

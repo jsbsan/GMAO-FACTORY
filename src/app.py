@@ -619,6 +619,45 @@ def add_type():
     except: pass
     return redirect(url_for('inventory'))
 
+# ==========================================
+# RUTAS NUEVAS PARA EL CALENDARIO (COLORES ACTUALIZADOS)
+# ==========================================
+
+@app.route('/calendar')
+@utils.login_required
+def calendar_view():
+    return render_template('calendar/index.html', active_page='calendario', system_date=utils.get_system_date())
+
+@app.route('/api/calendar_events')
+@utils.login_required
+def get_calendar_events():
+    conn = db.get_db_connection()
+    ots = conn.execute('SELECT id, nombre, fecha_generacion, estado FROM ordenes_trabajo').fetchall()
+    conn.close()
+    
+    events = []
+    for ot in ots:
+        # Colores personalizados solicitados
+        color = '#6c757d' # Default
+        estado = ot['estado']
+        
+        if estado == 'Pendiente': color = '#dc3545'      # Rojo
+        elif estado == 'En curso': color = '#ffc107'     # Amarillo
+        elif estado == 'Realizada': color = '#28a745'    # Verde
+        elif estado == 'Prevista': color = '#6c757d'     # Gris
+        elif estado == 'Aplazada': color = '#6f42c1'     # Violeta
+        elif estado == 'Rechazada': color = '#000000'    # Negra
+        
+        events.append({
+            'id': ot['id'],
+            'title': ot['nombre'],
+            'start': ot['fecha_generacion'],
+            'color': color,
+            'url': url_for('work_orders')
+        })
+        
+    return json.dumps(events)
+
 if __name__ == '__main__':
     if not os.path.exists('mantenimiento_factory.db'):
         db.init_db()

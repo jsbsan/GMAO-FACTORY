@@ -481,3 +481,76 @@ R: Implemente sistema de versionado de estado en la configuración de datatables
 Analiza todo este código y confirmame cuando estes listo para añadir una neuva mejora al proyecto.
 Quiero añadir una nueva pestaña al menu principal, llamada Calendario, y quiero añadir un calendario  tipo "fullcalendar" para ver las Ordenes de Trabajo.
 
+Quiero que cambies los colores de las ordenes de trabajo en el calendario:  Pendiente: en rojo
+En curso: amarillo
+Realizada: Verde
+Prevista: gris
+Aplazada: violeta
+Rechazada: negra
+
+Añade un boton para imprimir el calendario 
+
+Quiero que el lunes sea el primer dia de la semana en el calendario
+
+Cuando imprimo sale solo 4 dias, quiero que salgan el ancho de mtodos los dias de la semana (de luneas a domingo)
+Si cambio el tamaño de la ventana de la aplicación, al darle al boton de mprimir si se muestra todos los días...
+
+Respuesta:
+    Entiendo. El problema que describes es que la función de impresión del navegador captura el *viewport* actual. Si la ventana es pequeña, el navegador puede interpretar que el diseño debe ser "responsive" y recortar columnas incluso al imprimir, o simplemente FullCalendar ajusta su vista basándose en el ancho disponible en ese momento.
+
+    Para garantizar que **siempre** se impriman los 7 días (Lunes a Domingo) independientemente del tamaño de tu ventana, necesitamos añadir una regla CSS que fuerce un ancho mínimo fijo al contenedor del calendario *solo durante la impresión*.
+
+    Voy a modificar el bloque `<style>` en `templates/calendar/index.html` para asegurar que el contenedor del calendario tenga suficiente espacio horizontal al imprimirse.
+
+    ### Cambios realizados:
+
+    He añadido `min-width: 1024px !important;` al selector `#calendar` dentro de `@media print`.
+
+    **¿Por qué esto soluciona el problema?**
+    Incluso si tu ventana del navegador está pequeña (ej. 800px de ancho) y FullCalendar se ha "replegado" para adaptarse a ese tamaño, al imprimir, el navegador intentará usar ese diseño. Al forzar un ancho mínimo de 1024px (o más si fuera necesario) solo para la impresión, obligamos al navegador a renderizar el calendario completo en la vista previa de impresión, asegurando que quepan los 7 días de la semana en formato horizontal.
+
+    También he añadido `.fc-scroller { overflow: visible !important; }` para evitar que FullCalendar intente añadir barras de desplazamiento internas en el papel.
+
+Vale, el ancho ya si sale correctamente, pero no salen los dias, el alto parece que se ha cortado con el nombre de los dias
+
+Respuesta:
+    Entiendo, el corte vertical suele deberse a que FullCalendar calcula la altura mediante JavaScript para permitir el *scroll* en pantalla, pero al imprimir necesitamos que esa altura sea automática para que se vea todo el contenido estático.
+
+    He corregido los estilos de impresión para:
+
+    1. **Liberar la altura (`height: auto`)**: He eliminado las restricciones de altura en `body` y `html` y forzado a los contenedores internos de FullCalendar (`.fc-view-harness`, `.fc-scroller`) a expandirse automáticamente.
+    2. **Desactivar el posicionamiento absoluto**: He añadido una regla para `.fc-scroller-liquid-absolute` que suele ser la causante de que el contenido "desaparezca" o se corte justo debajo de los encabezados al imprimir.
+
+
+Ahora falla el ancho de los dias. La cabecera sale bien, pero las columanas de los dias solo se ven 4 dias
+Respuesta:
+    Entendido. Si las columnas de los días están muy estrechas (solo 4 días visibles) a pesar de la cabecera correcta, significa que el navegador está intentando "encajar" todo el calendario en un ancho que percibe como limitado, y probablemente está colapsando las columnas vacías o comprimiéndolas excesivamente al renderizar la tabla interna de FullCalendar.
+
+    Para solucionar esto, necesitamos ser más agresivos con el CSS de impresión. En lugar de confiar en que el navegador escale todo automáticamente, vamos a:
+
+    1. **Forzar un ancho mínimo fijo (`min-width`)** en el contenedor del calendario, lo que obligará al navegador a usar ese ancho y escalar el contenido hacia abajo (zoom out) para que quepa en la hoja.
+    2. Usar la propiedad `zoom` (o `transform: scale`) específicamente para la impresión, para reducir el tamaño visual de todo el calendario y que así "quepan" los 7 días cómodamente en una hoja A4 horizontal.
+
+    Aquí tienes el archivo corregido. He ajustado la estrategia de impresión:
+
+    1. **Eliminado** el `width: 100% !important` genérico que a veces causa colapso.
+    2. **Añadido** `min-width: 1024px !important` al contenedor `#calendar` para asegurar que FullCalendar renderice los 7 días completos.
+    3. **Añadido** un `zoom: 65%` (ajustable) al cuerpo de impresión para asegurar que ese calendario de 1024px quepa en el papel sin recortarse.
+
+No funciona, ahora el ancho de los columnas de los dias es menor que el de las columnas d elunes, martes, miercoles,
+    El problema de desalineación (cabeceras anchas y cuerpo estrecho) ocurre porque FullCalendar usa tablas separadas para la cabecera y el contenido. Al imprimir, el navegador puede renderizarlas con anchos distintos si no se fuerza explícitamente.
+
+    Para solucionarlo definitivamente:
+
+    1. **Eliminaré el `zoom` global**, ya que suele causar desajustes en las tablas.
+    2. Forzaré `table-layout: fixed` y `width: 100%` en **todas** las tablas internas del calendario para obligarlas a tener la misma anchura.
+    3. Ajustaré el tamaño de fuente para que todo quepa de forma natural en modo horizontal.
+
+    Aquí tienes el código corregido:
+
+Quiero que añadas un título con el mes y el año del calendario al imprimirlo
+
+
+Quiero que el color de la letras de las OT en curso esten en negro en el calendario, para que se vea mejor el texto.
+
+Cuando se imprima, no quiero que salga el boton de imprimir

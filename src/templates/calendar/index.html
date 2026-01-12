@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-3 d-print-none">
+    <div class="col-md-8">
+        <h2><i class="fas fa-calendar-alt"></i> Calendario de Órdenes de Trabajo</h2>
+        <p class="text-muted">Visualización mensual de mantenimientos.</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <button class="btn btn-secondary" onclick="window.print()">
+            <i class="fas fa-print"></i> Imprimir Calendario
+        </button>
+    </div>
+</div>
+
+<!-- Título visible SOLO en impresión -->
+<div id="print-title" class="d-none d-print-block text-center mb-4">
+    <h2 id="print-month-year" class="text-uppercase"></h2>
+</div>
+
+<div class="card shadow">
+    <div class="card-body">
+        <!-- Leyenda de colores (Actualizada) -->
+        <div class="mb-3 d-flex flex-wrap gap-3 align-items-center">
+            <strong>Leyenda:</strong>
+            <span class="badge bg-danger">Pendiente</span>
+            <span class="badge bg-warning text-dark">En curso</span>
+            <span class="badge bg-success">Realizada</span>
+            <span class="badge bg-secondary">Prevista</span>
+            <span class="badge text-white" style="background-color: #6f42c1;">Aplazada</span>
+            <span class="badge text-white" style="background-color: #000000;">Rechazada</span>
+        </div>
+
+        <!-- Contenedor del Calendario -->
+        <div id='calendar'></div>
+    </div>
+</div>
+
+<!-- Estilos y Scripts de FullCalendar (LOCAL) -->
+<!-- Asegúrate de haber descargado fullcalendar.min.js en static/js/ -->
+<script src="{{ url_for('static', filename='js/fullcalendar.min.js') }}"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    var printTitleEl = document.getElementById('print-month-year');
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      locale: 'es', // Idioma español
+      firstDay: 1,  // 1 = Lunes, 0 = Domingo
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,listWeek'
+      },
+      buttonText: {
+        today:    'Hoy',
+        month:    'Mes',
+        week:     'Semana',
+        day:      'Día',
+        list:     'Lista'
+      },
+      events: '/api/calendar_events', // Carga los eventos desde nuestra API en app.py
+      
+      // Actualizar el título de impresión cada vez que cambia la fecha
+      datesSet: function(info) {
+        if(printTitleEl) {
+            // info.view.title contiene el texto "Enero 2026", etc.
+            printTitleEl.innerText = info.view.title;
+        }
+      },
+
+      // Personalización de estilos al renderizar el evento
+      eventDidMount: function(info) {
+        // Si el evento es "En curso" (Amarillo #ffc107), forzar texto en negro
+        if (info.event.backgroundColor === '#ffc107') {
+            info.el.style.color = '#000000';
+            
+            // Asegurar que los elementos hijos (titulo, hora) también sean negros
+            var content = info.el.querySelectorAll('.fc-event-main, .fc-event-title, .fc-event-time');
+            content.forEach(function(element) {
+                element.style.color = '#000000';
+            });
+        }
+      },
+
+      eventClick: function(info) {
+        // Opcional: acciones al hacer clic
+      }
+    });
+    calendar.render();
+  });
+</script>
+
+<style>
+    /* Ajuste para que el calendario tenga una altura decente */
+    #calendar {
+        max-height: 800px;
+    }
+    /* Mejora visual de los eventos */
+    .fc-event {
+        cursor: pointer;
+        border: none;
+        padding: 2px;
+    }
+    
+    /* Estilos específicos para impresión */
+    @media print {
+        @page {
+            size: landscape;
+            margin: 5mm;
+        }
+
+        /* RESETEO TOTAL DEL LAYOUT */
+        html, body {
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            background: white !important;
+        }
+
+        /* El contenedor principal debe fluir */
+        .content, .container-fluid, .row, main, .card, .card-body {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+            display: block !important;
+        }
+
+        /* Mostrar el título de impresión */
+        .d-print-block {
+            display: block !important;
+        }
+
+        /* AJUSTES CRÍTICOS PARA ALINEACIÓN */
+        #calendar {
+            width: 100% !important;
+            max-width: none !important;
+            height: auto !important;
+            overflow: visible !important;
+        }
+
+        /* FORZAR ALINEACIÓN DE TABLAS */
+        .fc-scrollgrid, 
+        .fc-col-header, 
+        .fc-daygrid-body, 
+        .fc-daygrid-body table, 
+        .fc table {
+            width: 100% !important;
+            table-layout: fixed !important;
+        }
+        
+        /* Asegurar que el contenido del calendario sea visible */
+        .fc-view-harness {
+            width: 100% !important;
+            height: auto !important;
+        }
+
+        /* Desactivar scrollbars y posicionamiento absoluto */
+        .fc-scroller {
+            overflow: visible !important;
+            height: auto !important;
+        }
+        .fc-scroller-liquid-absolute {
+            position: static !important;
+        }
+
+        /* Tamaño de fuente ajustado para caber en A4 Horizontal */
+        .fc {
+            font-size: 10pt !important;
+        }
+        
+        /* Ocultar toolbar */
+        .fc-toolbar {
+            display: none !important;
+        }
+
+        /* Colores de fondo */
+        body {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        /* REGLA CRÍTICA MOVIDA AL FINAL: 
+           Ocultar elementos aquí para asegurar que esta regla gana sobre 'display: block' de arriba.
+        */
+        .sidebar-container, .mobile-navbar, .alert, .btn-print-hide, footer, .d-print-none {
+            display: none !important;
+        }
+    }
+</style>
+{% endblock %}
