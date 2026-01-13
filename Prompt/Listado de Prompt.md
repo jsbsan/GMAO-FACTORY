@@ -591,3 +591,27 @@ Ahora necesito "dockerizar" una aplicación python, como lo hago en windows 10?
 Documentacion con pdoc del codigo fuente:
 ------
 pdoc app.py database.py resumen.py utils.py -o ./api-docs
+
+------
+## Version v6.XX: Modo oscuro
+------
+Necesito que se puede configurar "modo oscuro" o "modo claro"
+
+hay algunos titulos de paneles y tablas que tienen de color del texto negro en modo claro,pero al cambiar a modo oscuro, el texto sigue cambia a color blanco, con lo cual no se ve. ¿puedes dejar el texto como si estuviera en modo claro siempre?
+
+En el archivo que te adjunto "cronograma.html" tengo el problema de que la columna primera, en las filas no se ve el texto al cambiar a modo oscuro ¿podias revisarlo?
+
+Ahora, en modo claro, la fila de titulos de las tabledate, el texto no se ve, quedando en negro como el fono.
+Revisa tambien el fichero "base.html" que tambien tiene el mismo error.
+
+El texto "GMAO" y "Usuario:", al ponerlo en modo claro, queda en negro y no se ve con el fondo, ¿lo podias poner siempre en blanco, sea cual sea el modo?
+
+Al cambiar a modo oscuro, en el archivo que te adjunto "index-resumen.html", no se ve el texto "Configuración del Periodo", ni los textos de "Fecha Inicio Resumen" ni "Fecha Fin Resumen"
+
+Al cambiar a modo oscuro, en el archivo que te adjunto "index-resumen.html", no se ve el texto "Configuración del Periodo", ni los textos de "Fecha Inicio Resumen" ni "Fecha Fin Resumen"
+
+El archivo que te adjunto "edit-act.html", no reconoce el modo oscuro
+Quiero que revises el fichero "edit-act.html", no modifiques "base.html"
+Quiero que revises el fichero "edit-correctivo.html", no modifiques "base.html" 
+
+El fondo en ambos archivos, en modo oscuro, sigue siendo muy claro (casi blanco)
