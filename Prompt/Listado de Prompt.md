@@ -576,3 +576,18 @@ Cuando se imprima, no quiero que salga el boton de imprimir
     ### 2. Actualizar `templates/calendar/index.html`
 
     Añadimos el Modal de Bootstrap y el JavaScript para interceptar el clic y rellenar los datos.
+
+
+------
+## Version v6.XX: 
+Versión dockerizada
+------
+¿como se crea el archivo de requerimientos para un proyecto de python?
+Ahora necesito "dockerizar" una aplicación python, como lo hago en windows 10?
+¿y como ver la aplicacion en mi navegador?
+
+------
+## Version v6.XX: 
+Documentacion con pdoc del codigo fuente:
+------
+pdoc app.py database.py resumen.py utils.py -o ./api-docs
