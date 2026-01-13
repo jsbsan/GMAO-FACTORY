@@ -675,7 +675,8 @@ if __name__ == '__main__':
     try:
         conn = db.get_db_connection()
         real_today = datetime.date.today()
-        conn.execute('UPDATE configuracion SET fecha_sistema=? WHERE id=1', (real_today,))
+        # Usamos .isoformat() para convertir el objeto fecha a texto "YYYY-MM-DD"
+        conn.execute('UPDATE configuracion SET fecha_sistema=? WHERE id=1', (real_today.isoformat(),))
         count = utils.generate_and_update_work_orders(conn, real_today)
         conn.commit()
         conn.close()
