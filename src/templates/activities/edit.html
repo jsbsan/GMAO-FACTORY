@@ -1,4 +1,89 @@
 {% extends "base.html" %}
+
 {% block content %}
-<h2>Editar Actividad: {{ activity.nombre }}</h2><form action="{{ url_for('update_activity', id=activity.id) }}" method="POST" class="row g-3 mt-4"><div class="col-md-4"><label class="form-label">Nombre</label><input type="text" class="form-control" name="nombre" value="{{ activity.nombre }}" required></div><div class="col-md-4"><label class="form-label">Equipo</label><select class="form-select" name="equipo_id" required>{% for eq in equipos %}<option value="{{ eq.id }}" {{ 'selected' if eq.id == activity.equipo_id }}>{{ eq.nombre }}</option>{% endfor %}</select></div><div class="col-md-2"><label class="form-label">Periodicidad</label><input type="number" class="form-control" name="periodicidad" value="{{ activity.periodicidad }}" required></div><div class="col-md-2"><label class="form-label">Inicio</label><input type="date" class="form-control" name="fecha_inicio" value="{{ activity.fecha_inicio_gen }}" required></div><div class="col-12"><label class="form-label">Operaciones</label><textarea class="form-control" name="operaciones" rows="2" required>{{ activity.operaciones }}</textarea></div><div class="col-12 d-flex justify-content-end gap-2"><a href="{{ url_for('activities') }}" class="btn btn-secondary">Cancelar</a><button type="submit" class="btn btn-primary">Guardar</button></div></form>
+<style>
+    /* Estilos locales para asegurar el contraste en esta página */
+    [data-bs-theme="dark"] .card {
+        background-color: #1e2125 !important;
+        border-color: #373b3e !important;
+    }
+    [data-bs-theme="dark"] .card-header {
+        background-color: #2b3035 !important;
+        color: #f8f9fa !important;
+        border-bottom-color: #373b3e !important;
+    }
+    [data-bs-theme="dark"] .form-label {
+        color: #dee2e6 !important;
+    }
+    [data-bs-theme="dark"] .form-control, [data-bs-theme="dark"] .form-select {
+        background-color: #2b3035 !important;
+        border-color: #495057 !important;
+        color: #fff !important;
+    }
+    [data-bs-theme="dark"] .input-group-text {
+        background-color: #343a40 !important;
+        border-color: #495057 !important;
+        color: #dee2e6 !important;
+    }
+</style>
+
+<div class="mb-4">
+    <h2 class="h3"><i class="fas fa-edit me-2"></i> Editar Actividad</h2>
+    <p class="text-muted">Modifica los detalles de la actividad seleccionada.</p>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header fw-bold">
+        {{ activity.nombre }}
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('update_activity', id=activity.id) }}" method="POST" class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Nombre de la Actividad</label>
+                <input type="text" class="form-control" name="nombre" value="{{ activity.nombre }}" required>
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Equipo Asociado</label>
+                <select class="form-select" name="equipo_id" required>
+                    {% for eq in equipos %}
+                    <option value="{{ eq.id }}" {{ 'selected' if eq.id == activity.equipo_id }}>
+                        {{ eq.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Periodicidad (días)</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-redo"></i></span>
+                    <input type="number" class="form-control" name="periodicidad" value="{{ activity.periodicidad }}" required min="1">
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Fecha de Inicio Generación</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                    <input type="date" class="form-control" name="fecha_inicio" value="{{ activity.fecha_inicio_gen }}" required>
+                </div>
+            </div>
+            
+            <div class="col-12">
+                <label class="form-label fw-bold">Operaciones a Realizar</label>
+                <textarea class="form-control" name="operaciones" rows="4" required placeholder="Tareas de mantenimiento...">{{ activity.operaciones }}</textarea>
+            </div>
+            
+            <div class="col-12 d-flex justify-content-end gap-2 mt-4">
+                <a href="{{ url_for('activities') }}" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

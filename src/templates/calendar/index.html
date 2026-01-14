@@ -1,0 +1,249 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-3 d-print-none">
+    <div class="col-md-8">
+        <h2><i class="fas fa-calendar-alt"></i> Calendario de Órdenes de Trabajo</h2>
+        <p class="text-muted">Visualización mensual de mantenimientos.</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <button class="btn btn-secondary" onclick="window.print()">
+            <i class="fas fa-print"></i> Imprimir Calendario
+        </button>
+    </div>
+</div>
+
+<!-- Título visible SOLO en impresión -->
+<div id="print-title" class="d-none d-print-block text-center mb-4">
+    <h2 id="print-month-year" class="text-uppercase"></h2>
+</div>
+
+<div class="card shadow">
+    <div class="card-body">
+        <!-- Leyenda de colores -->
+        <div class="mb-3 d-flex flex-wrap gap-3 align-items-center">
+            <strong>Leyenda:</strong>
+            <span class="badge bg-danger">Pendiente</span>
+            <span class="badge bg-warning text-dark">En curso</span>
+            <span class="badge bg-success">Realizada</span>
+            <span class="badge bg-secondary">Prevista</span>
+            <span class="badge text-white" style="background-color: #6f42c1;">Aplazada</span>
+            <span class="badge text-white" style="background-color: #000000;">Rechazada</span>
+        </div>
+
+        <!-- Contenedor del Calendario -->
+        <div id='calendar'></div>
+    </div>
+</div>
+
+<!-- Modal para Editar OT -->
+<div class="modal fade" id="editOTModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="editOTForm" method="POST" action="">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Editar Orden de Trabajo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="redirect_to" value="calendar">
+          
+          <div class="mb-3">
+            <label class="form-label">Orden de Trabajo</label>
+            <input type="text" class="form-control" id="otTitle" readonly>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Fecha Programada</label>
+            <input type="text" class="form-control" id="otDate" readonly>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Estado</label>
+            <select class="form-select" name="estado" id="otStatus">
+                <option value="Pendiente">Pendiente</option>
+                <option value="En curso">En curso</option>
+                <option value="Realizada">Realizada</option>
+                <option value="Prevista">Prevista</option>
+                <option value="Aplazada">Aplazada</option>
+                <option value="Rechazada">Rechazada</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+             <label class="form-label">Fecha Realización</label>
+             <input type="date" class="form-control" name="fecha_realizada" id="otFechaRealizada">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Observaciones</label>
+            <textarea class="form-control" name="observaciones" id="otObservaciones" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <!-- Enlace para imprimir -->
+          <a href="#" id="printOTLink" class="btn btn-outline-secondary" target="_blank">
+             <i class="fas fa-print"></i> Imprimir
+          </a>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Estilos y Scripts de FullCalendar (LOCAL) -->
+<script src="{{ url_for('static', filename='js/fullcalendar.min.js') }}"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    var printTitleEl = document.getElementById('print-month-year');
+    
+    // Elementos del Modal
+    var editModal = new bootstrap.Modal(document.getElementById('editOTModal'));
+    var modalTitleInput = document.getElementById('otTitle');
+    var modalDateInput = document.getElementById('otDate');
+    var modalStatusSelect = document.getElementById('otStatus');
+    var modalObsInput = document.getElementById('otObservaciones');
+    var modalForm = document.getElementById('editOTForm');
+    var modalPrintLink = document.getElementById('printOTLink');
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      locale: 'es', // Idioma español
+      firstDay: 1,  // 1 = Lunes
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth'
+      },
+      buttonText: {
+        today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día', list: 'Lista'
+      },
+      events: '/api/calendar_events', 
+      
+      datesSet: function(info) {
+        if(printTitleEl) {
+            printTitleEl.innerText = info.view.title;
+        }
+      },
+
+      eventDidMount: function(info) {
+        if (info.event.backgroundColor === '#ffc107') {
+            info.el.style.color = '#000000';
+            var content = info.el.querySelectorAll('.fc-event-main, .fc-event-title, .fc-event-time');
+            content.forEach(function(element) {
+                element.style.color = '#000000';
+            });
+        }
+      },
+
+      // NUEVO: Manejo del clic para abrir modal
+      eventClick: function(info) {
+        info.jsEvent.preventDefault(); // Evitar navegar a la URL por defecto
+
+        // Rellenar datos del modal
+        modalTitleInput.value = info.event.title;
+        
+        // Formatear fecha bonita
+        var d = info.event.start;
+        var datestring = d.getDate() + "/" + (d.getMonth()+1) + "/" + d.getFullYear();
+        modalDateInput.value = datestring;
+
+        // Recuperar props extendidas (estado, observaciones)
+        var props = info.event.extendedProps;
+        if (props) {
+            modalStatusSelect.value = props.estado;
+            modalObsInput.value = props.observaciones;
+        }
+
+        // Configurar acción del formulario para apuntar a la ruta de update correcta
+        // Ruta: /work_orders/update/<id>
+        modalForm.action = "/work_orders/update/" + info.event.id;
+        
+        // Configurar enlace de impresión
+        modalPrintLink.href = "/work_orders/print/" + info.event.id;
+
+        // Mostrar modal
+        editModal.show();
+      }
+    });
+    calendar.render();
+  });
+</script>
+
+<style>
+    /* Ajuste para que el calendario tenga una altura decente */
+    #calendar {
+        max-height: 800px;
+    }
+    .fc-event {
+        cursor: pointer;
+        border: none;
+        padding: 2px;
+    }
+    
+    /* Estilos específicos para impresión */
+    @media print {
+        @page {
+            size: landscape;
+            margin: 5mm;
+        }
+        html, body {
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            background: white !important;
+        }
+        .content, .container-fluid, .row, main, .card, .card-body {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+            display: block !important;
+        }
+        .d-print-block {
+            display: block !important;
+        }
+        #calendar {
+            width: 100% !important;
+            max-width: none !important;
+            height: auto !important;
+            overflow: visible !important;
+        }
+        .fc-scrollgrid, .fc-col-header, .fc-daygrid-body, .fc-daygrid-body table, .fc table {
+            width: 100% !important;
+            table-layout: fixed !important;
+        }
+        .fc-view-harness {
+            width: 100% !important;
+            height: auto !important;
+        }
+        .fc-scroller {
+            overflow: visible !important;
+            height: auto !important;
+        }
+        .fc-scroller-liquid-absolute {
+            position: static !important;
+        }
+        .fc {
+            font-size: 10pt !important;
+        }
+        .fc-toolbar {
+            display: none !important;
+        }
+        body {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        .sidebar-container, .mobile-navbar, .alert, .btn-print-hide, footer, .d-print-none {
+            display: none !important;
+        }
+    }
+</style>
+{% endblock %}

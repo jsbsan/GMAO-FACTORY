@@ -1,4 +1,161 @@
 {% extends "base.html" %}
+
 {% block content %}
-<h2>Editar Incidencia: {{ item.nombre }}</h2><form action="{{ url_for('update_correctivo', id=item.id) }}" method="POST" enctype="multipart/form-data" class="mt-4"><div class="row"><div class="col-md-6"><div class="mb-3"><label class="form-label">Nombre</label><input type="text" class="form-control" name="nombre" value="{{ item.nombre }}" required></div><div class="mb-3"><label class="form-label">Equipo</label><select class="form-select" name="equipo_id" required>{% for eq in equipos %}<option value="{{ eq.id }}" {{ 'selected' if eq.id == item.equipo_id }}>{{ eq.nombre }}</option>{% endfor %}</select></div><div class="mb-3"><label class="form-label">Comentario</label><textarea class="form-control" name="comentario" rows="3">{{ item.comentario }}</textarea></div><div class="mb-3"><label class="form-label">Solución</label><textarea class="form-control" name="solucion" rows="3">{{ item.solucion }}</textarea></div></div><div class="col-md-6"><div class="row"><div class="col-md-6 mb-3"><label class="form-label">Fecha Detectada</label><input type="date" class="form-control" name="fecha_detectada" value="{{ item.fecha_detectada }}" required></div><div class="col-md-6 mb-3"><label class="form-label">Fecha Resolución</label><input type="date" class="form-control" name="fecha_resolucion" value="{{ item.fecha_resolucion or '' }}"></div><div class="col-12 mb-3"><label class="form-label">Estado</label><select class="form-select" name="estado"><option value="Detectada" {{ 'selected' if item.estado == 'Detectada' }}>Detectada</option><option value="En curso" {{ 'selected' if item.estado == 'En curso' }}>En curso</option><option value="Resuelta" {{ 'selected' if item.estado == 'Resuelta' }}>Resuelta</option></select></div></div><div class="card mb-3"><div class="card-header d-flex justify-content-between align-items-center"><span>Imágenes ({{ imgs|length }}/5)</span><small class="text-muted">Selecciona para borrar</small></div><div class="card-body">{% if imgs %}<div class="list-group mb-2">{% for img in imgs %}<div class="list-group-item d-flex justify-content-between align-items-center p-1"><small class="text-truncate" style="max-width: 200px;">{{ img.name }}</small> <input class="form-check-input" type="checkbox" name="delete_images" value="{{ loop.index0 }}"></div>{% endfor %}</div>{% endif %}{% if imgs|length < 5 %}<input type="file" class="form-control form-control-sm" name="images" multiple accept="image/*">{% endif %}</div></div><div class="card"><div class="card-header d-flex justify-content-between align-items-center"><span>PDFs ({{ pdfs|length }}/5)</span><small class="text-muted">Selecciona para borrar</small></div><div class="card-body">{% if pdfs %}<div class="list-group mb-2">{% for pdf in pdfs %}<div class="list-group-item d-flex justify-content-between align-items-center p-1"><small class="text-truncate" style="max-width: 200px;">{{ pdf.name }}</small> <input class="form-check-input" type="checkbox" name="delete_pdfs" value="{{ loop.index0 }}"></div>{% endfor %}</div>{% endif %}{% if pdfs|length < 5 %}<input type="file" class="form-control form-control-sm" name="pdfs" multiple accept="application/pdf">{% endif %}</div></div></div></div><hr><div class="d-flex justify-content-end gap-2"><a href="{{ url_for('correctivos') }}" class="btn btn-secondary">Cancelar</a><button type="submit" class="btn btn-primary">Guardar Cambios</button></div></form>
+<style>
+    /* Estilos locales para asegurar el contraste en esta página sin tocar base.html */
+    [data-bs-theme="dark"] .card {
+        background-color: #1e2125 !important;
+        border-color: #373b3e !important;
+    }
+    [data-bs-theme="dark"] .card-header {
+        background-color: #2b3035 !important;
+        color: #f8f9fa !important;
+        border-bottom-color: #373b3e !important;
+    }
+    [data-bs-theme="dark"] .list-group-item {
+        background-color: #2b3035 !important;
+        border-color: #373b3e !important;
+        color: #dee2e6 !important;
+    }
+    [data-bs-theme="dark"] .form-label {
+        color: #dee2e6 !important;
+    }
+    [data-bs-theme="dark"] .form-control, [data-bs-theme="dark"] .form-select {
+        background-color: #2b3035 !important;
+        border-color: #495057 !important;
+        color: #fff !important;
+    }
+    [data-bs-theme="dark"] .input-group-text {
+        background-color: #343a40 !important;
+        border-color: #495057 !important;
+        color: #dee2e6 !important;
+    }
+</style>
+
+<div class="mb-4">
+    <h2 class="h3"><i class="fas fa-tools me-2"></i> Editar Incidencia</h2>
+    <p class="text-muted">Actualiza los detalles del mantenimiento correctivo o avería.</p>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header fw-bold">
+        {{ item.nombre }}
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('update_correctivo', id=item.id) }}" method="POST" enctype="multipart/form-data">
+            <div class="row">
+                <!-- Columna Izquierda -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nombre de la Incidencia</label>
+                        <input type="text" class="form-control" name="nombre" value="{{ item.nombre }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Equipo Afectado</label>
+                        <select class="form-select" name="equipo_id" required>
+                            {% for eq in equipos %}
+                            <option value="{{ eq.id }}" {{ 'selected' if eq.id == item.equipo_id }}>
+                                {{ eq.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Comentario / Descripción</label>
+                        <textarea class="form-control" name="comentario" rows="3">{{ item.comentario }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Solución Aplicada</label>
+                        <textarea class="form-control" name="solucion" rows="3">{{ item.solucion }}</textarea>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha -->
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Fecha Detectada</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="date" class="form-control" name="fecha_detectada" value="{{ item.fecha_detectada }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Fecha Resolución</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-check-circle"></i></span>
+                                <input type="date" class="form-control" name="fecha_resolucion" value="{{ item.fecha_resolucion or '' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Estado Actual</label>
+                        <select class="form-select" name="estado">
+                            <option value="Detectada" {{ 'selected' if item.estado == 'Detectada' }}>Detectada</option>
+                            <option value="En curso" {{ 'selected' if item.estado == 'En curso' }}>En curso</option>
+                            <option value="Resuelta" {{ 'selected' if item.estado == 'Resuelta' }}>Resuelta</option>
+                        </select>
+                    </div>
+
+                    <!-- Gestión de Imágenes -->
+                    <div class="card mb-3">
+                        <div class="card-header d-flex justify-content-between align-items-center py-2">
+                            <span class="small fw-bold"><i class="fas fa-images me-1"></i> Imágenes ({{ imgs|length }}/5)</span>
+                        </div>
+                        <div class="card-body p-2">
+                            {% if imgs %}
+                            <div class="list-group mb-2">
+                                {% for img in imgs %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center py-1 px-2">
+                                    <small class="text-truncate" style="max-width: 180px;">{{ img.name }}</small> 
+                                    <input class="form-check-input" type="checkbox" name="delete_images" value="{{ loop.index0 }}">
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            {% if imgs|length < 5 %}
+                            <input type="file" class="form-control form-control-sm" name="images" multiple accept="image/*">
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Gestión de PDFs -->
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center py-2">
+                            <span class="small fw-bold"><i class="fas fa-file-pdf me-1"></i> Documentos ({{ pdfs|length }}/5)</span>
+                        </div>
+                        <div class="card-body p-2">
+                            {% if pdfs %}
+                            <div class="list-group mb-2">
+                                {% for pdf in pdfs %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center py-1 px-2">
+                                    <small class="text-truncate" style="max-width: 180px;">{{ pdf.name }}</small> 
+                                    <input class="form-check-input" type="checkbox" name="delete_pdfs" value="{{ loop.index0 }}">
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            {% if pdfs|length < 5 %}
+                            <input type="file" class="form-control form-control-sm" name="pdfs" multiple accept="application/pdf">
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-top d-flex justify-content-end gap-2">
+                <a href="{{ url_for('correctivos') }}" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

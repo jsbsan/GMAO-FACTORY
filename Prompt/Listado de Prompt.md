@@ -473,3 +473,164 @@ jinja2.exceptions.TemplateSyntaxError: Encountered unknown tag 'endfor'. You pro
 ------
 P: Te  comento un error que me aparece a veces cuando entro en la pestañ Ordenes de Trabjo: Sale este error: DataTables warning: table id=tablaOTs - Requested unknown parameter '1' for row 0, column 1. For more information about this error, please see https://datatables.net/tn/4
 R: Implemente sistema de versionado de estado en la configuración de datatables en base.html
+
+
+------
+## Version v6.XX: Nueva opción del menu calendario
+------
+Analiza todo este código y confirmame cuando estes listo para añadir una nueva mejora al proyecto.
+Quiero añadir una nueva pestaña al menu principal, llamada Calendario, y quiero añadir un calendario  tipo "fullcalendar" para ver las Ordenes de Trabajo.
+
+Quiero que cambies los colores de las ordenes de trabajo en el calendario:  Pendiente: en rojo
+En curso: amarillo
+Realizada: Verde
+Prevista: gris
+Aplazada: violeta
+Rechazada: negra
+
+Añade un boton para imprimir el calendario 
+
+Quiero que el lunes sea el primer dia de la semana en el calendario
+
+Cuando imprimo sale solo 4 dias, quiero que salgan el ancho de mtodos los dias de la semana (de luneas a domingo)
+Si cambio el tamaño de la ventana de la aplicación, al darle al boton de mprimir si se muestra todos los días...
+
+Respuesta:
+    Entiendo. El problema que describes es que la función de impresión del navegador captura el *viewport* actual. Si la ventana es pequeña, el navegador puede interpretar que el diseño debe ser "responsive" y recortar columnas incluso al imprimir, o simplemente FullCalendar ajusta su vista basándose en el ancho disponible en ese momento.
+
+    Para garantizar que **siempre** se impriman los 7 días (Lunes a Domingo) independientemente del tamaño de tu ventana, necesitamos añadir una regla CSS que fuerce un ancho mínimo fijo al contenedor del calendario *solo durante la impresión*.
+
+    Voy a modificar el bloque `<style>` en `templates/calendar/index.html` para asegurar que el contenedor del calendario tenga suficiente espacio horizontal al imprimirse.
+
+    ### Cambios realizados:
+
+    He añadido `min-width: 1024px !important;` al selector `#calendar` dentro de `@media print`.
+
+    **¿Por qué esto soluciona el problema?**
+    Incluso si tu ventana del navegador está pequeña (ej. 800px de ancho) y FullCalendar se ha "replegado" para adaptarse a ese tamaño, al imprimir, el navegador intentará usar ese diseño. Al forzar un ancho mínimo de 1024px (o más si fuera necesario) solo para la impresión, obligamos al navegador a renderizar el calendario completo en la vista previa de impresión, asegurando que quepan los 7 días de la semana en formato horizontal.
+
+    También he añadido `.fc-scroller { overflow: visible !important; }` para evitar que FullCalendar intente añadir barras de desplazamiento internas en el papel.
+
+Vale, el ancho ya si sale correctamente, pero no salen los dias, el alto parece que se ha cortado con el nombre de los dias
+
+Respuesta:
+    Entiendo, el corte vertical suele deberse a que FullCalendar calcula la altura mediante JavaScript para permitir el *scroll* en pantalla, pero al imprimir necesitamos que esa altura sea automática para que se vea todo el contenido estático.
+
+    He corregido los estilos de impresión para:
+
+    1. **Liberar la altura (`height: auto`)**: He eliminado las restricciones de altura en `body` y `html` y forzado a los contenedores internos de FullCalendar (`.fc-view-harness`, `.fc-scroller`) a expandirse automáticamente.
+    2. **Desactivar el posicionamiento absoluto**: He añadido una regla para `.fc-scroller-liquid-absolute` que suele ser la causante de que el contenido "desaparezca" o se corte justo debajo de los encabezados al imprimir.
+
+
+Ahora falla el ancho de los dias. La cabecera sale bien, pero las columanas de los dias solo se ven 4 dias
+Respuesta:
+    Entendido. Si las columnas de los días están muy estrechas (solo 4 días visibles) a pesar de la cabecera correcta, significa que el navegador está intentando "encajar" todo el calendario en un ancho que percibe como limitado, y probablemente está colapsando las columnas vacías o comprimiéndolas excesivamente al renderizar la tabla interna de FullCalendar.
+
+    Para solucionar esto, necesitamos ser más agresivos con el CSS de impresión. En lugar de confiar en que el navegador escale todo automáticamente, vamos a:
+
+    1. **Forzar un ancho mínimo fijo (`min-width`)** en el contenedor del calendario, lo que obligará al navegador a usar ese ancho y escalar el contenido hacia abajo (zoom out) para que quepa en la hoja.
+    2. Usar la propiedad `zoom` (o `transform: scale`) específicamente para la impresión, para reducir el tamaño visual de todo el calendario y que así "quepan" los 7 días cómodamente en una hoja A4 horizontal.
+
+    Aquí tienes el archivo corregido. He ajustado la estrategia de impresión:
+
+    1. **Eliminado** el `width: 100% !important` genérico que a veces causa colapso.
+    2. **Añadido** `min-width: 1024px !important` al contenedor `#calendar` para asegurar que FullCalendar renderice los 7 días completos.
+    3. **Añadido** un `zoom: 65%` (ajustable) al cuerpo de impresión para asegurar que ese calendario de 1024px quepa en el papel sin recortarse.
+
+No funciona, ahora el ancho de los columnas de los dias es menor que el de las columnas d elunes, martes, miercoles,
+    El problema de desalineación (cabeceras anchas y cuerpo estrecho) ocurre porque FullCalendar usa tablas separadas para la cabecera y el contenido. Al imprimir, el navegador puede renderizarlas con anchos distintos si no se fuerza explícitamente.
+
+    Para solucionarlo definitivamente:
+
+    1. **Eliminaré el `zoom` global**, ya que suele causar desajustes en las tablas.
+    2. Forzaré `table-layout: fixed` y `width: 100%` en **todas** las tablas internas del calendario para obligarlas a tener la misma anchura.
+    3. Ajustaré el tamaño de fuente para que todo quepa de forma natural en modo horizontal.
+
+    Aquí tienes el código corregido:
+
+Quiero que añadas un título con el mes y el año del calendario al imprimirlo
+
+
+Quiero que el color de la letras de las OT en curso esten en negro en el calendario, para que se vea mejor el texto.
+
+Cuando se imprima, no quiero que salga el boton de imprimir
+
+
+ ¿que pasa si hago click en una orden de trabajo en el calendario? 
+ Respuesta:
+     Actualmente, tal como está configurado el código en `app.py` (propiedad `'url': url_for('work_orders')`), al hacer clic en un evento **te redirige a la pantalla de listado general de Órdenes de Trabajo**.
+
+    Esto no es muy práctico porque pierdes el contexto del calendario. Lo ideal sería abrir una **ventana modal (popup)** que te permita ver los detalles y **editar el estado o añadir observaciones** sin salir del calendario.
+
+    Para lograr esto, necesitamos hacer dos ajustes:
+
+    1. **En `app.py`:** Enviar más datos en la API (como las `observaciones`) para mostrarlas en el modal.
+    2. **En `index.html`:** Añadir el código HTML del modal y configurar la acción del clic.
+
+    Aquí tienes los archivos actualizados:
+
+    ### 1. Actualizar `app.py`
+
+    Modificamos la función `get_calendar_events` para incluir `observaciones` y pasar los datos extra en una propiedad llamada `extendedProps`.
+
+    ### 2. Actualizar `templates/calendar/index.html`
+
+    Añadimos el Modal de Bootstrap y el JavaScript para interceptar el clic y rellenar los datos.
+
+
+------
+## Version v6.XX: 
+Versión dockerizada
+------
+¿como se crea el archivo de requerimientos para un proyecto de python?
+Ahora necesito "dockerizar" una aplicación python, como lo hago en windows 10?
+¿y como ver la aplicacion en mi navegador?
+
+------
+## Version v6.XX: 
+Documentacion con pdoc del codigo fuente:
+------
+pdoc app.py database.py resumen.py utils.py -o ./api-docs
+
+------
+## Version v6.XX: Modo oscuro
+------
+Necesito que se puede configurar "modo oscuro" o "modo claro"
+
+hay algunos titulos de paneles y tablas que tienen de color del texto negro en modo claro,pero al cambiar a modo oscuro, el texto sigue cambia a color blanco, con lo cual no se ve. ¿puedes dejar el texto como si estuviera en modo claro siempre?
+
+En el archivo que te adjunto "cronograma.html" tengo el problema de que la columna primera, en las filas no se ve el texto al cambiar a modo oscuro ¿podias revisarlo?
+
+Ahora, en modo claro, la fila de titulos de las tabledate, el texto no se ve, quedando en negro como el fono.
+Revisa tambien el fichero "base.html" que tambien tiene el mismo error.
+
+El texto "GMAO" y "Usuario:", al ponerlo en modo claro, queda en negro y no se ve con el fondo, ¿lo podias poner siempre en blanco, sea cual sea el modo?
+
+Al cambiar a modo oscuro, en el archivo que te adjunto "index-resumen.html", no se ve el texto "Configuración del Periodo", ni los textos de "Fecha Inicio Resumen" ni "Fecha Fin Resumen"
+
+Al cambiar a modo oscuro, en el archivo que te adjunto "index-resumen.html", no se ve el texto "Configuración del Periodo", ni los textos de "Fecha Inicio Resumen" ni "Fecha Fin Resumen"
+
+El archivo que te adjunto "edit-act.html", no reconoce el modo oscuro
+Quiero que revises el fichero "edit-act.html", no modifiques "base.html"
+Quiero que revises el fichero "edit-correctivo.html", no modifiques "base.html" 
+
+El fondo en ambos archivos, en modo oscuro, sigue siendo muy claro (casi blanco)
+
+------
+## Version v6.17: Copia de la base de datos (sqlite) y cambio "acerca de" a versión 6.17
+------
+Analiza todo este código y confirmame cuando estes listo para añadir una nueva mejora al proyecto.
+Añade a la pestaña de configuración un panel llamado "Copia de Seguridad Base de Datos", que permita guardar en el disco duro una copia de la base de datos sqlite, añadiendo al nombre la fecha actual y con extensión ".bak"
+
+
+
+------
+## Version v7.XX: Actividades S/N generan ordenes de trabajo. Y cambio de periodicidad.
+------
+Añadir un campo a la tabla de Actividades, que tenga valor Si/No indicando si genera ordenes de trbajo
+Modificar generación de ordenes de trabajo para que cuando revise las actividades, si esta no genera orden de trabajo, borre las ot que tenga previstas y no genere ordenes de trabajo.
+
+Cambio de periodicidad:
+Si se detecta en la edición de actividades que se ha modificado la periodicidad siendo esta antes distinta que cero, se borren las ordenes de trabajo que tenia prevista, y se vuelvan a generar las ordenes de trabajo con la nueva periodicidad.
+
+

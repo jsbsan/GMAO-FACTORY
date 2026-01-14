@@ -288,13 +288,16 @@ def generate_work_orders():
 @utils.login_required
 def update_ot(id):
     conn = db.get_db_connection()
+    # Si viene del calendario, el redirect_to debe devolvemos allí
+    redirect_target = 'calendar_view' if request.form.get('redirect_to') == 'calendar' else 'work_orders'
+    if request.form.get('redirect_to') == 'cronograma': redirect_target = 'cronograma'
+    
     conn.execute('UPDATE ordenes_trabajo SET estado=?, observaciones=?, fecha_realizada=? WHERE id=?', (request.form['estado'], request.form['observaciones'], request.form['fecha_realizada'], id))
     conn.commit()
     conn.close()
     utils.log_action(f"OT actualizada: ID {id}")
     flash('OT actualizada', 'success')
-    if request.form.get('redirect_to')=='cronograma': return redirect(url_for('cronograma'))
-    return redirect(url_for('work_orders'))
+    return redirect(url_for(redirect_target))
 
 @app.route('/work_orders/print/<int:id>')
 @utils.login_required
@@ -519,6 +522,22 @@ def download_log():
     if os.path.exists(utils.LOG_FILE): return send_file(utils.LOG_FILE, as_attachment=True)
     flash("Log vacío.", "warning"); return redirect(url_for('general_settings'))
 
+# NUEVA RUTA PARA BACKUP DE LA BASE DE DATOS
+@app.route('/settings/backup_db')
+@utils.login_required
+@utils.permission_required('perm_configuracion')
+def backup_db():
+    db_file = db.DB_NAME # 'mantenimiento_factory.db'
+    if not os.path.exists(db_file):
+        flash("No se encuentra la base de datos.", "danger")
+        return redirect(url_for('general_settings'))
+    
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    backup_name = f"backup_mantenimiento_{timestamp}.bak"
+    
+    utils.log_action("Descargada copia de seguridad de la BD")
+    return send_file(db_file, as_attachment=True, download_name=backup_name)
+
 @app.route('/users/add', methods=['POST'])
 @utils.login_required
 @utils.permission_required('perm_configuracion')
@@ -619,6 +638,50 @@ def add_type():
     except: pass
     return redirect(url_for('inventory'))
 
+# ==========================================
+# RUTAS NUEVAS PARA EL CALENDARIO (COLORES ACTUALIZADOS)
+# ==========================================
+
+@app.route('/calendar')
+@utils.login_required
+def calendar_view():
+    return render_template('calendar/index.html', active_page='calendario', system_date=utils.get_system_date())
+
+@app.route('/api/calendar_events')
+@utils.login_required
+def get_calendar_events():
+    conn = db.get_db_connection()
+    # AÑADIDO: observaciones al select
+    ots = conn.execute('SELECT id, nombre, fecha_generacion, estado, observaciones FROM ordenes_trabajo').fetchall()
+    conn.close()
+    
+    events = []
+    for ot in ots:
+        # Colores personalizados solicitados
+        color = '#6c757d' # Default
+        estado = ot['estado']
+        
+        if estado == 'Pendiente': color = '#dc3545'      # Rojo
+        elif estado == 'En curso': color = '#ffc107'     # Amarillo
+        elif estado == 'Realizada': color = '#28a745'    # Verde
+        elif estado == 'Prevista': color = '#6c757d'     # Gris
+        elif estado == 'Aplazada': color = '#6f42c1'     # Violeta
+        elif estado == 'Rechazada': color = '#000000'    # Negra
+        
+        events.append({
+            'id': ot['id'],
+            'title': ot['nombre'],
+            'start': ot['fecha_generacion'],
+            'color': color,
+            'url': url_for('work_orders'), # Se mantiene como fallback
+            'extendedProps': {
+                'estado': estado,
+                'observaciones': ot['observaciones'] or ''
+            }
+        })
+        
+    return json.dumps(events)
+
 if __name__ == '__main__':
     if not os.path.exists('mantenimiento_factory.db'):
         db.init_db()
@@ -628,7 +691,8 @@ if __name__ == '__main__':
     try:
         conn = db.get_db_connection()
         real_today = datetime.date.today()
-        conn.execute('UPDATE configuracion SET fecha_sistema=? WHERE id=1', (real_today,))
+        # Usamos .isoformat() para convertir el objeto fecha a texto "YYYY-MM-DD"
+        conn.execute('UPDATE configuracion SET fecha_sistema=? WHERE id=1', (real_today.isoformat(),))
         count = utils.generate_and_update_work_orders(conn, real_today)
         conn.commit()
         conn.close()

@@ -9,13 +9,26 @@
     <span class="text-muted">Estadísticas del periodo seleccionado</span>
 </div>
 
-<div class="card mb-4 border-primary">
-    <div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i> Configuración del Periodo</h5></div>
-    <div class="card-body bg-light">
+<!-- Tarjeta de configuración: se eliminan bg-primary y bg-light para usar el motor de temas de base.html -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i> Configuración del Periodo</h5>
+    </div>
+    <div class="card-body">
         <form action="{{ url_for('resumen.update_dates') }}" method="POST" class="row align-items-end g-3">
-            <div class="col-md-5"><label class="form-label fw-bold">Fecha Inicio Resumen</label><input type="date" class="form-control" name="fecha_inicio" value="{{ fecha_inicio }}" required></div>
-            <div class="col-md-5"><label class="form-label fw-bold">Fecha Fin Resumen</label><input type="date" class="form-control" name="fecha_fin" value="{{ fecha_fin }}" required></div>
-            <div class="col-md-2"><button type="submit" class="btn btn-primary w-100"><i class="fas fa-sync-alt"></i> Actualizar</button></div>
+            <div class="col-md-5">
+                <label class="form-label">Fecha Inicio Resumen</label>
+                <input type="date" class="form-control" name="fecha_inicio" value="{{ fecha_inicio }}" required>
+            </div>
+            <div class="col-md-5">
+                <label class="form-label">Fecha Fin Resumen</label>
+                <input type="date" class="form-control" name="fecha_fin" value="{{ fecha_fin }}" required>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-sync-alt"></i> Actualizar
+                </button>
+            </div>
         </form>
     </div>
 </div>
@@ -23,9 +36,8 @@
 <div class="row">
     <div class="col-md-6 mb-4">
         <div class="card h-100 shadow-sm">
-            <div class="card-header fw-bold text-center bg-light">Distribución de Órdenes de Trabajo</div>
+            <div class="card-header fw-bold text-center">Distribución de Órdenes de Trabajo</div>
             <div class="card-body">
-                <!-- CSS FIX: overflow: hidden evita loop infinito de Chart.js -->
                 <div style="position: relative; height: 300px; width: 100%; overflow: hidden;">
                     <canvas id="chartOTs"></canvas>
                 </div>
@@ -35,9 +47,8 @@
     </div>
     <div class="col-md-6 mb-4">
         <div class="card h-100 shadow-sm">
-            <div class="card-header fw-bold text-center bg-light">Distribución de Incidencias (Correctivos)</div>
+            <div class="card-header fw-bold text-center">Distribución de Incidencias (Correctivos)</div>
             <div class="card-body">
-                <!-- CSS FIX: overflow: hidden evita loop infinito de Chart.js -->
                 <div style="position: relative; height: 300px; width: 100%; overflow: hidden;">
                     <canvas id="chartCorrectivos"></canvas>
                 </div>
@@ -49,11 +60,11 @@
 
 <hr class="my-4">
 
-<!-- Tabla de OTs filtradas -->
+<!-- Tablas de datos -->
 <h3 class="mb-3">Órdenes de Trabajo del Periodo</h3>
 <div class="table-responsive mb-4">
     <table class="table table-striped table-hover datatable" id="tablaResumenOTs">
-        <thead class="table-dark">
+        <thead>
             <tr>
                 <th></th>
                 <th>ID</th>
@@ -85,11 +96,10 @@
     </table>
 </div>
 
-<!-- Tabla de Correctivos filtrados -->
 <h3 class="mb-3">Incidencias del Periodo</h3>
-<div class="table-responsive mb-4">
+<div class="table-responsive mb-5">
     <table class="table table-striped table-hover datatable" id="tablaResumenCorrectivos">
-        <thead class="table-dark">
+        <thead>
             <tr>
                 <th></th>
                 <th>ID</th>
@@ -118,7 +128,6 @@
     </table>
 </div>
 
-<!-- Botón de Imprimir Informe -->
 <div class="text-center mb-5">
     <button onclick="window.print()" class="btn btn-lg btn-success">
         <i class="fas fa-print me-2"></i> Imprimir Informe Completo
@@ -140,7 +149,14 @@
         options: { 
             responsive: true, 
             maintainAspectRatio: false, 
-            plugins: { legend: { position: 'bottom' } } 
+            plugins: { 
+                legend: { 
+                    position: 'bottom',
+                    labels: {
+                        color: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#dee2e6' : '#212529'
+                    }
+                } 
+            } 
         }
     });
 
@@ -158,7 +174,14 @@
         options: { 
             responsive: true, 
             maintainAspectRatio: false, 
-            plugins: { legend: { position: 'bottom' } } 
+            plugins: { 
+                legend: { 
+                    position: 'bottom',
+                    labels: {
+                        color: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#dee2e6' : '#212529'
+                    }
+                } 
+            } 
         }
     });
 </script>

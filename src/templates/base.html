@@ -1,23 +1,65 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GMAO Factory</title>
+    
+    <!-- Script preventivo para evitar destellos de luz al cargar si el modo oscuro está activo -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('gmao-theme') || 'light';
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        })();
+    </script>
+
     <!-- Estilos Locales (Bootstrap, FontAwesome, DataTables) -->
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/all.min.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/datatables.min.css') }}" rel="stylesheet">
 
     <style>
-        .sidebar-container { background-color: #2c3e50; color: white; min-height: 100vh; }
-        .sidebar-link { color: #bdc3c7; text-decoration: none; display: block; padding: 12px 15px; border-bottom: 1px solid #34495e; }
-        .sidebar-link:hover, .sidebar-link.active { background-color: #34495e; color: white; border-left: 4px solid #3498db; }
-        .sidebar-brand { padding: 20px; text-align: center; background-color: #1a252f; margin-bottom: 10px; }
+        :root {
+            --sidebar-bg: #2c3e50;
+            --sidebar-hover: #34495e;
+            --sidebar-active-border: #3498db;
+        }
+
+        [data-bs-theme="dark"] {
+            --sidebar-bg: #1a1d20;
+            --sidebar-hover: #2b3035;
+            --sidebar-active-border: #0d6efd;
+        }
+
+        .sidebar-container { background-color: var(--sidebar-bg); color: white; min-height: 100vh; transition: background-color 0.3s; }
+        .sidebar-link { color: #bdc3c7; text-decoration: none; display: block; padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-link:hover, .sidebar-link.active { background-color: var(--sidebar-hover); color: white; border-left: 4px solid var(--sidebar-active-border); }
+        
+        /* Forzamos el color blanco en la cabecera de la sidebar siempre */
+        .sidebar-brand { padding: 20px; text-align: center; background-color: rgba(0,0,0,0.2); margin-bottom: 10px; color: white !important; }
+        .sidebar-brand h4, 
+        .sidebar-brand small, 
+        .sidebar-brand .text-muted { 
+            color: white !important; 
+        }
+
         .content { padding: 20px; }
-        .mobile-navbar { background-color: #2c3e50; }
+        .mobile-navbar { background-color: var(--sidebar-bg); }
         .dataTables_length, .dataTables_filter { margin-bottom: 1rem; }
         
+        /* Tema del Toggle */
+        .theme-toggle-btn {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #bdc3c7;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .theme-toggle-btn:hover { color: white; border-color: white; }
+
         /* Estilo manual para checkboxes DataTables Select */
         table.dataTable tbody td.select-checkbox,
         table.dataTable tbody th.select-checkbox {
@@ -28,7 +70,7 @@
             content: ' ';
             margin-top: -6px;
             margin-left: -6px;
-            border: 1px solid black;
+            border: 1px solid #888;
             border-radius: 3px;
             display: block;
             position: absolute;
@@ -38,6 +80,8 @@
             height: 12px;
             box-sizing: border-box;
         }
+        [data-bs-theme="dark"] table.dataTable tbody td.select-checkbox:before { border-color: #666; }
+
         table.dataTable tr.selected td.select-checkbox:after,
         table.dataTable tr.selected th.select-checkbox:after {
             content: '✓';
@@ -53,6 +97,54 @@
             width: 12px;
             height: 12px;
         }
+
+        /* ----------------------------------------------------------- */
+        /* AJUSTE FINAL: TÍTULOS Y TABLAS SIEMPRE ESTILO CLARO         */
+        /* ----------------------------------------------------------- */
+        
+        /* Forzamos que cabeceras de tablas, celdas laterales, cabeceras de tarjetas y bloques bg-light
+           tengan FONDO CLARO y TEXTO OSCURO siempre */
+        .table thead th, 
+        .cron-sidebar-col, 
+        .card-header, 
+        .card-header *,
+        .bg-light,
+        .bg-light *,
+        .table-light,
+        .table-light * {
+            background-color: #f8f9fa !important;
+            color: #212529 !important;
+            border-bottom-color: #dee2e6 !important;
+        }
+
+        /* En bloques forzados a ser claros, aseguramos que el texto muted sea legible */
+        .cron-sidebar-col .text-muted,
+        .bg-light .text-muted,
+        .table-light .text-muted {
+            color: #6c757d !important;
+        }
+
+        /* Los títulos H1-H6 fuera de tablas/cards sí deben adaptarse al modo oscuro para no desentonar */
+        [data-bs-theme="dark"] h1, [data-bs-theme="dark"] h2, [data-bs-theme="dark"] h3,
+        [data-bs-theme="dark"] h5, [data-bs-theme="dark"] h6 {
+            color: #f8f9fa;
+        }
+        /* Excepción específica para H4 que suele usarse en la sidebar */
+        [data-bs-theme="dark"] h4:not(.sidebar-container h4) { color: #f8f9fa; }
+
+        /* En modo claro deben ser oscuros, excepto en la sidebar */
+        [data-bs-theme="light"] h1, [data-bs-theme="light"] h2, [data-bs-theme="light"] h3,
+        [data-bs-theme="light"] h5, [data-bs-theme="light"] h6 {
+            color: #212529;
+        }
+        [data-bs-theme="light"] h4:not(.sidebar-container h4) { color: #212529; }
+        
+        /* Aseguramos que el cuerpo de la tarjeta sea legible en modo oscuro */
+        [data-bs-theme="dark"] .card {
+            background-color: #2b3035;
+            border-color: #373b3e;
+        }
+        /* ----------------------------------------------------------- */
         
         /* ESTADOS */
         .status-realizada, .corr-resuelta { background-color: #198754; color: white; }
@@ -70,7 +162,12 @@
     {% macro render_navigation() %}
         <div class="sidebar-brand">
             <h4>🏭 GMAO</h4>
-            <small>Factory v6.16</small>
+            <small>Factory v6.17</small>
+            <div class="mt-2">
+                <button class="theme-toggle-btn">
+                    <i class="fas fa-moon me-1"></i> <span class="theme-text">Modo Oscuro</span>
+                </button>
+            </div>
             <div class="mt-2 small text-muted">Usuario: {{ session.get('username', 'Invitado') }}</div>
         </div>
         <div>
@@ -83,6 +180,8 @@
             {% endif %}
             <a href="{{ url_for('work_orders') }}" class="sidebar-link {{ 'active' if active_page == 'ots' else '' }}"><i class="fas fa-tools me-2"></i> Órdenes de Trabajo</a>
             <a href="{{ url_for('cronograma') }}" class="sidebar-link {{ 'active' if active_page == 'cronograma' else '' }}"><i class="fas fa-calendar-alt me-2"></i> Cronogramas OTs</a>
+            <a href="{{ url_for('calendar_view') }}" class="sidebar-link {{ 'active' if active_page == 'calendario' else '' }}"><i class="fas fa-calendar me-2"></i> Calendario</a>
+            
             <a href="{{ url_for('correctivos') }}" class="sidebar-link {{ 'active' if active_page == 'correctivos' else '' }}"><i class="fas fa-exclamation-triangle me-2"></i> Correctivos</a>
             {% if session.get('perm_configuracion') %}
             <div class="border-top border-secondary my-2"></div>
@@ -143,17 +242,42 @@
     }
 
     $(document).ready(function() {
-        // Inicialización genérica sin alerta, asumiendo que los archivos estáticos correctos están presentes.
+        const htmlElement = document.documentElement;
+
+        function updateThemeUI(theme) {
+            $('.theme-toggle-btn').each(function() {
+                const $icon = $(this).find('i');
+                const $text = $(this).find('.theme-text');
+                if (theme === 'dark') {
+                    $icon.attr('class', 'fas fa-sun me-1');
+                    $text.text('Modo Claro');
+                } else {
+                    $icon.attr('class', 'fas fa-moon me-1');
+                    $text.text('Modo Oscuro');
+                }
+            });
+        }
+
+        updateThemeUI(htmlElement.getAttribute('data-bs-theme'));
+
+        $(document).on('click', '.theme-toggle-btn', function() {
+            const currentTheme = htmlElement.getAttribute('data-bs-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            htmlElement.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('gmao-theme', newTheme);
+            updateThemeUI(newTheme);
+        });
+
         $('.datatable').DataTable({
             language: { url: "{{ url_for('static', filename='js/es-ES.json') }}" },
             dom: 'Bfrtip',
-            stateSave: true, // Persistencia de estado
+            stateSave: true,
             stateSaveParams: function (settings, data) {
-                data.version = "6.16"; // Versión para invalidar caché antigua
+                data.version = "6.17"; 
             },
             stateLoadParams: function (settings, data) {
-                if (data.version !== "6.16") {
-                    return false; // Borrar estado si la versión no coincide
+                if (data.version !== "6.17") {
+                    return false; 
                 }
             },
             buttons: [
