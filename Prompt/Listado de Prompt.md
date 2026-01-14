@@ -628,10 +628,17 @@ Añade a la pestaña de configuración un panel llamado "Copia de Seguridad Base
 ## Version v7.XX: Actividades S/N generan ordenes de trabajo. Y cambio de periodicidad.
 ------
 Analiza todo este código y confirmame cuando estes listo para añadir una nueva mejora al proyecto.
+Mejoras:
 1. Añadir un campo a la tabla de Actividades, que tenga valor Si/No indirá si genera ordenes de trabajo. Modifica la base de datos y las plantillas relacionadas (edición de actividades y tabla de mostrar actividades)
 2. Modificar generación de ordenes de trabajo para que cuando revise las actividades, si esta no genera orden de trabajo, borre las ot que tenga previstas y no genere ordenes de trabajo nuevas para esa actividad.
 
-Cambio de periodicidad:
-Si se detecta en la edición de actividades que se ha modificado la periodicidad siendo esta antes distinta que cero, se borren las ordenes de trabajo que tenia prevista, y se vuelvan a generar las ordenes de trabajo con la nueva periodicidad.
+me puedes mostrar el archivo index.html y el edit.html completo
+me puedes mostrar el archivo app.py completo
+
+Quiero que cuando se añada, edite, actualice o  borre una actividad, se generen las ordenes de trabajo.
+R: Aqui se da cuenta de cuando hay un update, si cambis de periodicidad, hay que borrar las OT previstas, y volverlas a generar con la nueva periodicidad.
+
+
+
 
 

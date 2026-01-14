@@ -18,6 +18,10 @@ app.register_blueprint(resumen_bp, url_prefix='/resumen')
 def json_load_filter(s):
     return utils.json_load_filter(s)
 
+# ==========================================
+# AUTENTICACIÓN
+# ==========================================
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -49,6 +53,10 @@ def logout():
 @utils.login_required
 def index():
     return redirect(url_for('resumen.index'))
+
+# ==========================================
+# INVENTARIO
+# ==========================================
 
 @app.route('/inventory')
 @utils.login_required
@@ -182,6 +190,10 @@ def view_files(source, tipo, id):
         files = utils.normalize_files(json.loads(content) if content else [])
     return render_template('viewer.html', item=item, files=files, tipo=tipo, back_url=back_url, title_prefix=title_prefix, active_page='inventario', system_date=utils.get_system_date())
 
+# ==========================================
+# ACTIVIDADES (CON LÓGICA DE GENERACIÓN AUTOMÁTICA)
+# ==========================================
+
 @app.route('/activities')
 @utils.login_required
 @utils.permission_required('perm_actividades')
@@ -197,12 +209,23 @@ def activities():
 @utils.permission_required('perm_actividades')
 def add_activity():
     conn = db.get_db_connection()
-    conn.execute('INSERT INTO actividades (nombre, equipo_id, periodicidad, operaciones, fecha_inicio_gen) VALUES (?,?,?,?,?)',
-                 (request.form['nombre'], request.form['equipo_id'], request.form['periodicidad'], request.form['operaciones'], request.form['fecha_inicio']))
-    conn.commit()
+    # Leemos si el usuario quiere generar OTs (checkbox en formulario)
+    generar_ot = 1 if 'generar_ot' in request.form else 0
+    
+    conn.execute('INSERT INTO actividades (nombre, equipo_id, periodicidad, operaciones, fecha_inicio_gen, generar_ot) VALUES (?,?,?,?,?,?)',
+                 (request.form['nombre'], request.form['equipo_id'], request.form['periodicidad'], request.form['operaciones'], request.form['fecha_inicio'], generar_ot))
+    
+    # IMPORTANTE: Commit para guardar la actividad ANTES de generar las OTs
+    conn.commit() 
+    
+    # Si la actividad se crea con el check activo, generamos sus primeras OTs inmediatamente
+    if generar_ot:
+        utils.generate_and_update_work_orders(conn, utils.get_system_date())
+        conn.commit()
+    
     conn.close()
     utils.log_action(f"Actividad creada: {request.form['nombre']}")
-    flash('Actividad creada', 'success')
+    flash('Actividad creada y plan generado', 'success')
     return redirect(url_for('activities'))
 
 @app.route('/activities/edit/<int:id>')
@@ -220,12 +243,28 @@ def edit_activity(id):
 @utils.permission_required('perm_actividades')
 def update_activity(id):
     conn = db.get_db_connection()
-    conn.execute('UPDATE actividades SET nombre=?, equipo_id=?, periodicidad=?, operaciones=?, fecha_inicio_gen=? WHERE id=?',
-                 (request.form['nombre'], request.form['equipo_id'], request.form['periodicidad'], request.form['operaciones'], request.form['fecha_inicio'], id))
+    generar_ot = 1 if 'generar_ot' in request.form else 0
+    
+    conn.execute('UPDATE actividades SET nombre=?, equipo_id=?, periodicidad=?, operaciones=?, fecha_inicio_gen=?, generar_ot=? WHERE id=?',
+                 (request.form['nombre'], request.form['equipo_id'], request.form['periodicidad'], request.form['operaciones'], request.form['fecha_inicio'], generar_ot, id))
+    
+    # LÓGICA DE ACTUALIZACIÓN DE OTS:
+    # 1. Borramos las OTs futuras ('Prevista') porque la periodicidad o fecha pudo haber cambiado
+    #    o porque el usuario desactivó la generación de OTs.
+    conn.execute("DELETE FROM ordenes_trabajo WHERE actividad_id=? AND estado='Prevista'", (id,))
+    
+    # 2. Guardamos cambios
     conn.commit()
+    
+    # 3. Regeneramos el plan. La función generate_and_update_work_orders respetará el flag generar_ot.
+    #    Si generar_ot es 1, rellenará los huecos borrados con las nuevas fechas.
+    #    Si generar_ot es 0, no creará nada nuevo (y las 'Prevista' ya fueron borradas).
+    utils.generate_and_update_work_orders(conn, utils.get_system_date())
+    conn.commit()
+    
     conn.close()
     utils.log_action(f"Actividad actualizada: ID {id}")
-    flash('Actividad actualizada', 'success')
+    flash('Actividad actualizada y plan recalculado', 'success')
     return redirect(url_for('activities'))
 
 @app.route('/activities/delete/<int:id>', methods=['POST'])
@@ -234,6 +273,7 @@ def update_activity(id):
 def delete_activity(id):
     conn = db.get_db_connection()
     try:
+        # Aquí se borran TODAS las OTs (incluidas historial) al borrar la actividad madre
         conn.execute('DELETE FROM ordenes_trabajo WHERE actividad_id = ?', (id,))
         conn.execute('DELETE FROM actividades WHERE id = ?', (id,))
         conn.commit()
@@ -263,6 +303,10 @@ def print_all_activities():
     utils.log_action("Impreso listado actividades")
     return render_template('print/all_activities.html', activities=activities, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
 
+# ==========================================
+# ÓRDENES DE TRABAJO
+# ==========================================
+
 @app.route('/work_orders')
 @utils.login_required
 def work_orders():
@@ -277,6 +321,7 @@ def work_orders():
 def generate_work_orders():
     conn = db.get_db_connection()
     current_date = utils.get_system_date()
+    # Esta función en utils ya debe incluir la lógica de ignorar actividades con generar_ot=0
     count = utils.generate_and_update_work_orders(conn, current_date)
     conn.commit()
     conn.close()
@@ -288,7 +333,6 @@ def generate_work_orders():
 @utils.login_required
 def update_ot(id):
     conn = db.get_db_connection()
-    # Si viene del calendario, el redirect_to debe devolvemos allí
     redirect_target = 'calendar_view' if request.form.get('redirect_to') == 'calendar' else 'work_orders'
     if request.form.get('redirect_to') == 'cronograma': redirect_target = 'cronograma'
     
@@ -338,6 +382,10 @@ def print_cronograma():
     conn.close()
     utils.log_action(f"Impreso cronograma año {year}")
     return render_template('print/cronograma.html', data=data, meses=meses, year=year, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
+
+# ==========================================
+# CORRECTIVOS
+# ==========================================
 
 @app.route('/correctivos')
 @utils.login_required
@@ -433,6 +481,10 @@ def print_all_correctivos():
     utils.log_action("Impreso listado incidencias")
     return render_template('print/all_correctivos.html', items=items, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
 
+# ==========================================
+# CONFIGURACIÓN GENERAL
+# ==========================================
+
 @app.route('/general_settings')
 @utils.login_required
 @utils.permission_required('perm_configuracion')
@@ -465,6 +517,10 @@ def update_planned_date():
     actividades = conn.execute('SELECT * FROM actividades').fetchall()
     count_generated = 0
     for act in actividades:
+        # LÓGICA DE CONTROL: Si la actividad tiene generar_ot desactivado, saltamos
+        if not act['generar_ot']:
+            continue
+
         f_inicio = datetime.datetime.strptime(act['fecha_inicio_gen'], '%Y-%m-%d').date()
         periodicity = act['periodicidad']
         if f_inicio > system_date: current_calc = f_inicio
@@ -522,7 +578,6 @@ def download_log():
     if os.path.exists(utils.LOG_FILE): return send_file(utils.LOG_FILE, as_attachment=True)
     flash("Log vacío.", "warning"); return redirect(url_for('general_settings'))
 
-# NUEVA RUTA PARA BACKUP DE LA BASE DE DATOS
 @app.route('/settings/backup_db')
 @utils.login_required
 @utils.permission_required('perm_configuracion')
@@ -651,13 +706,11 @@ def calendar_view():
 @utils.login_required
 def get_calendar_events():
     conn = db.get_db_connection()
-    # AÑADIDO: observaciones al select
     ots = conn.execute('SELECT id, nombre, fecha_generacion, estado, observaciones FROM ordenes_trabajo').fetchall()
     conn.close()
     
     events = []
     for ot in ots:
-        # Colores personalizados solicitados
         color = '#6c757d' # Default
         estado = ot['estado']
         
@@ -673,7 +726,7 @@ def get_calendar_events():
             'title': ot['nombre'],
             'start': ot['fecha_generacion'],
             'color': color,
-            'url': url_for('work_orders'), # Se mantiene como fallback
+            'url': url_for('work_orders'),
             'extendedProps': {
                 'estado': estado,
                 'observaciones': ot['observaciones'] or ''

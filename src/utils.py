@@ -107,9 +107,21 @@ def generate_and_update_work_orders(conn, current_system_date):
     planned_date = datetime.datetime.strptime(row['fecha_prevista'], '%Y-%m-%d').date() if row and row['fecha_prevista'] else None
     generation_limit = current_system_date
     if planned_date and planned_date > current_system_date: generation_limit = planned_date
+    
     actividades = conn.execute('SELECT * FROM actividades').fetchall()
     count_generated = 0
+    
     for act in actividades:
+        # LÓGICA NUEVA: Verificación del flag
+        if not act['generar_ot']:
+            # 1. Si la actividad dice NO generar, borramos las OTs futuras que estén en estado 'Prevista'
+            # No borramos 'Pendiente' ni 'En curso' porque esas ya requieren atención.
+            conn.execute("DELETE FROM ordenes_trabajo WHERE actividad_id=? AND estado='Prevista'", (act['id'],))
+            # 2. Saltamos la generación para esta actividad
+            continue
+
+        f = datetime.datetime.strptime(act['fecha_inicio_gen'], '%Y-%m-%d').date()
+        p = act['periodicidad']
         f = datetime.datetime.strptime(act['fecha_inicio_gen'], '%Y-%m-%d').date()
         p = act['periodicidad']
         while f <= generation_limit:
