@@ -522,6 +522,22 @@ def download_log():
     if os.path.exists(utils.LOG_FILE): return send_file(utils.LOG_FILE, as_attachment=True)
     flash("Log vacío.", "warning"); return redirect(url_for('general_settings'))
 
+# NUEVA RUTA PARA BACKUP DE LA BASE DE DATOS
+@app.route('/settings/backup_db')
+@utils.login_required
+@utils.permission_required('perm_configuracion')
+def backup_db():
+    db_file = db.DB_NAME # 'mantenimiento_factory.db'
+    if not os.path.exists(db_file):
+        flash("No se encuentra la base de datos.", "danger")
+        return redirect(url_for('general_settings'))
+    
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    backup_name = f"backup_mantenimiento_{timestamp}.bak"
+    
+    utils.log_action("Descargada copia de seguridad de la BD")
+    return send_file(db_file, as_attachment=True, download_name=backup_name)
+
 @app.route('/users/add', methods=['POST'])
 @utils.login_required
 @utils.permission_required('perm_configuracion')

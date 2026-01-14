@@ -478,7 +478,7 @@ R: Implemente sistema de versionado de estado en la configuración de datatables
 ------
 ## Version v6.XX: Nueva opción del menu calendario
 ------
-Analiza todo este código y confirmame cuando estes listo para añadir una neuva mejora al proyecto.
+Analiza todo este código y confirmame cuando estes listo para añadir una nueva mejora al proyecto.
 Quiero añadir una nueva pestaña al menu principal, llamada Calendario, y quiero añadir un calendario  tipo "fullcalendar" para ver las Ordenes de Trabajo.
 
 Quiero que cambies los colores de las ordenes de trabajo en el calendario:  Pendiente: en rojo
@@ -615,3 +615,22 @@ Quiero que revises el fichero "edit-act.html", no modifiques "base.html"
 Quiero que revises el fichero "edit-correctivo.html", no modifiques "base.html" 
 
 El fondo en ambos archivos, en modo oscuro, sigue siendo muy claro (casi blanco)
+
+------
+## Version v6.17: Copia de la base de datos (sqlite) y cambio "acerca de" a versión 6.17
+------
+Analiza todo este código y confirmame cuando estes listo para añadir una nueva mejora al proyecto.
+Añade a la pestaña de configuración un panel llamado "Copia de Seguridad Base de Datos", que permita guardar en el disco duro una copia de la base de datos sqlite, añadiendo al nombre la fecha actual y con extensión ".bak"
+
+
+
+------
+## Version v7.XX: Actividades S/N generan ordenes de trabajo. Y cambio de periodicidad.
+------
+Añadir un campo a la tabla de Actividades, que tenga valor Si/No indicando si genera ordenes de trbajo
+Modificar generación de ordenes de trabajo para que cuando revise las actividades, si esta no genera orden de trabajo, borre las ot que tenga previstas y no genere ordenes de trabajo.
+
+Cambio de periodicidad:
+Si se detecta en la edición de actividades que se ha modificado la periodicidad siendo esta antes distinta que cero, se borren las ordenes de trabajo que tenia prevista, y se vuelvan a generar las ordenes de trabajo con la nueva periodicidad.
+
+
