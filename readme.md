@@ -1,4 +1,4 @@
-# **🏭 GMAO Factory v6.16**
+# **🏭 GMAO Factory v7.00**
 
 **Sistema de Gestión de Mantenimiento Asistido por Ordenador (CMMS)**
 
@@ -14,6 +14,7 @@ Su diseño **"Offline-First"** permite el despliegue en entornos de intranet o a
 * **🔄 Planificación Preventiva:** Motor de generación automática de Órdenes de Trabajo (OTs) basado en periodicidad y fechas de sistema simuladas.  
 * **🛠️ Gestión de Correctivos:** Ciclo completo de reporte y resolución de averías e incidencias no planificadas.  
 * **📅 Cronograma Visual:** Vista anual matricial para el seguimiento del cumplimiento del plan de mantenimiento.  
+* **📅 Calendario Visual:** Vista mensual de las ordenes de trabajo para el seguimiento del cumplimiento del plan de mantenimiento.  
 * **⚡ Interfaz Reactiva:** Tablas de datos avanzadas (DataTables) con filtrado, ordenación y exportación (Excel, PDF, Impresión) en el cliente.  
 * **🔐 Seguridad y Auditoría:** Sistema de autenticación, control de acceso basado en roles (RBAC) y registro de logs de actividad.
 
@@ -23,13 +24,12 @@ Siga estos pasos para desplegar la aplicación en un entorno local o servidor de
 
 ### **Prerrequisitos**
 
-* **Python 3.8** o superior.  
+* **Python 3.13** o superior.  
 * Navegador web moderno (Chrome, Firefox, Edge).
 
-### **Pasos de Instalación**
+### **Pasos de Instalación usando el repositorio GitHub**
 
 1. **Clonar el repositorio:**  
-   git clone \[https://github.com/jsbsan/GMAO-FACTORY](https://github.com/tu-usuario/gmao-factory.git)  
    git clone \[https://github.com/jsbsan/GMAO-FACTORY.git\](https://github.com/jsbsan/GMAO-FACTORY.git)  
    cd GMAO-FACTORY
 
@@ -47,12 +47,16 @@ Siga estos pasos para desplegar la aplicación en un entorno local o servidor de
 
 4. Configuración de Archivos Estáticos (Modo Offline):  
    Para garantizar el funcionamiento sin internet, asegúrese de que la carpeta static/ contenga las librerías necesarias (Bootstrap 5, DataTables, jQuery, Chart.js). Nota: El proyecto está configurado para buscar estos recursos localmente.  
+
 5. Iniciar la aplicación:  
    Al ejecutar el programa por primera vez, se creará automáticamente la base de datos mantenimiento\_factory.db.  
    python app.py
 
 6. Acceso:  
    Abra su navegador y navegue a: http://localhost:5000
+
+*Nota:*
+ Tambien se puede crear una imagen docker para ejecutar la aplicación, vease el documento "06 Crear docker.md" en la carpeta docs.
 
 ## **4\. Credenciales por defecto**
 
@@ -64,7 +68,7 @@ El sistema genera automáticamente un usuario administrador en el primer desplie
 ## **5\. Estructura del proyecto**
 
 La arquitectura del proyecto sigue el patrón MVC (Modelo-Vista-Controlador) de forma modular:  
-GMAO\_FACTORY/  
+GMAO\_FACTORY/src  
 │  
 ├── app.py                  \# \[Controlador\] Punto de entrada, rutas y orquestación.  
 ├── database.py             \# \[Modelo\] Esquema de base de datos y conexión.  
@@ -79,9 +83,11 @@ GMAO\_FACTORY/
 │   ├── base.html           \# Layout maestro.  
 │   ├── inventory/          \# Vistas de Inventario.  
 │   ├── activities/         \# Vistas de Actividades.  
-│   ├── work\_orders/        \# Vistas de OTs y Cronograma.  
+│   ├── work\_orders/       \# Vistas de OTs y Cronograma.  
+│   ├── calendar/           \# Vistas de OTs en calendario mensual.  
 │   ├── correctivos/        \# Vistas de Incidencias.  
 │   ├── settings/           \# Configuración y Usuarios.  
+│   ├── resumen/            \# Resumen de un periodo: gráficas y tablas de OT y Correctivos.
 │   └── print/              \# Plantillas para impresión de reportes.  
 │  
 ├── mantenimiento\_factory.db \# Base de Datos SQLite (Persistencia).  
