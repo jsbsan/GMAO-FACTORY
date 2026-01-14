@@ -1,7 +1,7 @@
 # **🛠️ Manual Técnico del Desarrollador: GMAO Factory**
 
-Versión del Software: v6.16 (Stable / Offline)  
-Fecha de Revisión: 04/01/2026  
+Versión del Software: v7.00 (Stable / Offline)  
+Fecha de Revisión: 14/01/2026  
 Audiencia: Desarrolladores Backend, Arquitectos de Software, DevOps.
 
 ## **1\. Introducción y Stack Tecnológico**
@@ -16,7 +16,7 @@ Gestionar el ciclo de vida de activos industriales, incluyendo la catalogación 
 
 | Capa | Tecnología | Versión | Justificación Técnica |
 | :---- | :---- | :---- | :---- |
-| **Backend** | Python | 3.8+ | Lógica de servidor robusta y multiplataforma. |
+| **Backend** | Python | 3.13+ | Lógica de servidor robusta y multiplataforma. |
 | **Framework** | Flask | 3.0.0 | Micro-framework WSGI ligero y modular. |
 | **Persistencia** | SQLite | 3.x | Base de datos relacional embebida (Zero-conf). |
 | **Frontend** | Jinja2 \+ HTML5 | N/A | Renderizado en servidor (SSR) para reducir la complejidad del cliente. |
@@ -103,7 +103,7 @@ Pasos exactos para levantar el entorno de desarrollo.
 3. **Instalar Dependencias:**  
    pip install Flask Werkzeug waitress
 
-4. Configuración de Assets Estáticos (Offline):  
+4. **Configuración de Assets Estáticos (Offline):**
    Para el funcionamiento correcto de DataTables (checkboxes y exportación), asegúrese de poblar la carpeta static/ con:  
    * **CSS:** bootstrap.min.css, datatables.min.css, all.min.css (FontAwesome).  
    * **JS:** bootstrap.bundle.min.js, jquery.min.js, chart.min.js, datatables.min.js (Bundle con extensiones Buttons, HTML5 Export, Print y **Select**).  
@@ -164,88 +164,165 @@ La información fluye desde formularios HTML hacia la base de datos SQLite. Los 
 ### **Diagrama de Entidad-Relación (ERD)**
 ``` mermaid
 erDiagram
-    USUARIOS {
-        int id PK
-        string username
-        string password_hash
-        boolean perm_inventario
-        boolean perm_actividades
-    }
-    INVENTARIO {
-        int id PK
-        string nombre
-        int tipo_id FK
-        text images "JSON Array (Base64)"
-        text pdfs "JSON Array (Base64)"
-    }
-    ACTIVIDADES {
-        int id PK
-        int equipo_id FK
-        int periodicidad "Días"
-        date fecha_inicio_gen
-    }
-    ORDENES_TRABAJO {
-        int id PK
-        int actividad_id FK
-        date fecha_generacion
-        string estado "Enum: Pendiente, EnCurso..."
-    }
-    CORRECTIVOS {
-        int id PK
-        int equipo_id FK
-        date fecha_detectada
-        string estado
-        text images "JSON Array (Base64)"
-    }
-    CONFIGURACION {
-        int id PK
-        date fecha_sistema "Simulación"
-        date fecha_prevista "Horizonte"
+    tipos_equipo {
+        INTEGER id PK
+        TEXT nombre
     }
 
-    INVENTARIO ||--o{ ACTIVIDADES : tiene
-    ACTIVIDADES ||--o{ ORDENES_TRABAJO : genera
-    INVENTARIO ||--o{ CORRECTIVOS : reporta
+    inventario {
+        INTEGER id PK
+        TEXT nombre
+        INTEGER tipo_id FK
+        TEXT descripcion
+        TEXT images
+        TEXT pdfs
+    }
+
+    actividades {
+        INTEGER id PK
+        TEXT nombre
+        INTEGER equipo_id FK
+        INTEGER periodicidad
+        TEXT operaciones
+        DATE fecha_inicio_gen
+        INTEGER generar_ot
+    }
+
+    ordenes_trabajo {
+        INTEGER id PK
+        INTEGER actividad_id FK
+        TEXT nombre
+        DATE fecha_generacion
+        TEXT estado
+        TEXT observaciones
+        DATE fecha_realizada
+    }
+
+    correctivos {
+        INTEGER id PK
+        TEXT nombre
+        INTEGER equipo_id FK
+        TEXT comentario
+        TEXT solucion
+        TEXT estado
+        DATE fecha_detectada
+        DATE fecha_resolucion
+        TEXT images
+        TEXT pdfs
+    }
+
+    configuracion {
+        INTEGER id PK
+        DATE fecha_sistema
+        INTEGER logging_enabled
+        DATE fecha_prevista
+        DATE fecha_inicio_resumen
+        DATE fecha_fin_resumen
+    }
+
+    usuarios {
+        INTEGER id PK
+        TEXT username
+        TEXT password_hash
+        TEXT rol
+        INTEGER perm_inventario
+        INTEGER perm_actividades
+        INTEGER perm_configuracion
+    }
+
+    tipos_equipo ||--o{ inventario : "clasifica"
+    inventario ||--o{ actividades : "tiene asignadas"
+    inventario ||--o{ correctivos : "sufre"
+    actividades ||--o{ ordenes_trabajo : "genera"
 ```
 
 ## **6\. Diagrama de Flujo (Lógica Core)**
 
 El algoritmo más complejo del sistema es la **Generación y Actualización de Órdenes de Trabajo** (utils.generate\_and\_update\_work\_orders). Este proceso determina qué tareas preventivas deben lanzarse y actualiza los estados de las existentes.
 
-### **Reglas de Negocio (v6.16)**
+### **Reglas de Negocio (v7.00)**
 
 1. **En Curso:** Fecha OT \== Mes/Año actual del sistema.  
 2. **Pendiente:** Fecha OT \< Mes/Año actual del sistema.  
 3. **Prevista:** Fecha OT \> Mes/Año actual del sistema.
 
 ``` mermaid
-flowchart TD  
-    Start([Inicio Proceso]) --> GetContext[Obtener Fecha Sistema FS y Fecha Límite FL]  
-    GetContext --> GetActs[SELECT * FROM actividades]  
-      
-    subgraph "Bucle de Generación"  
-        GetActs --> CalcDate[Calcular Fecha Objetivo: F = Inicio + N * Periodo]  
-        CalcDate --> CheckLimit{¿F <= FL?}  
-          
-        CheckLimit -- No --> EndGen([Fin Generación])  
-        CheckLimit -- Si --> CheckDB{¿Existe OT para ID+F?}  
-          
-        CheckDB -- Si --> IncN[N = N + 1]  
-        IncN --> CalcDate  
-          
-        CheckDB -- No --> DetermineState{Comparar Mes/Año F vs FS}  
-          
-        DetermineState -- "F > FS" --> StPrev[Estado: PREVISTA]  
-        DetermineState -- "F == FS" --> StCurso[Estado: EN CURSO]  
-        DetermineState -- "F < FS" --> StPend[Estado: PENDIENTE]  
-          
-        StPrev & StCurso & StPend --> InsertDB[INSERT INTO ordenes_trabajo]  
-        InsertDB --> IncN  
-    end  
-      
-    EndGen --> UpdateLoop[Bucle Actualización OTs Existentes]  
-    UpdateLoop --> ApplyLogic[Aplicar misma lógica de Estado por Mes/Año]  
-    ApplyLogic --> End([Fin Proceso])
+flowchart LR
+    %% --- Inicio ---
+    Start(("Inicio"))
+    
+    %% --- Entradas ---
+    TriggerUser[/"Usuario Crea/Edita"/]
+    TriggerSystem[/"Sistema/Cron"/]
+    
+    Start --> TriggerUser
+    Start --> TriggerSystem
+    
+    %% --- Subgrafo de Control (app.py) ---
+    subgraph Control ["Control de Cambios"]
+        direction TB
+        IsUpdate{"¿Es Edición?"}
+        DeleteFutures["DELETE OTs Futuras"]
+        
+        TriggerUser --> IsUpdate
+        IsUpdate -- Sí --> DeleteFutures
+        IsUpdate -- No --> JoinPoint
+        DeleteFutures --> JoinPoint
+        
+        JoinPoint(( )) 
+    end
+
+    %% --- Subgrafo de Generación (utils.py) ---
+    subgraph Engine ["Motor de Generación"]
+        direction LR
+        IterateActs["Iterar Actividades"]
+        TriggerSystem --> IterateActs
+        
+        CheckFlag{"¿'Generar OT' = Sí?"}
+        IterateActs --> CheckFlag
+        JoinPoint --> CheckFlag
+        
+        %% Camino NO: Limpieza
+        CleanPrevistas["Borrar 'Previstas'"]
+        CheckFlag -- No --> CleanPrevistas
+        CleanPrevistas --> EndNode(("Fin"))
+        
+        %% Camino SÍ: Cálculo
+        CalcStart["Calc. Fecha Inicio"]
+        CheckFlag -- Sí --> CalcStart
+        
+        LoopDates{"¿Fecha <= Límite?"}
+        CalcStart --> LoopDates
+        
+        LoopDates -- No --> EndNode
+        
+        CheckExists{"¿Existe OT?"}
+        LoopDates -- Sí --> CheckExists
+        
+        %% Bucle si ya existe
+        NextDate["Fecha + Period."]
+        CheckExists -- Sí --> NextDate
+        NextDate --> LoopDates
+        
+        %% Determinación de Estado
+        DetermineState{"Comparar Fecha"}
+        CheckExists -- No --> DetermineState
+        
+        SetPend["Est: Pendiente"]
+        SetCurso["Est: En curso"]
+        SetPrev["Est: Prevista"]
+        
+        DetermineState -- Pasada --> SetPend
+        DetermineState -- Actual --> SetCurso
+        DetermineState -- Futura --> SetPrev
+        
+        InsertDB[("INSERT DB")]
+        SetPend --> InsertDB
+        SetCurso --> InsertDB
+        SetPrev --> InsertDB
+        
+        InsertDB --> NextDate
+    end
 ```
 
 ## **7\. Guía de Contribución**

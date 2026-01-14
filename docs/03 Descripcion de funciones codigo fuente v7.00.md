@@ -1,6 +1,6 @@
 ---
 ## **Documentación Técnica del Código Fuente: GMAO Factory**
-Fecha: 04 de Enero de 2026  
+Fecha: 14 de Enero de 2026  
 Tecnología: Python (Flask) \+ SQLite  
 Arquitectura: Monolito Modular con Vistas Embebidas
 ---
@@ -75,6 +75,7 @@ Esta es la función más crítica.
 #### **D. Cronograma (get\_cronograma\_data)**
 
 Prepara una estructura de datos compleja (diccionarios anidados) que cruza **Equipos/Actividades** con **Meses del año** para renderizar la vista de calendario anual.
+
 
 ### **2.4 resumen.py (Dashboard Analytics)**
 

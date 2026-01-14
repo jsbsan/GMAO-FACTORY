@@ -625,7 +625,7 @@ Añade a la pestaña de configuración un panel llamado "Copia de Seguridad Base
 
 
 ------
-## Version v7.XX: Actividades S/N generan ordenes de trabajo. Y cambio de periodicidad.
+## Version v7.00: Actividades S/N generan ordenes de trabajo. Y cambio de periodicidad.
 ------
 Analiza todo este código y confirmame cuando estes listo para añadir una nueva mejora al proyecto.
 Mejoras:
