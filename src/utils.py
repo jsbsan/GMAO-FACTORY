@@ -73,6 +73,8 @@ def log_action(action_message):
 
 def allowed_file_image(filename): return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
 def allowed_file_pdf(filename): return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'pdf'}
+# NUEVA FUNCIÓN: Validar archivos de base de datos
+def allowed_file_db(filename): return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'db', 'bak', 'sqlite', 'sqlite3'}
 def file_to_base64(file): return base64.b64encode(file.read()).decode('utf-8')
 
 def normalize_files(file_list):

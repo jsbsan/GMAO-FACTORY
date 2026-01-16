@@ -4,6 +4,7 @@ import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, send_file, session
 import json
 import os
+import shutil
 from werkzeug.security import check_password_hash, generate_password_hash
 import database as db
 import utils
@@ -592,6 +593,67 @@ def backup_db():
     
     utils.log_action("Descargada copia de seguridad de la BD")
     return send_file(db_file, as_attachment=True, download_name=backup_name)
+
+# RUTA NUEVA: RESTAURAR COPIA DE SEGURIDAD
+@app.route('/settings/restore_db', methods=['POST'])
+@utils.login_required
+@utils.permission_required('perm_configuracion')
+def restore_db():
+    if 'db_file' not in request.files:
+        flash('No se seleccionó ningún archivo', 'danger')
+        return redirect(url_for('general_settings'))
+    
+    file = request.files['db_file']
+    if file.filename == '':
+        flash('No se seleccionó ningún archivo', 'danger')
+        return redirect(url_for('general_settings'))
+
+    if file and utils.allowed_file_db(file.filename):
+        try:
+            # 1. Guardar archivo temporal
+            temp_path = "restore_temp.db"
+            file.save(temp_path)
+            
+            # 2. Verificar que es una BD SQLite válida
+            try:
+                verify_conn = sqlite3.connect(temp_path)
+                verify_conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
+                verify_conn.close()
+            except sqlite3.Error:
+                os.remove(temp_path)
+                flash('El archivo subido no es una base de datos SQLite válida o está corrupto.', 'danger')
+                return redirect(url_for('general_settings'))
+
+            # 3. Sustituir la base de datos actual
+            # Hacemos un backup rápido de la actual por si falla el move (solo un renombrado)
+            current_db = db.DB_NAME
+            backup_fail_safe = current_db + ".restore_backup"
+            
+            if os.path.exists(current_db):
+                shutil.move(current_db, backup_fail_safe)
+            
+            try:
+                shutil.move(temp_path, current_db)
+                # Si todo ha ido bien, borramos el backup de seguridad
+                if os.path.exists(backup_fail_safe):
+                    os.remove(backup_fail_safe)
+                    
+                utils.log_action("Base de datos restaurada desde copia de seguridad")
+                flash('Base de datos restaurada con éxito. Por seguridad, inicie sesión nuevamente.', 'success')
+                return redirect(url_for('logout'))
+                
+            except Exception as e:
+                # Si falla mover el nuevo archivo, restauramos el original
+                if os.path.exists(backup_fail_safe):
+                    shutil.move(backup_fail_safe, current_db)
+                raise e
+
+        except Exception as e:
+            flash(f'Error al restaurar la base de datos: {str(e)}', 'danger')
+            return redirect(url_for('general_settings'))
+    else:
+        flash('Formato de archivo no válido. Use .db, .sqlite o .bak', 'danger')
+        return redirect(url_for('general_settings'))
 
 @app.route('/users/add', methods=['POST'])
 @utils.login_required
