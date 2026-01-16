@@ -32,12 +32,12 @@ Si no esta creado, poner el siguiente contenido:
 Necesario para cada vez que se cambie el codigo fuente:
 ### 
 
-4. Crear imagen docker: 
+4. Crear imagen docker: (lo ejecuto dentro de Visual Studio Code en el terminal)
 		``` bash
 		docker build -t gmao-factory .
 		```
 
-5. Ejecutar contenedor:
+5. Ejecutar contenedor: (lo ejecuto dentro de Visual Studio Code en el terminal)
 		``` bash
 		docker run -p 5000:5000 gmao-factory
 		```

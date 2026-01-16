@@ -625,12 +625,46 @@ Añade a la pestaña de configuración un panel llamado "Copia de Seguridad Base
 
 
 ------
-## Version v7.XX: Actividades S/N generan ordenes de trabajo. Y cambio de periodicidad.
+## Version v7.00: Actividades S/N generan ordenes de trabajo. Y cambio de periodicidad.
 ------
-Añadir un campo a la tabla de Actividades, que tenga valor Si/No indicando si genera ordenes de trbajo
-Modificar generación de ordenes de trabajo para que cuando revise las actividades, si esta no genera orden de trabajo, borre las ot que tenga previstas y no genere ordenes de trabajo.
+Analiza todo este código y confirmame cuando estes listo para añadir una nueva mejora al proyecto.
+Mejoras:
+1. Añadir un campo a la tabla de Actividades, que tenga valor Si/No indirá si genera ordenes de trabajo. Modifica la base de datos y las plantillas relacionadas (edición de actividades y tabla de mostrar actividades)
+2. Modificar generación de ordenes de trabajo para que cuando revise las actividades, si esta no genera orden de trabajo, borre las ot que tenga previstas y no genere ordenes de trabajo nuevas para esa actividad.
 
-Cambio de periodicidad:
-Si se detecta en la edición de actividades que se ha modificado la periodicidad siendo esta antes distinta que cero, se borren las ordenes de trabajo que tenia prevista, y se vuelvan a generar las ordenes de trabajo con la nueva periodicidad.
+me puedes mostrar el archivo index.html y el edit.html completo
+me puedes mostrar el archivo app.py completo
+
+Quiero que cuando se añada, edite, actualice o  borre una actividad, se generen las ordenes de trabajo.
+R: Aqui se da cuenta de cuando hay un update, si cambis de periodicidad, hay que borrar las OT previstas, y volverlas a generar con la nueva periodicidad.
 
 
+
+
+------
+## Version v7.01: Restaurar copia backup de seguridad de la base de datos
+------
+Analiza todo este código y confirmame cuando estes listo para añadir una nueva mejora al proyecto.
+Mejoras:
+Añade un nuevo panel en la configuración, llamado "Restaurar copia de seguridad de la base de datos", que permita al usuario seleccionar un fichero .bak o .db y sustituir la base actual sqlite por la seleccionada por el usuario.
+
+
+------
+## Version v7.xx: Nombre del Mantenimiento
+------
+Analiza todo este código y confirmame cuando estes listo para añadir una nueva mejora al proyecto.
+Mejoras:
+Añade un nuevo panel en la configuración, que este encima de todos los que hay, y que tenga un campo llamado "Nombre del Mantenimiento", donde el usuario pueda editar el nombre del mantenimiento, y este dato se guarde en la base de datos. Además añade una etiqueta para que se vea el nombre del mantenimiento en todas las pantallas.
+
+
+------
+## Version v7.xx: Edicion de OT en calendario, vuelve al mes actual, quiero que vuelva al mes en que estaba
+------
+Analiza todo este código y confirmame cuando estes listo para añadir una nueva mejora al proyecto.
+Cuando edito una orden de trabajo en el calendario, al aceptar  la edición de la orden de trabajo, vuelve al mes actual y no al que estaba. Quiero que vuelva al calendario del mes en el que estaba el calendario.
+
+------
+## Version v7.xx: Edicion de OT en cronograma, vuelve al año actual, quiero que vuelva al año en que estaba
+------
+Analiza todo este código y confirmame cuando estes listo para añadir una nueva mejora al proyecto.
+Cuando edito una orden de trabajo en el cronograma, al aceptar  la edición de la orden de trabajo, vuelve al año actual y no al que estaba. Quiero que vuelva al cronograma del año en el que estaba el cronograma.

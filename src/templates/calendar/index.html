@@ -47,6 +47,8 @@
         </div>
         <div class="modal-body">
           <input type="hidden" name="redirect_to" value="calendar">
+          <!-- NUEVO: Campo oculto para guardar la fecha actual del calendario -->
+          <input type="hidden" name="current_calendar_date" id="currentCalendarDate">
           
           <div class="mb-3">
             <label class="form-label">Orden de Trabajo</label>
@@ -109,9 +111,16 @@
     var modalObsInput = document.getElementById('otObservaciones');
     var modalForm = document.getElementById('editOTForm');
     var modalPrintLink = document.getElementById('printOTLink');
+    var currentCalendarDateInput = document.getElementById('currentCalendarDate');
+
+    // NUEVO: Detectar si hay una fecha en la URL para inicializar el calendario ahí
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialDateParam = urlParams.get('date');
 
     var calendar = new FullCalendar.Calendar(calendarEl, {
       initialView: 'dayGridMonth',
+      // NUEVO: Si tenemos fecha en URL, la usamos. Si no, usa la actual por defecto.
+      initialDate: initialDateParam ? initialDateParam : undefined,
       locale: 'es', // Idioma español
       firstDay: 1,  // 1 = Lunes
       headerToolbar: {
@@ -140,7 +149,7 @@
         }
       },
 
-      // NUEVO: Manejo del clic para abrir modal
+      // Manejo del clic para abrir modal
       eventClick: function(info) {
         info.jsEvent.preventDefault(); // Evitar navegar a la URL por defecto
 
@@ -170,6 +179,15 @@
         editModal.show();
       }
     });
+    
+    // NUEVO: Antes de enviar el formulario, guardamos la fecha actual del calendario
+    modalForm.addEventListener('submit', function() {
+        if (calendar) {
+            // Guardamos la fecha en formato ISO para recuperarla luego
+            currentCalendarDateInput.value = calendar.getDate().toISOString();
+        }
+    });
+
     calendar.render();
   });
 </script>

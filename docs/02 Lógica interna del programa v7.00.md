@@ -1,6 +1,6 @@
 # **📘 Documentación Técnica: Lógica y Arquitectura de GMAO Factory**
 
-Versión del Software: v6.16 (Referencia)  
+Versión del Software: v7.00 (Referencia)  
 Tecnología Base: Python (Flask) \+ SQLite \+ Jinja2 \+ Bootstrap 5
 
 ## **1\. Visión General de la Arquitectura**
@@ -39,10 +39,14 @@ La base de datos relacional (mantenimiento\_factory.db) consta de las siguientes
   * images / pdfs: Campos de tipo TEXT que almacenan arrays JSON. Cada elemento del array contiene el nombre del archivo y la cadena Base64 de los datos binarios.  
 * **actividades:** Definición del mantenimiento preventivo (la "plantilla" de la tarea).  
   * periodicidad: Entero que representa los días entre mantenimientos.  
-  * fecha\_inicio\_gen: Fecha semilla para el cálculo de recurrencia.  
+  * fecha\_inicio\_gen: Fecha semilla para el cálculo de recurrencia.
+  * genera O.T.: Si/No genera ordenes de trabajo la actividad.
+
 * **ordenes\_trabajo (OTs):** Instancias concretas generadas a partir de una actividad.  
   * fecha\_generacion: La fecha teórica calculada por el algoritmo.  
-  * estado: Cadena de texto que define el ciclo de vida (Pendiente, En curso, Realizada, etc.).  
+  * estado: Cadena de texto que define el ciclo de vida (Pendiente, En curso, Realizada, etc.). 
+  * observaciones: Cadena de texto para añadir observaciones.
+  
 * **correctivos:** Registro de incidencias no planificadas (averías). Comparte la lógica de almacenamiento de imágenes Base64 con la tabla de inventario.
 
 ## **3\. Lógica de Negocio (Core Logic)**
@@ -60,7 +64,7 @@ Este es un proceso determinista que asegura que existan las órdenes de trabajo 
    * *Regla:* Si fecha\_prevista es nula o anterior a fecha\_sistema, el límite de generación es fecha\_sistema (solo genera hasta hoy).  
 2. **Iteración de Actividades:**  
    * El sistema recorre cada fila de la tabla actividades.  
-   * Para cada actividad, toma su fecha\_inicio\_gen y su periodicidad.  
+   * Para cada actividad, si **Si** genera ordenes de trabajo, toma su fecha\_inicio\_gen y su periodicidad.  
 3. **Proyección de Fechas:**  
    * Utiliza un bucle while para calcular fechas futuras:  
      $$Fecha\_{n} \= Fecha\_{inicio} \+ (n \\times Periodicidad)$$  
@@ -69,10 +73,11 @@ Este es un proceso determinista que asegura que existan las órdenes de trabajo 
    * Antes de crear una OT, consulta la base de datos: SELECT id FROM ordenes\_trabajo WHERE actividad\_id \= X AND fecha\_generacion \= Y.  
    * Si ya existe una OT para esa actividad en esa fecha exacta, **no hace nada** y pasa a la siguiente iteración. Esto evita duplicados.  
 5. Determinación del Estado Inicial:  
-   Si la OT no existe, se crea. El estado se asigna según la lógica temporal (Versión v6.08):  
+   Si la OT no existe, se crea. El estado se asigna según la lógica temporal:
    * **Pendiente:** Si la fecha generada es anterior al mes/año actual del sistema (Pasado).  
    * **En Curso:** Si la fecha generada coincide con el mes y año actual del sistema (Presente).  
-   * **Prevista:** Si la fecha generada es posterior al mes/año actual del sistema (Futuro).
+   * **Prevista:** Si la fecha generada es posterior al mes/año actual del sistema (Futuro). Si la actividad no genera ordenes de trabajo, se borrarán las OT previstas existentes.
+
 
 ### **3.2 Actualización de Estados (Máquina de Estados)**
 

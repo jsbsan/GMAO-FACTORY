@@ -4,6 +4,7 @@ import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, send_file, session
 import json
 import os
+import shutil
 from werkzeug.security import check_password_hash, generate_password_hash
 import database as db
 import utils
@@ -17,6 +18,15 @@ app.register_blueprint(resumen_bp, url_prefix='/resumen')
 @app.template_filter('json_load')
 def json_load_filter(s):
     return utils.json_load_filter(s)
+
+# Context Processor para inyectar el nombre del mantenimiento en todas las vistas
+@app.context_processor
+def inject_maintenance_name():
+    return dict(maintenance_name=utils.get_maintenance_name())
+
+# ==========================================
+# AUTENTICACIÓN
+# ==========================================
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -49,6 +59,10 @@ def logout():
 @utils.login_required
 def index():
     return redirect(url_for('resumen.index'))
+
+# ==========================================
+# INVENTARIO
+# ==========================================
 
 @app.route('/inventory')
 @utils.login_required
@@ -182,6 +196,10 @@ def view_files(source, tipo, id):
         files = utils.normalize_files(json.loads(content) if content else [])
     return render_template('viewer.html', item=item, files=files, tipo=tipo, back_url=back_url, title_prefix=title_prefix, active_page='inventario', system_date=utils.get_system_date())
 
+# ==========================================
+# ACTIVIDADES (CON LÓGICA DE GENERACIÓN AUTOMÁTICA)
+# ==========================================
+
 @app.route('/activities')
 @utils.login_required
 @utils.permission_required('perm_actividades')
@@ -197,12 +215,23 @@ def activities():
 @utils.permission_required('perm_actividades')
 def add_activity():
     conn = db.get_db_connection()
-    conn.execute('INSERT INTO actividades (nombre, equipo_id, periodicidad, operaciones, fecha_inicio_gen) VALUES (?,?,?,?,?)',
-                 (request.form['nombre'], request.form['equipo_id'], request.form['periodicidad'], request.form['operaciones'], request.form['fecha_inicio']))
-    conn.commit()
+    # Leemos si el usuario quiere generar OTs (checkbox en formulario)
+    generar_ot = 1 if 'generar_ot' in request.form else 0
+    
+    conn.execute('INSERT INTO actividades (nombre, equipo_id, periodicidad, operaciones, fecha_inicio_gen, generar_ot) VALUES (?,?,?,?,?,?)',
+                 (request.form['nombre'], request.form['equipo_id'], request.form['periodicidad'], request.form['operaciones'], request.form['fecha_inicio'], generar_ot))
+    
+    # IMPORTANTE: Commit para guardar la actividad ANTES de generar las OTs
+    conn.commit() 
+    
+    # Si la actividad se crea con el check activo, generamos sus primeras OTs inmediatamente
+    if generar_ot:
+        utils.generate_and_update_work_orders(conn, utils.get_system_date())
+        conn.commit()
+    
     conn.close()
     utils.log_action(f"Actividad creada: {request.form['nombre']}")
-    flash('Actividad creada', 'success')
+    flash('Actividad creada y plan generado', 'success')
     return redirect(url_for('activities'))
 
 @app.route('/activities/edit/<int:id>')
@@ -220,12 +249,28 @@ def edit_activity(id):
 @utils.permission_required('perm_actividades')
 def update_activity(id):
     conn = db.get_db_connection()
-    conn.execute('UPDATE actividades SET nombre=?, equipo_id=?, periodicidad=?, operaciones=?, fecha_inicio_gen=? WHERE id=?',
-                 (request.form['nombre'], request.form['equipo_id'], request.form['periodicidad'], request.form['operaciones'], request.form['fecha_inicio'], id))
+    generar_ot = 1 if 'generar_ot' in request.form else 0
+    
+    conn.execute('UPDATE actividades SET nombre=?, equipo_id=?, periodicidad=?, operaciones=?, fecha_inicio_gen=?, generar_ot=? WHERE id=?',
+                 (request.form['nombre'], request.form['equipo_id'], request.form['periodicidad'], request.form['operaciones'], request.form['fecha_inicio'], generar_ot, id))
+    
+    # LÓGICA DE ACTUALIZACIÓN DE OTS:
+    # 1. Borramos las OTs futuras ('Prevista') porque la periodicidad o fecha pudo haber cambiado
+    #    o porque el usuario desactivó la generación de OTs.
+    conn.execute("DELETE FROM ordenes_trabajo WHERE actividad_id=? AND estado='Prevista'", (id,))
+    
+    # 2. Guardamos cambios
     conn.commit()
+    
+    # 3. Regeneramos el plan. La función generate_and_update_work_orders respetará el flag generar_ot.
+    #    Si generar_ot es 1, rellenará los huecos borrados con las nuevas fechas.
+    #    Si generar_ot es 0, no creará nada nuevo (y las 'Prevista' ya fueron borradas).
+    utils.generate_and_update_work_orders(conn, utils.get_system_date())
+    conn.commit()
+    
     conn.close()
     utils.log_action(f"Actividad actualizada: ID {id}")
-    flash('Actividad actualizada', 'success')
+    flash('Actividad actualizada y plan recalculado', 'success')
     return redirect(url_for('activities'))
 
 @app.route('/activities/delete/<int:id>', methods=['POST'])
@@ -234,6 +279,7 @@ def update_activity(id):
 def delete_activity(id):
     conn = db.get_db_connection()
     try:
+        # Aquí se borran TODAS las OTs (incluidas historial) al borrar la actividad madre
         conn.execute('DELETE FROM ordenes_trabajo WHERE actividad_id = ?', (id,))
         conn.execute('DELETE FROM actividades WHERE id = ?', (id,))
         conn.commit()
@@ -263,6 +309,10 @@ def print_all_activities():
     utils.log_action("Impreso listado actividades")
     return render_template('print/all_activities.html', activities=activities, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
 
+# ==========================================
+# ÓRDENES DE TRABAJO
+# ==========================================
+
 @app.route('/work_orders')
 @utils.login_required
 def work_orders():
@@ -277,6 +327,7 @@ def work_orders():
 def generate_work_orders():
     conn = db.get_db_connection()
     current_date = utils.get_system_date()
+    # Esta función en utils ya debe incluir la lógica de ignorar actividades con generar_ot=0
     count = utils.generate_and_update_work_orders(conn, current_date)
     conn.commit()
     conn.close()
@@ -288,15 +339,28 @@ def generate_work_orders():
 @utils.login_required
 def update_ot(id):
     conn = db.get_db_connection()
-    # Si viene del calendario, el redirect_to debe devolvemos allí
     redirect_target = 'calendar_view' if request.form.get('redirect_to') == 'calendar' else 'work_orders'
     if request.form.get('redirect_to') == 'cronograma': redirect_target = 'cronograma'
+    
+    # NEW: Capturamos la fecha del calendario si existe
+    calendar_date = request.form.get('current_calendar_date')
+    # NEW: Capturamos el año del cronograma si existe
+    cronograma_year = request.form.get('cronograma_year')
     
     conn.execute('UPDATE ordenes_trabajo SET estado=?, observaciones=?, fecha_realizada=? WHERE id=?', (request.form['estado'], request.form['observaciones'], request.form['fecha_realizada'], id))
     conn.commit()
     conn.close()
     utils.log_action(f"OT actualizada: ID {id}")
     flash('OT actualizada', 'success')
+    
+    # Si volvemos al calendario y tenemos una fecha, la pasamos como parámetro
+    if redirect_target == 'calendar_view' and calendar_date:
+        return redirect(url_for('calendar_view', date=calendar_date))
+    
+    # Si volvemos al cronograma y tenemos un año, lo pasamos como parámetro
+    if redirect_target == 'cronograma' and cronograma_year:
+        return redirect(url_for('cronograma', year=cronograma_year))
+        
     return redirect(url_for(redirect_target))
 
 @app.route('/work_orders/print/<int:id>')
@@ -338,6 +402,10 @@ def print_cronograma():
     conn.close()
     utils.log_action(f"Impreso cronograma año {year}")
     return render_template('print/cronograma.html', data=data, meses=meses, year=year, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
+
+# ==========================================
+# CORRECTIVOS
+# ==========================================
 
 @app.route('/correctivos')
 @utils.login_required
@@ -433,6 +501,10 @@ def print_all_correctivos():
     utils.log_action("Impreso listado incidencias")
     return render_template('print/all_correctivos.html', items=items, hoy=utils.get_system_date().strftime('%d/%m/%Y'))
 
+# ==========================================
+# CONFIGURACIÓN GENERAL
+# ==========================================
+
 @app.route('/general_settings')
 @utils.login_required
 @utils.permission_required('perm_configuracion')
@@ -443,11 +515,28 @@ def general_settings():
         size_bytes = os.path.getsize(utils.LOG_FILE)
         log_size_str = f"{size_bytes} bytes" if size_bytes < 1024 else f"{size_bytes / 1024:.2f} KB"
     planned_date = utils.get_planned_date()
+    # Obtenemos nombre del mantenimiento, aunque ya lo tenemos por context_processor, lo pasamos explícitamente si se desea
+    maintenance_name = utils.get_maintenance_name()
+    
     conn = db.get_db_connection()
     tipos = conn.execute('SELECT * FROM tipos_equipo').fetchall()
     users = conn.execute('SELECT * FROM usuarios').fetchall()
     conn.close()
-    return render_template('settings/index.html', logging_enabled=logging_enabled, log_size=log_size_str, tipos=tipos, users=users, planned_date=planned_date, active_page='ajustes', system_date=utils.get_system_date())
+    return render_template('settings/index.html', logging_enabled=logging_enabled, log_size=log_size_str, tipos=tipos, users=users, planned_date=planned_date, maintenance_name=maintenance_name, active_page='ajustes', system_date=utils.get_system_date())
+
+# RUTA NUEVA: ACTUALIZAR NOMBRE DEL MANTENIMIENTO
+@app.route('/settings/update_maintenance_name', methods=['POST'])
+@utils.login_required
+@utils.permission_required('perm_configuracion')
+def update_maintenance_name():
+    name = request.form['nombre_mantenimiento']
+    conn = db.get_db_connection()
+    conn.execute('UPDATE configuracion SET nombre_mantenimiento=? WHERE id=1', (name,))
+    conn.commit()
+    conn.close()
+    utils.log_action(f"Nombre del mantenimiento actualizado a: {name}")
+    flash('Nombre del mantenimiento actualizado', 'success')
+    return redirect(url_for('general_settings'))
 
 @app.route('/settings/update_planned_date', methods=['POST'])
 @utils.login_required
@@ -465,6 +554,10 @@ def update_planned_date():
     actividades = conn.execute('SELECT * FROM actividades').fetchall()
     count_generated = 0
     for act in actividades:
+        # LÓGICA DE CONTROL: Si la actividad tiene generar_ot desactivado, saltamos
+        if not act['generar_ot']:
+            continue
+
         f_inicio = datetime.datetime.strptime(act['fecha_inicio_gen'], '%Y-%m-%d').date()
         periodicity = act['periodicidad']
         if f_inicio > system_date: current_calc = f_inicio
@@ -522,7 +615,6 @@ def download_log():
     if os.path.exists(utils.LOG_FILE): return send_file(utils.LOG_FILE, as_attachment=True)
     flash("Log vacío.", "warning"); return redirect(url_for('general_settings'))
 
-# NUEVA RUTA PARA BACKUP DE LA BASE DE DATOS
 @app.route('/settings/backup_db')
 @utils.login_required
 @utils.permission_required('perm_configuracion')
@@ -537,6 +629,67 @@ def backup_db():
     
     utils.log_action("Descargada copia de seguridad de la BD")
     return send_file(db_file, as_attachment=True, download_name=backup_name)
+
+# RUTA NUEVA: RESTAURAR COPIA DE SEGURIDAD
+@app.route('/settings/restore_db', methods=['POST'])
+@utils.login_required
+@utils.permission_required('perm_configuracion')
+def restore_db():
+    if 'db_file' not in request.files:
+        flash('No se seleccionó ningún archivo', 'danger')
+        return redirect(url_for('general_settings'))
+    
+    file = request.files['db_file']
+    if file.filename == '':
+        flash('No se seleccionó ningún archivo', 'danger')
+        return redirect(url_for('general_settings'))
+
+    if file and utils.allowed_file_db(file.filename):
+        try:
+            # 1. Guardar archivo temporal
+            temp_path = "restore_temp.db"
+            file.save(temp_path)
+            
+            # 2. Verificar que es una BD SQLite válida
+            try:
+                verify_conn = sqlite3.connect(temp_path)
+                verify_conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
+                verify_conn.close()
+            except sqlite3.Error:
+                os.remove(temp_path)
+                flash('El archivo subido no es una base de datos SQLite válida o está corrupto.', 'danger')
+                return redirect(url_for('general_settings'))
+
+            # 3. Sustituir la base de datos actual
+            # Hacemos un backup rápido de la actual por si falla el move (solo un renombrado)
+            current_db = db.DB_NAME
+            backup_fail_safe = current_db + ".restore_backup"
+            
+            if os.path.exists(current_db):
+                shutil.move(current_db, backup_fail_safe)
+            
+            try:
+                shutil.move(temp_path, current_db)
+                # Si todo ha ido bien, borramos el backup de seguridad
+                if os.path.exists(backup_fail_safe):
+                    os.remove(backup_fail_safe)
+                    
+                utils.log_action("Base de datos restaurada desde copia de seguridad")
+                flash('Base de datos restaurada con éxito. Por seguridad, inicie sesión nuevamente.', 'success')
+                return redirect(url_for('logout'))
+                
+            except Exception as e:
+                # Si falla mover el nuevo archivo, restauramos el original
+                if os.path.exists(backup_fail_safe):
+                    shutil.move(backup_fail_safe, current_db)
+                raise e
+
+        except Exception as e:
+            flash(f'Error al restaurar la base de datos: {str(e)}', 'danger')
+            return redirect(url_for('general_settings'))
+    else:
+        flash('Formato de archivo no válido. Use .db, .sqlite o .bak', 'danger')
+        return redirect(url_for('general_settings'))
 
 @app.route('/users/add', methods=['POST'])
 @utils.login_required
@@ -651,13 +804,11 @@ def calendar_view():
 @utils.login_required
 def get_calendar_events():
     conn = db.get_db_connection()
-    # AÑADIDO: observaciones al select
     ots = conn.execute('SELECT id, nombre, fecha_generacion, estado, observaciones FROM ordenes_trabajo').fetchall()
     conn.close()
     
     events = []
     for ot in ots:
-        # Colores personalizados solicitados
         color = '#6c757d' # Default
         estado = ot['estado']
         
@@ -673,7 +824,7 @@ def get_calendar_events():
             'title': ot['nombre'],
             'start': ot['fecha_generacion'],
             'color': color,
-            'url': url_for('work_orders'), # Se mantiene como fallback
+            'url': url_for('work_orders'),
             'extendedProps': {
                 'estado': estado,
                 'observaciones': ot['observaciones'] or ''

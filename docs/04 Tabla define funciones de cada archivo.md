@@ -44,20 +44,23 @@ GMAO_FACTORY/
 │   │   ├── index.html      # Tabla de incidencias  
 │   │   └── edit.html       # Formulario de edición  
 │   │  
+│   ├── calendar/  
+│   │   └── index.html       # Muestra calendario
+│   │  
 │   ├── settings/  
 │   │   ├── index.html      # Configuración global y usuarios  
 │   │   └── edit_type.html  # Edición de tipos de equipo  
 │   │  
 │   └── print/              # Vistas limpias para imprimir  
-│       ├── inventory.html  
-│       ├── all_inventory.html  
 │       ├── activity.html  
 │       ├── all_activities.html  
-│       ├── ot.html  
+│       ├── all_correctivos.html  
+│       ├── all_inventory.html  
 │       ├── all_ots.html  
-│       ├── cronograma.html  
 │       ├── correctivo.html  
-│       └── all_correctivos.html  
+│       ├── cronograma.html  
+│       ├── inventory.html  
+│       └── ot.html  
 │  
 └── mantenimiento_factory.db # Archivo de Base de Datos (Generado automáticamente al arrancar)  
 

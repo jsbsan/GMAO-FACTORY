@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GMAO Factory</title>
+    <title>{{ maintenance_name }}</title>
     
     <!-- Script preventivo para evitar destellos de luz al cargar si el modo oscuro está activo -->
     <script>
@@ -161,8 +161,9 @@
 <body>
     {% macro render_navigation() %}
         <div class="sidebar-brand">
-            <h4>🏭 GMAO</h4>
-            <small>Factory v6.17</small>
+            <!-- NOMBRE DEL MANTENIMIENTO DINÁMICO -->
+            <h4>{{ maintenance_name }}</h4>
+            <small>🏭 GMAO Factory v7.00</small>
             <div class="mt-2">
                 <button class="theme-toggle-btn">
                     <i class="fas fa-moon me-1"></i> <span class="theme-text">Modo Oscuro</span>
@@ -195,7 +196,8 @@
 
     <nav class="navbar navbar-dark mobile-navbar d-md-none sticky-top">
       <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1">🏭 GMAO Factory</span>
+        <!-- NOMBRE DEL MANTENIMIENTO DINÁMICO (MÓVIL) -->
+        <span class="navbar-brand mb-0 h1">{{ maintenance_name }}</span>
         <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu"><span class="navbar-toggler-icon"></span></button>
       </div>
     </nav>
@@ -273,10 +275,10 @@
             dom: 'Bfrtip',
             stateSave: true,
             stateSaveParams: function (settings, data) {
-                data.version = "6.17"; 
+                data.version = "7.00"; 
             },
             stateLoadParams: function (settings, data) {
-                if (data.version !== "6.17") {
+                if (data.version !== "7.00") {
                     return false; 
                 }
             },
