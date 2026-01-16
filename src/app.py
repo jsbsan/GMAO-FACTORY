@@ -342,11 +342,25 @@ def update_ot(id):
     redirect_target = 'calendar_view' if request.form.get('redirect_to') == 'calendar' else 'work_orders'
     if request.form.get('redirect_to') == 'cronograma': redirect_target = 'cronograma'
     
+    # NEW: Capturamos la fecha del calendario si existe
+    calendar_date = request.form.get('current_calendar_date')
+    # NEW: Capturamos el año del cronograma si existe
+    cronograma_year = request.form.get('cronograma_year')
+    
     conn.execute('UPDATE ordenes_trabajo SET estado=?, observaciones=?, fecha_realizada=? WHERE id=?', (request.form['estado'], request.form['observaciones'], request.form['fecha_realizada'], id))
     conn.commit()
     conn.close()
     utils.log_action(f"OT actualizada: ID {id}")
     flash('OT actualizada', 'success')
+    
+    # Si volvemos al calendario y tenemos una fecha, la pasamos como parámetro
+    if redirect_target == 'calendar_view' and calendar_date:
+        return redirect(url_for('calendar_view', date=calendar_date))
+    
+    # Si volvemos al cronograma y tenemos un año, lo pasamos como parámetro
+    if redirect_target == 'cronograma' and cronograma_year:
+        return redirect(url_for('cronograma', year=cronograma_year))
+        
     return redirect(url_for(redirect_target))
 
 @app.route('/work_orders/print/<int:id>')

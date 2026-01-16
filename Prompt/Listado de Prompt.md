@@ -655,3 +655,16 @@ Añade un nuevo panel en la configuración, llamado "Restaurar copia de segurida
 Analiza todo este código y confirmame cuando estes listo para añadir una nueva mejora al proyecto.
 Mejoras:
 Añade un nuevo panel en la configuración, que este encima de todos los que hay, y que tenga un campo llamado "Nombre del Mantenimiento", donde el usuario pueda editar el nombre del mantenimiento, y este dato se guarde en la base de datos. Además añade una etiqueta para que se vea el nombre del mantenimiento en todas las pantallas.
+
+
+------
+## Version v7.xx: Edicion de OT en calendario, vuelve al mes actual, quiero que vuelva al mes en que estaba
+------
+Analiza todo este código y confirmame cuando estes listo para añadir una nueva mejora al proyecto.
+Cuando edito una orden de trabajo en el calendario, al aceptar  la edición de la orden de trabajo, vuelve al mes actual y no al que estaba. Quiero que vuelva al calendario del mes en el que estaba el calendario.
+
+------
+## Version v7.xx: Edicion de OT en cronograma, vuelve al año actual, quiero que vuelva al año en que estaba
+------
+Analiza todo este código y confirmame cuando estes listo para añadir una nueva mejora al proyecto.
+Cuando edito una orden de trabajo en el cronograma, al aceptar  la edición de la orden de trabajo, vuelve al año actual y no al que estaba. Quiero que vuelva al cronograma del año en el que estaba el cronograma.
