@@ -644,4 +644,14 @@ R: Aqui se da cuenta de cuando hay un update, si cambis de periodicidad, hay que
 ------
 ## Version v7.01: Restaurar copia backup de seguridad de la base de datos
 ------
+Analiza todo este código y confirmame cuando estes listo para añadir una nueva mejora al proyecto.
+Mejoras:
 Añade un nuevo panel en la configuración, llamado "Restaurar copia de seguridad de la base de datos", que permita al usuario seleccionar un fichero .bak o .db y sustituir la base actual sqlite por la seleccionada por el usuario.
+
+
+------
+## Version v7.xx: Nombre del Mantenimiento
+------
+Analiza todo este código y confirmame cuando estes listo para añadir una nueva mejora al proyecto.
+Mejoras:
+Añade un nuevo panel en la configuración, que este encima de todos los que hay, y que tenga un campo llamado "Nombre del Mantenimiento", donde el usuario pueda editar el nombre del mantenimiento, y este dato se guarde en la base de datos. Además añade una etiqueta para que se vea el nombre del mantenimiento en todas las pantallas.
