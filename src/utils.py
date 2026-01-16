@@ -54,6 +54,16 @@ def get_planned_date():
     except: pass
     return None
 
+# NUEVA FUNCIÓN: Obtener nombre del mantenimiento
+def get_maintenance_name():
+    try:
+        conn = get_db_connection()
+        row = conn.execute('SELECT nombre_mantenimiento FROM configuracion WHERE id=1').fetchone()
+        conn.close()
+        if row and row['nombre_mantenimiento']: return row['nombre_mantenimiento']
+    except: pass
+    return "GMAO Factory"
+
 def is_logging_enabled():
     try:
         conn = get_db_connection()
@@ -73,7 +83,6 @@ def log_action(action_message):
 
 def allowed_file_image(filename): return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
 def allowed_file_pdf(filename): return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'pdf'}
-# NUEVA FUNCIÓN: Validar archivos de base de datos
 def allowed_file_db(filename): return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'db', 'bak', 'sqlite', 'sqlite3'}
 def file_to_base64(file): return base64.b64encode(file.read()).decode('utf-8')
 
@@ -114,12 +123,8 @@ def generate_and_update_work_orders(conn, current_system_date):
     count_generated = 0
     
     for act in actividades:
-        # LÓGICA NUEVA: Verificación del flag
         if not act['generar_ot']:
-            # 1. Si la actividad dice NO generar, borramos las OTs futuras que estén en estado 'Prevista'
-            # No borramos 'Pendiente' ni 'En curso' porque esas ya requieren atención.
             conn.execute("DELETE FROM ordenes_trabajo WHERE actividad_id=? AND estado='Prevista'", (act['id'],))
-            # 2. Saltamos la generación para esta actividad
             continue
 
         f = datetime.datetime.strptime(act['fecha_inicio_gen'], '%Y-%m-%d').date()
@@ -128,7 +133,6 @@ def generate_and_update_work_orders(conn, current_system_date):
         p = act['periodicidad']
         while f <= generation_limit:
             if not conn.execute('SELECT id FROM ordenes_trabajo WHERE actividad_id=? AND fecha_generacion=?', (act['id'], f)).fetchone():
-                # Logic for new OTs based on requested criteria
                 if f.year < current_system_date.year or (f.year == current_system_date.year and f.month < current_system_date.month):
                     st = 'Pendiente'
                 elif f.year == current_system_date.year and f.month == current_system_date.month:
@@ -141,15 +145,12 @@ def generate_and_update_work_orders(conn, current_system_date):
                 count_generated += 1
             f += datetime.timedelta(days=p)
             
-    # Update logic for existing OTs based on new criteria
-    # Ignore: Aplazada, Rechazada, Realizada. Process: En curso, Pendiente, Prevista, NULL
     active_ots = conn.execute("SELECT ot.id, ot.fecha_generacion, ot.estado FROM ordenes_trabajo ot WHERE ot.estado NOT IN ('Realizada', 'Rechazada', 'Aplazada') OR ot.estado IS NULL").fetchall()
     
     for ot in active_ots:
         if not ot['fecha_generacion']: continue
         gen = datetime.datetime.strptime(ot['fecha_generacion'], '%Y-%m-%d').date()
         
-        # Determine correct state
         if gen.year < current_system_date.year or (gen.year == current_system_date.year and gen.month < current_system_date.month):
             new_state = 'Pendiente'
         elif gen.year == current_system_date.year and gen.month == current_system_date.month:

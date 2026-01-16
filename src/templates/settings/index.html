@@ -1,6 +1,30 @@
 {% extends "base.html" %}
 {% block content %}
 <h1 class="h2 mb-4">Configuración Global</h1>
+
+<!-- NUEVO PANEL: IDENTIDAD DEL SITIO (Encima de todo) -->
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4 border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-id-card me-2"></i> Identidad del Sitio</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('update_maintenance_name') }}" method="POST" class="row align-items-end">
+                    <div class="col-md-10">
+                        <label class="form-label">Nombre del Mantenimiento</label>
+                        <input type="text" class="form-control form-control-lg" name="nombre_mantenimiento" value="{{ maintenance_name }}" placeholder="Ej: GMAO Planta Principal" required>
+                        <div class="form-text">Este nombre aparecerá en la barra lateral y en el menú superior.</div>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100 btn-lg">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-md-6">
         <div class="card mb-4">

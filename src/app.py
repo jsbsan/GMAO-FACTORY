@@ -19,6 +19,11 @@ app.register_blueprint(resumen_bp, url_prefix='/resumen')
 def json_load_filter(s):
     return utils.json_load_filter(s)
 
+# Context Processor para inyectar el nombre del mantenimiento en todas las vistas
+@app.context_processor
+def inject_maintenance_name():
+    return dict(maintenance_name=utils.get_maintenance_name())
+
 # ==========================================
 # AUTENTICACIÓN
 # ==========================================
@@ -496,11 +501,28 @@ def general_settings():
         size_bytes = os.path.getsize(utils.LOG_FILE)
         log_size_str = f"{size_bytes} bytes" if size_bytes < 1024 else f"{size_bytes / 1024:.2f} KB"
     planned_date = utils.get_planned_date()
+    # Obtenemos nombre del mantenimiento, aunque ya lo tenemos por context_processor, lo pasamos explícitamente si se desea
+    maintenance_name = utils.get_maintenance_name()
+    
     conn = db.get_db_connection()
     tipos = conn.execute('SELECT * FROM tipos_equipo').fetchall()
     users = conn.execute('SELECT * FROM usuarios').fetchall()
     conn.close()
-    return render_template('settings/index.html', logging_enabled=logging_enabled, log_size=log_size_str, tipos=tipos, users=users, planned_date=planned_date, active_page='ajustes', system_date=utils.get_system_date())
+    return render_template('settings/index.html', logging_enabled=logging_enabled, log_size=log_size_str, tipos=tipos, users=users, planned_date=planned_date, maintenance_name=maintenance_name, active_page='ajustes', system_date=utils.get_system_date())
+
+# RUTA NUEVA: ACTUALIZAR NOMBRE DEL MANTENIMIENTO
+@app.route('/settings/update_maintenance_name', methods=['POST'])
+@utils.login_required
+@utils.permission_required('perm_configuracion')
+def update_maintenance_name():
+    name = request.form['nombre_mantenimiento']
+    conn = db.get_db_connection()
+    conn.execute('UPDATE configuracion SET nombre_mantenimiento=? WHERE id=1', (name,))
+    conn.commit()
+    conn.close()
+    utils.log_action(f"Nombre del mantenimiento actualizado a: {name}")
+    flash('Nombre del mantenimiento actualizado', 'success')
+    return redirect(url_for('general_settings'))
 
 @app.route('/settings/update_planned_date', methods=['POST'])
 @utils.login_required
