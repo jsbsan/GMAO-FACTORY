@@ -1,19 +1,19 @@
 
 ## V 0.00 a v 5.11
 
-> Rol: "Actúa como un Arquitecto de Software Senior y Experto en python y desarrollo web."
-> Objetivo: "Diseñaremos un sistema de [gestión de mantenimiento e inspección de equipos de una fábrica incluyendo gestión de correctivos]."
-> Stack Tecnológico: "Usa Python con Flask, sqlite3 para la base de datos y bootstrap para el frontend."
-> Toda la información se almacenará en una base de datos sqlite3
-> Debe de tener un visor para los pdf e imágenes almacenadas en la base de datos que se almacena usando el método de base64.
-> Los datos se presentarán en tablas con paginación de 10 en 10 elementos.
-> El programa debe de estar dividido en módulos:
+> Rol: "Actúa como un Arquitecto de Software Senior y Experto en python y desarrollo web."  
+> Objetivo: "Diseñaremos un sistema de [gestión de mantenimiento e inspección de equipos de una fábrica incluyendo gestión de correctivos]."  
+> Stack Tecnológico: "Usa Python con Flask, sqlite3 para la base de datos y bootstrap para el frontend."  
+> Toda la información se almacenará en una base de datos sqlite3  
+> Debe de tener un visor para los pdf e imágenes almacenadas en la base de datos que se almacena usando el método de base64.  
+> Los datos se presentarán en tablas con paginación de 10 en 10 elementos.  
+> El programa debe de estar dividido en módulos:  
 > ## 1. Inventario. Los datos que almacena son:
 > - nombre del equipo. 
 > - Tipo de equipo. Inicialmente tendrá los siguientes tipos: Obra civil, Instalaciones Eléctrica e Instalaciones Hidráulicas. Se podrá añadir más tipos 
 > - Descripción del equipo
 > - 5 imágenes.  Se podrá visualizar
-> - 5 documentos pdf. Se podrá visualizar
+> - 5 documentos pdf. Se podrá visualizar  
 > El inventario será editable.
 > 
 > ## 2. Actividades.
@@ -195,21 +195,21 @@ Comentario: Paso a otra conversación de gemini-canvas adjuntando los archivos.
 Analiza este proyecto
 Necesito saber si el programa puede funcionar sin estar conectado al internet solo a una red local
 Respuesta:
-Estructura que propone:
-/static
-│
-├── /css
-│   ├── bootstrap.min.css
-│   └── all.min.css      <-- Este archivo busca ../webfonts
-│
-├── /js
-│   └── bootstrap.bundle.min.js
-│
-└── /webfonts            <-- Carpeta HERMANA de css (no hija)
-    ├── fa-solid-900.woff2
-    ├── fa-regular-400.woff2
-    └── ... (el resto de archivos de fuentes)
-
+Estructura que propone:  
+/static  
+│  
+├── /css  
+│   ├── bootstrap.min.css  
+│   └── all.min.css      <-- Este archivo busca ../webfonts  
+│  
+├── /js  
+│   └── bootstrap.bundle.min.js  
+│  
+└── /webfonts            <-- Carpeta HERMANA de css (no hija)  
+    ├── fa-solid-900.woff2  
+    ├── fa-regular-400.woff2  
+    └── ... (el resto de archivos de fuentes)  
+  
 ¿tengo que copiar la carpeta completa de webfonts en la carpeta css o solo los archivos?
 Hazme una tabla donde venga el archivo, numero linea, codigo  original,  codigo nuevo
 ¿solo hay que cambiar ese archivo? Compruebalo y verificalo con el resto de archivos del proyecto.
@@ -273,13 +273,13 @@ Quiero que en vez del inventario se vea el resumen.
 hazme un diagrama de flujo del programa para mermaid, ten en cuenta problemas que se pueden presentar con caracteres (parentesis, comillas, etc)
 
 ## Version 5.99 -> Modular aun más el programa y usar paginas html y 
-###Prompt para que gemini-canvas retome el proyecto en una nueva conversación:
-"He subido los archivos fuente de mi proyecto en Python. Por favor, realiza las siguientes tareas antes de que empecemos a trabajar:
-Analiza la arquitectura: Identifica la función principal de cada archivo y cómo interactúan entre sí.
-Resume la lógica: Explica brevemente qué hace el programa, cuál es su entrada de datos y qué resultado genera.
-Identifica dependencias: Confirma qué librerías externas utiliza.
-Una vez que comprendas la estructura completa, confírmamelo con un breve resumen técnico. Después de eso, te pediré mejoras específicas de rendimiento, refactorización y nuevas funcionalidades."
-
+**Prompt para que gemini-canvas retome el proyecto en una nueva conversación:**  
+"He subido los archivos fuente de mi proyecto en Python. Por favor, realiza las siguientes tareas antes de que empecemos a trabajar:  
+Analiza la arquitectura: Identifica la función principal de cada archivo y cómo interactúan entre sí.  
+Resume la lógica: Explica brevemente qué hace el programa, cuál es su entrada de datos y qué resultado genera.  
+Identifica dependencias: Confirma qué librerías externas utiliza.  
+Una vez que comprendas la estructura completa, confírmamelo con un breve resumen técnico. Después de eso, te pediré mejoras específicas de rendimiento, refactorización y nuevas funcionalidades."  
+  
 
 Actúa como un desarrollador experto en Python Flask. Mi proyecto tiene actualmente todas las plantillas HTML guardadas como variables de texto. Haz una refactorización completa siguiendo estar instrucciones: 
 1. Separación de plantillas generando archivos .html reales dentro de una nueva carpeta llamada templates  
@@ -313,22 +313,22 @@ Crea un fichero "readme.md" para añadirlo al repositorio de github sobre el pro
 
 #### -> Documentación para usuario:
 Analiza todo el código del proyecto y confírmame cuando estés listo para redactar la documentación
-Actúa como un **Technical Writer** experto en software. Tu objetivo es redactar un manual de usuario completo, profesional y fácil de entender para el programa que acabamos de desarrollar en Canvas.
-**El manual debe incluir las siguientes secciones:**
+Actúa como un **Technical Writer** experto en software. Tu objetivo es redactar un manual de usuario completo, profesional y fácil de entender para el programa que acabamos de desarrollar en Canvas.  
+**El manual debe incluir las siguientes secciones:**  
  1. **Introducción:** Qué hace el programa y cuál es su objetivo principal.
  2. **Requisitos del Sistema:** Qué necesita el usuario para ejecutarlo (navegador, dependencias, claves de API, etc.).
  3. **Guía de Instalación/Configuración:** Paso a paso para ponerlo en marcha.
  4. **Interfaz de Usuario:** Descripción de los botones, menús y áreas de trabajo.
  5. **Guía de Uso (Paso a Paso):** Ejemplos prácticos de cómo realizar las tareas principales.
  6. **Solución de Problemas (FAQ):** Errores comunes y cómo resolverlos, comentar que la aplicación puede funcionar offline.
- 7. **Notas Técnicas:** Breve explicación de las tecnologías usadas.
-**Tono y Estilo:**
-- Utiliza un lenguaje claro, profesional pero accesible.
-- Usa negritas para resaltar botones o acciones importantes.
-- Formatea el texto en **Markdown** para que sea fácil de leer.
-- Si hay partes del código que requieren una explicación visual, descríbelas detalladamente.
-**Público Objetivo:** para los técnicos y operarios
-
+ 7. **Notas Técnicas:** Breve explicación de las tecnologías usadas.  
+**Tono y Estilo:**  
+- Utiliza un lenguaje claro, profesional pero accesible.  
+- Usa negritas para resaltar botones o acciones importantes.  
+- Formatea el texto en **Markdown** para que sea fácil de leer.  
+- Si hay partes del código que requieren una explicación visual, descríbelas detalladamente.  
+**Público Objetivo:** para los técnicos y operarios  
+  
 #### -> Documentación para programador
 Analiza todo este código y confírmame cuando estés listo para redactar la documentación.
 Actúa como un Senior Technical Writer y Arquitecto de Software. Tu tarea es generar la estructura y el contenido detallado de un manual técnico para programadores sobre el sistema GMAO Factory.
@@ -340,15 +340,16 @@ El manual debe seguir este esquema obligatorio:
 5. **Flujos de Datos:** Descripción de cómo viaja la información desde el cliente hasta la base de datos.
 6. **Diagrama de flujo:** Descripción de  la secuencia lógica y el flujo de ejecución del programa. Describe los procesos y/o algoritmos de forma clara y secuencial.
 7. **Guía de Contribución:** Estándares de código (Linting), nombres de ramas y proceso de Pull Request.
-#### **Instrucciones para Diagramas:** 
-**Por cada sección relevante, incluye una descripción detallada de qué diagrama debería ir allí (ej. Diagrama de Secuencia para la autenticación, Diagrama de Entidad-Relación para la DB, Diagrama de Infraestructura en AWS, diagrama de flujo). **
-Diagramas como código (Mermaid.js):** Las descripciones de los diagramas se entreguen en sintaxis **Mermaid**. 
-**Instrucciones de formato Mermaid:**
-    Usa siempre comillas dobles "" para el contenido de texto dentro de los nodos.
-    Estructura: Identificador["Texto del nodo (con paréntesis/símbolos)"].
-    No uses el texto descriptivo como ID del nodo.
-    Si hay comillas dentro del texto, usa ' (comilla simple) o escapalas.
-**Diagramas**
+#### **Instrucciones para Diagramas:**   
+**Por cada sección relevante, incluye una descripción detallada de qué diagrama debería ir allí (ej. Diagrama de Secuencia para la autenticación, Diagrama de Entidad-Relación para la DB, Diagrama de Infraestructura en AWS, diagrama de flujo).**  
+**Diagramas como código (Mermaid.js):
+** Las descripciones de los diagramas se entreguen en sintaxis **Mermaid**.   
+**Instrucciones de formato Mermaid:**  
+    Usa siempre comillas dobles "" para el contenido de texto dentro de los nodos.  
+    Estructura: Identificador["Texto del nodo (con paréntesis/símbolos)"].  
+    No uses el texto descriptivo como ID del nodo.  
+    Si hay comillas dentro del texto, usa ' (comilla simple) o escapalas.  
+**Diagramas**  
 ##### Diagramas esenciales que debes incluir
 Para que un manual de programador sea realmente útil, no pueden faltar estos apoyos visuales:
 ###### 1. Diagrama de Arquitectura de Alto Nivel

@@ -2,15 +2,15 @@ Analiza todo este código y confírmame cuando estés listo para redactar la doc
 # -> Documentación para programador
 Rol: Actúa como un Senior Technical Writer y Arquitecto de Software. Tu tarea es generar la estructura y el contenido detallado de un manual técnico para programadores sobre el sistema GMAO Factory.
 ## **Instrucciones para Diagramas:** 
-**Por cada sección relevante, incluye una descripción detallada de qué diagrama debería ir allí (ej. Diagrama de Secuencia para la autenticación, Diagrama de Entidad-Relación para la DB, Diagrama de Infraestructura en AWS, diagrama de flujo). **
-Diagramas como código (Mermaid.js):** Las descripciones de los diagramas se entreguen en sintaxis **Mermaid**. 
-**Instrucciones de formato Mermaid:**
-Reglas estrictas de formato:
-    1.No uses barras invertidas (\) para escapar caracteres. Mermaid acepta guiones bajos (_), paréntesis y corchetes dentro de comillas o nombres de nodos directamente.
-    2.Usa comillas dobles para textos que contengan caracteres especiales o espacios, por ejemplo: Nodo["Texto (con paréntesis)"].
-    3.Asegúrate de que las flechas tengan la sintaxis correcta según el diagrama (ej. --> para flowcharts, ->> para secuencia).
-    4.Entrega el código dentro de un bloque de código estándar con la etiqueta mermaid.
-    5.Evita usar caracteres de formato de texto enriquecido; genera texto plano (ASCII).
+**Por cada sección relevante, incluye una descripción detallada de qué diagrama debería ir allí (ej. Diagrama de Secuencia para la autenticación, Diagrama de Entidad-Relación para la DB, Diagrama de Infraestructura en AWS, diagrama de flujo). **  
+**Diagramas como código (Mermaid.js):** Las descripciones de los diagramas se entreguen en sintaxis **Mermaid**.  
+**Instrucciones de formato Mermaid:**  
+Reglas estrictas de formato:  
+    1.No uses barras invertidas (\) para escapar caracteres. Mermaid acepta guiones bajos (_), paréntesis y corchetes dentro de comillas o nombres de nodos directamente.  
+    2.Usa comillas dobles para textos que contengan caracteres especiales o espacios, por ejemplo: Nodo["Texto (con paréntesis)"].  
+    3.Asegúrate de que las flechas tengan la sintaxis correcta según el diagrama (ej. --> para flowcharts, ->> para secuencia).  
+    4.Entrega el código dentro de un bloque de código estándar con la etiqueta mermaid.  
+    5.Evita usar caracteres de formato de texto enriquecido; genera texto plano (ASCII).  
 ### Diagramas esenciales que debes incluir
 Para que un manual de programador sea realmente útil, no pueden faltar estos apoyos visuales:
 #### 1. Diagrama de Arquitectura de Alto Nivel
