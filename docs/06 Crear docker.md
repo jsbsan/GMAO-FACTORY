@@ -33,11 +33,13 @@ Necesario para cada vez que se cambie el codigo fuente:
 ### 
 
 4. Crear imagen docker: (lo ejecuto dentro de Visual Studio Code en el terminal)
+Nota: Debe de estar funcionando el programa docker desktop
+Dentro del directorio GMAO-FACTORY/src ejecutar el siguente comando en la terminal de Visual Studio Code.
 		``` bash
 		docker build -t gmao-factory .
 		```
 
 5. Ejecutar contenedor: (lo ejecuto dentro de Visual Studio Code en el terminal)
 		``` bash
-		docker run -p 5000:5000 gmao-factory
+		docker run --name JsbSan -p 5000:5000 gmao-factory
 		```
