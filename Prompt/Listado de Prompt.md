@@ -669,3 +669,13 @@ Cuando edito una orden de trabajo en el calendario, al aceptar  la edición de l
 ------
 Analiza todo este código y confirmame cuando estes listo para añadir una nueva mejora al proyecto.
 Cuando edito una orden de trabajo en el cronograma, al aceptar  la edición de la orden de trabajo, vuelve al año actual y no al que estaba. Quiero que vuelva al cronograma del año en el que estaba el cronograma.
+
+------
+## Version v8.xx: Mejora en periodo.
+------
+Manualmente se ha programado para que se si la periodicidad es divisible entre 30, entonces acumule meses completos (independientemente que sean de 30 o 31 dias la duración de los meses.)
+Osea:
+- Antes
+Si empezamos el dia 1 de enero, con periodicidad de 30 dias, el 31 de enero se crearia la siguiente OT
+- Ahora:
+Si empezamos el dia 1 de nero, con periodicidad de 30 dias, el 1 de febrero se crearia la siguiente OT
