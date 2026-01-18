@@ -687,3 +687,4 @@ Manualmente cambio la posicion de botontes:
 - Pestaña Orden de trabajo: primer boton generar ots, yluego imprimir todo.
 - Arreglado el checkbox de generar OT, de nueva actividad, que  no se marcaba. Defino estilo de colores fijo para el checkbox, independientemente del modo oscuro/claro
 - Añadido favicon para que se vea icono en pestaña
+- Añadidos textos aclaratorios en nueva actividad: periodicidad y generar Ot

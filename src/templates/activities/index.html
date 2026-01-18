@@ -51,18 +51,21 @@
                 <label class="form-label">Inicio Generación</label>
                 <input type="date" class="form-control" name="fecha_inicio" required>
             </div>
-
+             <div class="text-muted">
+                        Si el periodo en días es divisible entre 30, el programa lo entiende que son meses completos.
+                        Por ejemplo: Si pones 30 días, será 1 mes. Si pones 90 días, serán 3 meses.
+                        Si pones 360 días, será 1 año (12 meses)
+                    </div>
             <div class="col-12 d-flex align-items-end">
                 <div class="form-check form-switch">
                     <!-- <input class="form-check-input ms-0 me-2" type="checkbox" name="generar_ot" value="1" id="checkGenOT" checked> -->
 
                     <input class="form-check-input" style="width: 3em; height: 1.5em;" type="checkbox" name="generar_ot"
                         value="1" id="checkGenOT" checked=true>
-                    <label class="form-check-label small fw-bold" for="checkGenOT">Generar OTs</label>
-                    <small class="text-muted">
-                        Si desactivas esta opción, el sistema <strong>eliminará las OTs futuras (estado
-                            "Prevista")</strong> de esta actividad y dejará de crear nuevas.
-                    </small>
+                    <label class="form-check-label small fw-bold" for="checkGenOT">Generar OTs. </label>
+                    <div class="text-muted">
+                        Por defecto, esta activada la generación de Ordenes de Trabajo (OTs). Si desactivas esta opción no se crearán.
+                    </div>
                 </div>
             </div>
 

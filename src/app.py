@@ -775,6 +775,12 @@ def update_type(id):
     except: pass
     return redirect(url_for('general_settings'))
 
+# NUEVA RUTA DE AYUDA
+@app.route('/help')
+@utils.login_required
+def help_page():
+    return render_template('help.html', active_page='help', system_date=utils.get_system_date())
+
 @app.route('/about')
 def about():
     return render_template('about.html', active_page='about', system_date=utils.get_system_date())

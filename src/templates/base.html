@@ -191,6 +191,10 @@
             <a href="{{ url_for('general_settings') }}" class="sidebar-link {{ 'active' if active_page == 'ajustes' else '' }}"><i class="fas fa-cog me-2"></i> Configuración Global</a>
             {% endif %}
             <div class="border-top border-secondary my-2"></div>
+            
+            <!-- NUEVO LINK: AYUDA -->
+            <a href="{{ url_for('help_page') }}" class="sidebar-link {{ 'active' if active_page == 'help' else '' }}"><i class="fas fa-question-circle me-2"></i> Ayuda</a>
+            
             <a href="{{ url_for('about') }}" class="sidebar-link {{ 'active' if active_page == 'about' else '' }}"><i class="fas fa-info-circle me-2"></i> Acerca de...</a>
             <a href="{{ url_for('logout') }}" class="sidebar-link text-danger"><i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión</a>
         </div>
