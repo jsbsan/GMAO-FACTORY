@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ maintenance_name }}</title>
-    
+     <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+
     <!-- Script preventivo para evitar destellos de luz al cargar si el modo oscuro está activo -->
     <script>
         (function() {
@@ -157,13 +158,14 @@
         .badge-status { font-size: 0.8em; padding: 5px; border-radius: 4px; display: inline-block; margin-bottom: 2px; cursor: pointer; transition: transform 0.1s; }
         .badge-status:hover { transform: scale(1.1); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
     </style>
+   
 </head>
 <body>
     {% macro render_navigation() %}
         <div class="sidebar-brand">
             <!-- NOMBRE DEL MANTENIMIENTO DINÁMICO -->
             <h4>{{ maintenance_name }}</h4>
-            <small>🏭 GMAO Factory v7.00</small>
+            <small>🏭 GMAO Factory v7.10</small>
             <div class="mt-2">
                 <button class="theme-toggle-btn">
                     <i class="fas fa-moon me-1"></i> <span class="theme-text">Modo Oscuro</span>
@@ -275,10 +277,10 @@
             dom: 'Bfrtip',
             stateSave: true,
             stateSaveParams: function (settings, data) {
-                data.version = "7.00"; 
+                data.version = "7.10"; 
             },
             stateLoadParams: function (settings, data) {
-                if (data.version !== "7.00") {
+                if (data.version !== "7.10") {
                     return false; 
                 }
             },
