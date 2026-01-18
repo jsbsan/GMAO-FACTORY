@@ -1,12 +1,98 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"><h1 class="h2">Inventario de Equipos</h1><div><a href="{{ url_for('print_all_inventory') }}" class="btn btn-secondary btn-sm me-2" target="_blank"><i class="fas fa-print"></i> Imprimir Todo</a>{% if session.get('perm_inventario') %}<button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addEquipModal">+ Nuevo Equipo</button>{% endif %}</div></div>
-<div class="table-responsive"><table class="table table-striped table-hover datatable" id="tablaInventario"><thead class="table-dark"><tr><th></th><th>ID</th><th>Nombre</th><th>Tipo</th><th>Descripción</th><th>Archivos</th><th>Acciones</th></tr></thead><tbody>{% for item in items %}<tr><td></td><td>{{ item.id }}</td><td>{{ item.nombre }}</td><td>{{ item.tipo_nombre }}</td><td>{{ item.descripcion }}</td><td>{% set imgs = item.images|json_load %}{% if imgs %}<button class="btn btn-info btn-sm btn-xs" onclick="verGaleria('inventory', 'img', '{{ item.id }}')"><i class="fas fa-images"></i> {{ imgs|length }}</button>{% endif %}{% set pdfs = item.pdfs|json_load %}{% if pdfs %}<button class="btn btn-danger btn-sm btn-xs" onclick="verGaleria('inventory', 'pdf', '{{ item.id }}')"><i class="fas fa-file-pdf"></i> {{ pdfs|length }}</button>{% endif %}</td><td><a href="{{ url_for('print_inventory', id=item.id) }}" class="btn btn-sm btn-secondary mb-1" target="_blank" title="Imprimir PDF"><i class="fas fa-print"></i></a> {% if session.get('perm_inventario') %}<a href="{{ url_for('edit_inventory', id=item.id) }}" class="btn btn-sm btn-warning mb-1" title="Editar"><i class="fas fa-edit"></i></a> <button type="button" class="btn btn-sm btn-danger mb-1" data-bs-toggle="modal" data-bs-target="#deleteInventoryModal{{ item.id }}" title="Borrar"><i class="fas fa-trash"></i></button></td></tr>{% endif %}{% endfor %}</tbody></table></div>
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Inventario de Equipos</h1>
+    <div>
+        {% if session.get('perm_inventario') %}<button class="btn btn-primary btn-sm" data-bs-toggle="modal"
+            data-bs-target="#addEquipModal">+ Nuevo Equipo</button>{% endif %}
+        <a href="{{ url_for('print_all_inventory') }}" class="btn btn-secondary btn-sm me-2" target="_blank"><i
+                class="fas fa-print"></i> Imprimir Todo</a>
+    </div>
+</div>
+<div class="table-responsive">
+    <table class="table table-striped table-hover datatable" id="tablaInventario">
+        <thead class="table-dark">
+            <tr>
+                <th></th>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Descripción</th>
+                <th>Archivos</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>{% for item in items %}<tr>
+                <td></td>
+                <td>{{ item.id }}</td>
+                <td>{{ item.nombre }}</td>
+                <td>{{ item.tipo_nombre }}</td>
+                <td>{{ item.descripcion }}</td>
+                <td>{% set imgs = item.images|json_load %}{% if imgs %}<button class="btn btn-info btn-sm btn-xs"
+                        onclick="verGaleria('inventory', 'img', '{{ item.id }}')"><i class="fas fa-images"></i> {{
+                        imgs|length }}</button>{% endif %}{% set pdfs = item.pdfs|json_load %}{% if pdfs %}<button
+                        class="btn btn-danger btn-sm btn-xs"
+                        onclick="verGaleria('inventory', 'pdf', '{{ item.id }}')"><i class="fas fa-file-pdf"></i> {{
+                        pdfs|length }}</button>{% endif %}</td>
+                <td><a href="{{ url_for('print_inventory', id=item.id) }}" class="btn btn-sm btn-secondary mb-1"
+                        target="_blank" title="Imprimir PDF"><i class="fas fa-print"></i></a> {% if
+                    session.get('perm_inventario') %}<a href="{{ url_for('edit_inventory', id=item.id) }}"
+                        class="btn btn-sm btn-warning mb-1" title="Editar"><i class="fas fa-edit"></i></a> <button
+                        type="button" class="btn btn-sm btn-danger mb-1" data-bs-toggle="modal"
+                        data-bs-target="#deleteInventoryModal{{ item.id }}" title="Borrar"><i
+                            class="fas fa-trash"></i></button></td>
+            </tr>{% endif %}{% endfor %}</tbody>
+    </table>
+</div>
 
 {% for item in items %}
-<div class="modal fade" id="deleteInventoryModal{{ item.id }}" tabindex="-1" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-danger text-white"><h5 class="modal-title">Confirmar Borrado</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body text-start"><p>¿Estás seguro de que quieres borrar el equipo <strong>{{ item.nombre }}</strong>?</p><div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> <strong>Atención:</strong> Esta acción borrará permanentemente todos sus datos asociados.</div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><form action="{{ url_for('delete_inventory', id=item.id) }}" method="POST"><button type="submit" class="btn btn-danger">Sí, borrar todo</button></form></div></div></div></div>
+<div class="modal fade" id="deleteInventoryModal{{ item.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirmar Borrado</h5><button type="button" class="btn-close"
+                    data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start">
+                <p>¿Estás seguro de que quieres borrar el equipo <strong>{{ item.nombre }}</strong>?</p>
+                <div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> <strong>Atención:</strong>
+                    Esta acción borrará permanentemente todos sus datos asociados.</div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary"
+                    data-bs-dismiss="modal">Cancelar</button>
+                <form action="{{ url_for('delete_inventory', id=item.id) }}" method="POST"><button type="submit"
+                        class="btn btn-danger">Sí, borrar todo</button></form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endfor %}
 
-<div class="modal fade" id="addEquipModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><form action="{{ url_for('add_inventory') }}" method="POST" enctype="multipart/form-data"><div class="modal-header"><h5 class="modal-title">Añadir Equipo</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Nombre</label><input type="text" class="form-control" name="nombre" required></div><div class="mb-3"><label class="form-label">Tipo</label><select class="form-select" name="tipo_id" required>{% for t in tipos %}<option value="{{ t.id }}">{{ t.nombre }}</option>{% endfor %}</select></div><div class="mb-3"><label class="form-label">Descripción</label><textarea class="form-control" name="descripcion" rows="3"></textarea></div><div class="mb-3"><label class="form-label">Imágenes (Máx 5)</label><input type="file" class="form-control" name="images" multiple accept="image/*"></div><div class="mb-3"><label class="form-label">PDFs (Máx 5)</label><input type="file" class="form-control" name="pdfs" multiple accept="application/pdf"></div></div><div class="modal-footer"><button type="submit" class="btn btn-primary">Guardar</button></div></form></div></div></div>
-<script>function verGaleria(source, tipo, id) {window.location.href = "/view_files/" + source + "/" + tipo + "/" + id;}</script>
+<div class="modal fade" id="addEquipModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="{{ url_for('add_inventory') }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title">Añadir Equipo</h5><button type="button" class="btn-close"
+                        data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3"><label class="form-label">Nombre</label><input type="text" class="form-control"
+                            name="nombre" required></div>
+                    <div class="mb-3"><label class="form-label">Tipo</label><select class="form-select" name="tipo_id"
+                            required>{% for t in tipos %}<option value="{{ t.id }}">{{ t.nombre }}</option>{% endfor
+                            %}</select></div>
+                    <div class="mb-3"><label class="form-label">Descripción</label><textarea class="form-control"
+                            name="descripcion" rows="3"></textarea></div>
+                    <div class="mb-3"><label class="form-label">Imágenes (Máx 5)</label><input type="file"
+                            class="form-control" name="images" multiple accept="image/*"></div>
+                    <div class="mb-3"><label class="form-label">PDFs (Máx 5)</label><input type="file"
+                            class="form-control" name="pdfs" multiple accept="application/pdf"></div>
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-primary">Guardar</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>function verGaleria(source, tipo, id) { window.location.href = "/view_files/" + source + "/" + tipo + "/" + id; }</script>
 {% endblock %}

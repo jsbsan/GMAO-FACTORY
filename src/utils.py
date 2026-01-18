@@ -6,6 +6,7 @@ from functools import wraps
 from flask import session, redirect, url_for, flash
 from werkzeug.security import generate_password_hash
 from database import get_db_connection
+from dateutil.relativedelta import relativedelta
 
 LOG_FILE = 'gmao_app.log'
 
@@ -129,8 +130,6 @@ def generate_and_update_work_orders(conn, current_system_date):
 
         f = datetime.datetime.strptime(act['fecha_inicio_gen'], '%Y-%m-%d').date()
         p = act['periodicidad']
-        f = datetime.datetime.strptime(act['fecha_inicio_gen'], '%Y-%m-%d').date()
-        p = act['periodicidad']
         while f <= generation_limit:
             if not conn.execute('SELECT id FROM ordenes_trabajo WHERE actividad_id=? AND fecha_generacion=?', (act['id'], f)).fetchone():
                 if f.year < current_system_date.year or (f.year == current_system_date.year and f.month < current_system_date.month):
@@ -143,7 +142,12 @@ def generate_and_update_work_orders(conn, current_system_date):
                 conn.execute('INSERT INTO ordenes_trabajo (actividad_id, nombre, fecha_generacion, estado) VALUES (?,?,?,?)', 
                              (act['id'], f"{act['nombre']} - {f.strftime('%d/%m/%Y')}", f, st))
                 count_generated += 1
-            f += datetime.timedelta(days=p)
+            if p % 30 == 0:
+                # apicable cuando el periodo es divisible entre 30 (mes=30 dias, dos meses= 60 dias, etc.)
+                f += relativedelta(months=p/30)
+            else:
+                #cualquier otro numero de dias
+                f += datetime.timedelta(days=p) 
             
     active_ots = conn.execute("SELECT ot.id, ot.fecha_generacion, ot.estado FROM ordenes_trabajo ot WHERE ot.estado NOT IN ('Realizada', 'Rechazada', 'Aplazada') OR ot.estado IS NULL").fetchall()
     

@@ -1,11 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+    .form-check-input:checked {
+        background-color: #0d6efd !important;
+        /* Negro/Gris oscuro */
+        border-color: #212529 !important;
+    }
+</style>
+
+
+
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2">Gestión de Actividades</h1>
     <div>
         {% if session.get('perm_actividades') %}
-        <button class="btn btn-primary btn-sm me-2" type="button" data-bs-toggle="collapse" data-bs-target="#formNuevaActividad">
+        <button class="btn btn-primary btn-sm me-2" type="button" data-bs-toggle="collapse"
+            data-bs-target="#formNuevaActividad">
             <i class="fas fa-plus"></i> Nueva Actividad
         </button>
         {% endif %}
@@ -39,11 +51,21 @@
                 <label class="form-label">Inicio Generación</label>
                 <input type="date" class="form-control" name="fecha_inicio" required>
             </div>
-            
-            <div class="col-md-2 d-flex align-items-end">
-                <div class="form-check mb-2 p-2 border rounded bg-white w-100">
-                    <input class="form-check-input ms-0 me-2" type="checkbox" name="generar_ot" value="1" id="checkGenOT" checked>
-                    <label class="form-check-label small fw-bold" for="checkGenOT">Generar OTs</label>
+             <div class="text-muted">
+                        Si el periodo en días es divisible entre 30, el programa lo entiende que son meses completos.
+                        Por ejemplo: Si pones 30 días, será 1 mes. Si pones 90 días, serán 3 meses.
+                        Si pones 360 días, será 1 año (12 meses)
+                    </div>
+            <div class="col-12 d-flex align-items-end">
+                <div class="form-check form-switch">
+                    <!-- <input class="form-check-input ms-0 me-2" type="checkbox" name="generar_ot" value="1" id="checkGenOT" checked> -->
+
+                    <input class="form-check-input" style="width: 3em; height: 1.5em;" type="checkbox" name="generar_ot"
+                        value="1" id="checkGenOT" checked=true>
+                    <label class="form-check-label small fw-bold" for="checkGenOT">Generar OTs. </label>
+                    <div class="text-muted">
+                        Por defecto, esta activada la generación de Ordenes de Trabajo (OTs). Si desactivas esta opción no se crearán.
+                    </div>
                 </div>
             </div>
 
@@ -52,7 +74,8 @@
                 <textarea class="form-control" name="operaciones" rows="2" required></textarea>
             </div>
             <div class="col-12 text-end">
-                <button type="button" class="btn btn-secondary me-2" data-bs-toggle="collapse" data-bs-target="#formNuevaActividad">Cancelar</button>
+                <button type="button" class="btn btn-secondary me-2" data-bs-toggle="collapse"
+                    data-bs-target="#formNuevaActividad">Cancelar</button>
                 <button type="submit" class="btn btn-success">Crear Actividad</button>
             </div>
         </form>
@@ -80,26 +103,28 @@
                 <td>{{ act.nombre }}</td>
                 <td>{{ act.equipo_nombre }}</td>
                 <td>Cada {{ act.periodicidad }} días</td>
-                
+
                 <td class="text-center align-middle">
                     {% if act.generar_ot %}
-                        <span class="badge bg-success"><i class="fas fa-check"></i> Sí</span>
+                    <span class="badge bg-success"><i class="fas fa-check"></i> Sí</span>
                     {% else %}
-                        <span class="badge bg-secondary"><i class="fas fa-ban"></i> No</span>
+                    <span class="badge bg-secondary"><i class="fas fa-ban"></i> No</span>
                     {% endif %}
                 </td>
-                
+
                 <td>{{ act.fecha_inicio_gen }}</td>
                 <td><small>{{ act.operaciones }}</small></td>
                 <td>
-                    <a href="{{ url_for('print_activity_single', id=act.id) }}" class="btn btn-sm btn-secondary mb-1" target="_blank" title="Imprimir PDF">
+                    <a href="{{ url_for('print_activity_single', id=act.id) }}" class="btn btn-sm btn-secondary mb-1"
+                        target="_blank" title="Imprimir PDF">
                         <i class="fas fa-print"></i>
-                    </a> 
+                    </a>
                     {% if session.get('perm_actividades') %}
                     <a href="{{ url_for('edit_activity', id=act.id) }}" class="btn btn-sm btn-warning mb-1">
                         <i class="fas fa-edit"></i>
-                    </a> 
-                    <button type="button" class="btn btn-sm btn-danger mb-1" data-bs-toggle="modal" data-bs-target="#deleteActivityModal{{ act.id }}">
+                    </a>
+                    <button type="button" class="btn btn-sm btn-danger mb-1" data-bs-toggle="modal"
+                        data-bs-target="#deleteActivityModal{{ act.id }}">
                         <i class="fas fa-trash"></i>
                     </button>
                     {% endif %}
@@ -111,7 +136,8 @@
 </div>
 
 {% for act in actividades %}
-<div class="modal fade" id="deleteActivityModal{{ act.id }}" tabindex="-1" aria-labelledby="deleteActivityLabel{{ act.id }}" aria-hidden="true">
+<div class="modal fade" id="deleteActivityModal{{ act.id }}" tabindex="-1"
+    aria-labelledby="deleteActivityLabel{{ act.id }}" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
@@ -121,7 +147,9 @@
             <div class="modal-body text-start">
                 <p>¿Estás seguro de que quieres borrar la actividad <strong>{{ act.nombre }}</strong>?</p>
                 <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle"></i> <strong>Atención:</strong> Esta acción borrará también todas las <strong>Órdenes de Trabajo</strong> vinculadas a esta actividad. Esta acción no se puede deshacer.
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Atención:</strong> Esta acción borrará también
+                    todas las <strong>Órdenes de Trabajo</strong> vinculadas a esta actividad. Esta acción no se puede
+                    deshacer.
                 </div>
             </div>
             <div class="modal-footer">

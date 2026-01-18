@@ -10,6 +10,7 @@ ESTRUCTURA DEL PROYECTO:
     templates/
         about.html
         base.html
+        help.html
         login.html
         viewer.html
         activities/
@@ -823,6 +824,12 @@ def update_type(id):
         conn.close()
     except: pass
     return redirect(url_for('general_settings'))
+
+# NUEVA RUTA DE AYUDA
+@app.route('/help')
+@utils.login_required
+def help_page():
+    return render_template('help.html', active_page='help', system_date=utils.get_system_date())
 
 @app.route('/about')
 def about():
@@ -917,6 +924,7 @@ ESTRUCTURA DEL PROYECTO:
     templates/
         about.html
         base.html
+        help.html
         login.html
         viewer.html
         activities/
@@ -1730,6 +1738,12 @@ def update_type(id):
         conn.close()
     except: pass
     return redirect(url_for('general_settings'))
+
+# NUEVA RUTA DE AYUDA
+@app.route('/help')
+@utils.login_required
+def help_page():
+    return render_template('help.html', active_page='help', system_date=utils.get_system_date())
 
 @app.route('/about')
 def about():
@@ -2023,6 +2037,7 @@ from functools import wraps
 from flask import session, redirect, url_for, flash
 from werkzeug.security import generate_password_hash
 from database import get_db_connection
+from dateutil.relativedelta import relativedelta
 
 LOG_FILE = 'gmao_app.log'
 
@@ -2146,8 +2161,6 @@ def generate_and_update_work_orders(conn, current_system_date):
 
         f = datetime.datetime.strptime(act['fecha_inicio_gen'], '%Y-%m-%d').date()
         p = act['periodicidad']
-        f = datetime.datetime.strptime(act['fecha_inicio_gen'], '%Y-%m-%d').date()
-        p = act['periodicidad']
         while f <= generation_limit:
             if not conn.execute('SELECT id FROM ordenes_trabajo WHERE actividad_id=? AND fecha_generacion=?', (act['id'], f)).fetchone():
                 if f.year < current_system_date.year or (f.year == current_system_date.year and f.month < current_system_date.month):
@@ -2160,7 +2173,12 @@ def generate_and_update_work_orders(conn, current_system_date):
                 conn.execute('INSERT INTO ordenes_trabajo (actividad_id, nombre, fecha_generacion, estado) VALUES (?,?,?,?)', 
                              (act['id'], f"{act['nombre']} - {f.strftime('%d/%m/%Y')}", f, st))
                 count_generated += 1
-            f += datetime.timedelta(days=p)
+            if p % 30 == 0:
+                # apicable cuando el periodo es divisible entre 30 (mes=30 dias, dos meses= 60 dias, etc.)
+                f += relativedelta(months=p/30)
+            else:
+                #cualquier otro numero de dias
+                f += datetime.timedelta(days=p) 
             
     active_ots = conn.execute("SELECT ot.id, ot.fecha_generacion, ot.estado FROM ordenes_trabajo ot WHERE ot.estado NOT IN ('Realizada', 'Rechazada', 'Aplazada') OR ot.estado IS NULL").fetchall()
     
@@ -2184,7 +2202,35 @@ def generate_and_update_work_orders(conn, current_system_date):
 --- INICIO ARCHIVO: templates\about.html ---
 {% extends "base.html" %}
 {% block content %}
-<div class="container mt-5"><div class="card shadow-sm"><div class="card-header bg-dark text-white"><h3 class="mb-0"><i class="fas fa-info-circle me-2"></i> Acerca de...</h3></div><div class="card-body p-5 text-center"><h1 class="display-4 mb-4">GMAO Factory</h1><hr class=\"w-50 mx-auto mb-4\"><div class=\"row justify-content-center\"><div class=\"col-md-8 text-start\"><dl class=\"row font-monospace fs-5\"><dt class=\"col-sm-4 text-end\">Programa:</dt><dd class=\"col-sm-8\">Sistema de Gestión de Mantenimiento Asistido por Ordenador</dd><dt class=\"col-sm-4 text-end\">Versión:</dt><dd class=\"col-sm-8\"><span class=\"badge bg-primary\">v7.00</span></dd><dt class=\"col-sm-4 text-end\">Autor:</dt><dd class=\"col-sm-8\">Julio Sánchez Berro</dd><dt class=\"col-sm-4 text-end\">Licencia:</dt><dd class=\"col-sm-8\">GPL 3.0</dd></dl></div></div><div class=\"mt-5\"><p class=\"text-muted\">Gestión integral de activos, planes de mantenimiento preventivo y control de incidencias.</p><small class=\"text-muted\"> Sevilla, España &copy; {{ system_date.year }}</small></div></div></div></div>
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h3 class="mb-0"><i class="fas fa-info-circle me-2"></i> Acerca de...</h3>
+        </div>
+        <div class="card-body p-5 text-center">
+            <h1 class="display-4 mb-4">GMAO Factory</h1>
+            <hr class=\"w-50 mx-auto mb-4\">
+            <div class=\"row justify-content-center\">
+                <div class=\"col-md-8 text-start\">
+                    <dl class=\"row font-monospace fs-5\">
+                        <dt class=\"col-sm-4 text-end\">Programa:</dt>
+                        <dd class=\"col-sm-8\">Sistema de Gestión de Mantenimiento Asistido por Ordenador</dd>
+                        <dt class=\"col-sm-4 text-end\">Versión:</dt>
+                        <dd class=\"col-sm-8\"><span class=\"badge bg-primary\">v7.10</span></dd>
+                        <dt class=\"col-sm-4 text-end\">Autor:</dt>
+                        <dd class=\"col-sm-8\">Julio Sánchez Berro</dd>
+                        <dt class=\"col-sm-4 text-end\">Licencia:</dt>
+                        <dd class=\"col-sm-8\">GPL 3.0</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class=\"mt-5\">
+                <p class=\"text-muted\">Gestión integral de activos, planes de mantenimiento preventivo y control de
+                    incidencias.</p><small class=\"text-muted\"> Sevilla, España &copy; {{ system_date.year }}</small>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 --- FIN ARCHIVO: templates\about.html ---
 
@@ -2195,7 +2241,8 @@ def generate_and_update_work_orders(conn, current_system_date):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ maintenance_name }}</title>
-    
+     <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+
     <!-- Script preventivo para evitar destellos de luz al cargar si el modo oscuro está activo -->
     <script>
         (function() {
@@ -2348,13 +2395,14 @@ def generate_and_update_work_orders(conn, current_system_date):
         .badge-status { font-size: 0.8em; padding: 5px; border-radius: 4px; display: inline-block; margin-bottom: 2px; cursor: pointer; transition: transform 0.1s; }
         .badge-status:hover { transform: scale(1.1); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
     </style>
+   
 </head>
 <body>
     {% macro render_navigation() %}
         <div class="sidebar-brand">
             <!-- NOMBRE DEL MANTENIMIENTO DINÁMICO -->
             <h4>{{ maintenance_name }}</h4>
-            <small>🏭 GMAO Factory v7.00</small>
+            <small>🏭 GMAO Factory v7.10</small>
             <div class="mt-2">
                 <button class="theme-toggle-btn">
                     <i class="fas fa-moon me-1"></i> <span class="theme-text">Modo Oscuro</span>
@@ -2380,6 +2428,10 @@ def generate_and_update_work_orders(conn, current_system_date):
             <a href="{{ url_for('general_settings') }}" class="sidebar-link {{ 'active' if active_page == 'ajustes' else '' }}"><i class="fas fa-cog me-2"></i> Configuración Global</a>
             {% endif %}
             <div class="border-top border-secondary my-2"></div>
+            
+            <!-- NUEVO LINK: AYUDA -->
+            <a href="{{ url_for('help_page') }}" class="sidebar-link {{ 'active' if active_page == 'help' else '' }}"><i class="fas fa-question-circle me-2"></i> Ayuda</a>
+            
             <a href="{{ url_for('about') }}" class="sidebar-link {{ 'active' if active_page == 'about' else '' }}"><i class="fas fa-info-circle me-2"></i> Acerca de...</a>
             <a href="{{ url_for('logout') }}" class="sidebar-link text-danger"><i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión</a>
         </div>
@@ -2466,10 +2518,10 @@ def generate_and_update_work_orders(conn, current_system_date):
             dom: 'Bfrtip',
             stateSave: true,
             stateSaveParams: function (settings, data) {
-                data.version = "7.00"; 
+                data.version = "7.10"; 
             },
             stateLoadParams: function (settings, data) {
-                if (data.version !== "7.00") {
+                if (data.version !== "7.10") {
                     return false; 
                 }
             },
@@ -2498,6 +2550,167 @@ def generate_and_update_work_orders(conn, current_system_date):
 </html>
 --- FIN ARCHIVO: templates\base.html ---
 
+--- INICIO ARCHIVO: templates\help.html ---
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h2"><i class="fas fa-question-circle me-2"></i> Ayuda del Sistema</h1>
+            <p class="text-muted">Guía rápida sobre las funcionalidades de cada módulo.</p>
+        </div>
+    </div>
+
+    <div class="accordion shadow-sm" id="accordionHelp">
+        
+        <!-- RESUMEN -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingResumen">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseResumen" aria-expanded="true" aria-controls="collapseResumen">
+                    <i class="fas fa-chart-pie me-2"></i> <strong>Resumen Ejecutivo</strong>
+                </button>
+            </h2>
+            <div id="collapseResumen" class="accordion-collapse collapse show" aria-labelledby="headingResumen" data-bs-parent="#accordionHelp">
+                <div class="accordion-body">
+                    Es la pantalla principal del sistema. Muestra gráficas y estadísticas sobre el estado de las órdenes de trabajo y las incidencias en un periodo de tiempo determinado.
+                    <ul>
+                        <li>Puedes cambiar las fechas del informe en el panel superior "Configuración del Periodo".</li>
+                        <li>Las gráficas son interactivas; pasa el ratón por encima para ver detalles.</li>
+                        <li>Puedes imprimir un informe con las gráficas y las tablas entre el periodo seleccionado.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- INVENTARIO -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingInv">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInv" aria-expanded="false" aria-controls="collapseInv">
+                    <i class="fas fa-boxes me-2"></i> <strong>Inventario</strong>
+                </button>
+            </h2>
+            <div id="collapseInv" class="accordion-collapse collapse" aria-labelledby="headingInv" data-bs-parent="#accordionHelp">
+                <div class="accordion-body">
+                    Aquí se gestionan todos los activos, máquinas o equipos de la planta.
+                    <ul>
+                        <li>Puedes crear nuevos equipos asignándoles un "Tipo" (ej: Eléctrico, Mecánico).</li>
+                        <li>Es posible adjuntar hasta 5 fotos y 5 PDFs (manuales, planos) a cada equipo.</li>
+                        <li>Con el boton Exportar, si seleccionas las filas, la información de puede: copiar al portapapeles, pasar a excel, a pdf o impimir. Si no seleccionas ninguna fila es como si las hubieses seleccionados todas. </li>
+                        <strong>Nota importante:</strong> Si borras un equipo, se borrarán también todas sus actividades e historiales asociados.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIVIDADES -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingAct">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAct" aria-expanded="false" aria-controls="collapseAct">
+                    <i class="fas fa-clipboard-list me-2"></i> <strong>Actividades (Plan de Mantenimiento)</strong>
+                </button>
+            </h2>
+            <div id="collapseAct" class="accordion-collapse collapse" aria-labelledby="headingAct" data-bs-parent="#accordionHelp">
+                <div class="accordion-body">
+                    Define el "qué" y el "cuándo" del mantenimiento preventivo.
+                    <ul>
+                        <li><strong>Periodicidad:</strong> Define cada cuántos días se repite la tarea.</li>
+                        <li><strong>Generar OTs:</strong> Si está activo, el sistema creará automáticamente las Órdenes de Trabajo futuras basándose en la fecha de inicio y la periodicidad.</li>
+                        <li>Si editas una actividad, el plan futuro se recalculará automáticamente.</li>
+                        <li>Con el boton Exportar, si seleccionas las filas, la información de puede: copiar al portapapeles, pasar a excel, a pdf o impimir. 
+                        Si no seleccionas ninguna fila es como si las hubieses seleccionados todas. </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÓRDENES DE TRABAJO -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOT">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOT" aria-expanded="false" aria-controls="collapseOT">
+                    <i class="fas fa-tools me-2"></i> <strong>Órdenes de Trabajo (OTs)</strong>
+                </button>
+            </h2>
+            <div id="collapseOT" class="accordion-collapse collapse" aria-labelledby="headingOT" data-bs-parent="#accordionHelp">
+                <div class="accordion-body">
+                    Es el listado de tareas generadas que deben ejecutarse.
+                    <ul>
+                        <li><strong>Estados:</strong> Pendiente (Rojo), En curso (Amarillo), Realizada (Verde), Prevista (Gris), Aplazada (Violeta) y Rechazada (Negra).</li>
+                        <li>Puedes cambiar el estado de una OT haciendo clic en el botón "Gestionar".</li>
+                        <li>El sistema genera OTs automáticamente hasta la "Fecha Prevista" configurada en Ajustes.</li>
+                        <li>Con el boton Exportar, si seleccionas las filas, la información de puede: copiar al portapapeles, pasar a excel, a pdf o impimir. 
+                        Si no seleccionas ninguna fila es como si las hubieses seleccionados todas. </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- CRONOGRAMA -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingCron">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCron" aria-expanded="false" aria-controls="collapseCron">
+                    <i class="fas fa-calendar-alt me-2"></i> <strong>Cronogramas y Calendario</strong>
+                </button>
+            </h2>
+            <div id="collapseCron" class="accordion-collapse collapse" aria-labelledby="headingCron" data-bs-parent="#accordionHelp">
+                <div class="accordion-body">
+                    Dos formas visuales de ver la carga de trabajo:
+                    <ul>
+                        <li><strong>Cronograma OTs:</strong> Una tabla anual donde las filas son los equipos/actividades y las columnas los meses. Permite ver la distribución anual de un vistazo. Puedes revisar los años pasados y 1 año por delante del actual</li>
+                        <li><strong>Calendario:</strong> Vista clásica del mes. Útil para ver la carga de trabajo mensual. Puedes ir los meses siguientes o los pasados.</li>
+                        <li>En ambas vistas, puedes hacer clic en una tarea para editar su estado rápidamente.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- CORRECTIVOS -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingCorr">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCorr" aria-expanded="false" aria-controls="collapseCorr">
+                    <i class="fas fa-exclamation-triangle me-2"></i> <strong>Correctivos</strong>
+                </button>
+            </h2>
+            <div id="collapseCorr" class="accordion-collapse collapse" aria-labelledby="headingCorr" data-bs-parent="#accordionHelp">
+                <div class="accordion-body">
+                    Módulo para registrar averías imprevistas o incidencias.
+                    <ul>
+                        <li>Permite registrar qué equipo falló, cuándo se detectó y cuándo se resolvió.</li>
+                        <li>Puedes adjuntar fotos de la avería antes y después de la reparación.</li>
+                        <li>Con el boton Exportar, si seleccionas las filas, la información de puede: copiar al portapapeles, pasar a excel, a pdf o impimir. 
+                        Si no seleccionas ninguna fila es como si las hubieses seleccionados todas. </li>
+                        <li>Útil para calcular el tiempo medio entre fallos (MTBF) en el futuro.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONFIGURACIÓN -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingConf">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseConf" aria-expanded="false" aria-controls="collapseConf">
+                    <i class="fas fa-cog me-2"></i> <strong>Configuración Global</strong>
+                </button>
+            </h2>
+            <div id="collapseConf" class="accordion-collapse collapse" aria-labelledby="headingConf" data-bs-parent="#accordionHelp">
+                <div class="accordion-body">
+                    <strong><u>Zona administrativa</u></strong> (requiere permisos especiales).
+                    <ul>
+                        <li><strong>Identidad:</strong> Cambia el nombre del mantenimiento que aparece en la cabecera.</li>
+                        <li><strong>Fecha del Sistema:</strong> Útil para simular el paso del tiempo o ajustar el "hoy" del programa.</li>
+                        <li><strong>Planificación Futura:</strong> Define hasta qué fecha futura quieres que el sistema genere OTs preventivas ("Previstas").</li>
+                        <li><strong>Backups:</strong> Descarga y restaura copias de seguridad de la base de datos.</li>
+                        <li><strong>Usuarios:</strong> Crea nuevos usuarios y gestiona sus permisos (Inventario, Actividades, Configuración).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+--- FIN ARCHIVO: templates\help.html ---
+
 --- INICIO ARCHIVO: templates\login.html ---
 <!DOCTYPE html>
 <html lang="es">
@@ -2505,6 +2718,7 @@ def generate_and_update_work_orders(conn, current_system_date):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - GMAO Factory</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
     <style>body { background-color: #f8f9fa; display: flex; align-items: center; justify-content: center; height: 100vh; } .login-card { max-width: 400px; width: 100%; padding: 20px; }</style>
 </head>
@@ -2642,11 +2856,23 @@ def generate_and_update_work_orders(conn, current_system_date):
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+    .form-check-input:checked {
+        background-color: #0d6efd !important;
+        /* Negro/Gris oscuro */
+        border-color: #212529 !important;
+    }
+</style>
+
+
+
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2">Gestión de Actividades</h1>
     <div>
         {% if session.get('perm_actividades') %}
-        <button class="btn btn-primary btn-sm me-2" type="button" data-bs-toggle="collapse" data-bs-target="#formNuevaActividad">
+        <button class="btn btn-primary btn-sm me-2" type="button" data-bs-toggle="collapse"
+            data-bs-target="#formNuevaActividad">
             <i class="fas fa-plus"></i> Nueva Actividad
         </button>
         {% endif %}
@@ -2680,11 +2906,21 @@ def generate_and_update_work_orders(conn, current_system_date):
                 <label class="form-label">Inicio Generación</label>
                 <input type="date" class="form-control" name="fecha_inicio" required>
             </div>
-            
-            <div class="col-md-2 d-flex align-items-end">
-                <div class="form-check mb-2 p-2 border rounded bg-white w-100">
-                    <input class="form-check-input ms-0 me-2" type="checkbox" name="generar_ot" value="1" id="checkGenOT" checked>
-                    <label class="form-check-label small fw-bold" for="checkGenOT">Generar OTs</label>
+             <div class="text-muted">
+                        Si el periodo en días es divisible entre 30, el programa lo entiende que son meses completos.
+                        Por ejemplo: Si pones 30 días, será 1 mes. Si pones 90 días, serán 3 meses.
+                        Si pones 360 días, será 1 año (12 meses)
+                    </div>
+            <div class="col-12 d-flex align-items-end">
+                <div class="form-check form-switch">
+                    <!-- <input class="form-check-input ms-0 me-2" type="checkbox" name="generar_ot" value="1" id="checkGenOT" checked> -->
+
+                    <input class="form-check-input" style="width: 3em; height: 1.5em;" type="checkbox" name="generar_ot"
+                        value="1" id="checkGenOT" checked=true>
+                    <label class="form-check-label small fw-bold" for="checkGenOT">Generar OTs. </label>
+                    <div class="text-muted">
+                        Por defecto, esta activada la generación de Ordenes de Trabajo (OTs). Si desactivas esta opción no se crearán.
+                    </div>
                 </div>
             </div>
 
@@ -2693,7 +2929,8 @@ def generate_and_update_work_orders(conn, current_system_date):
                 <textarea class="form-control" name="operaciones" rows="2" required></textarea>
             </div>
             <div class="col-12 text-end">
-                <button type="button" class="btn btn-secondary me-2" data-bs-toggle="collapse" data-bs-target="#formNuevaActividad">Cancelar</button>
+                <button type="button" class="btn btn-secondary me-2" data-bs-toggle="collapse"
+                    data-bs-target="#formNuevaActividad">Cancelar</button>
                 <button type="submit" class="btn btn-success">Crear Actividad</button>
             </div>
         </form>
@@ -2721,26 +2958,28 @@ def generate_and_update_work_orders(conn, current_system_date):
                 <td>{{ act.nombre }}</td>
                 <td>{{ act.equipo_nombre }}</td>
                 <td>Cada {{ act.periodicidad }} días</td>
-                
+
                 <td class="text-center align-middle">
                     {% if act.generar_ot %}
-                        <span class="badge bg-success"><i class="fas fa-check"></i> Sí</span>
+                    <span class="badge bg-success"><i class="fas fa-check"></i> Sí</span>
                     {% else %}
-                        <span class="badge bg-secondary"><i class="fas fa-ban"></i> No</span>
+                    <span class="badge bg-secondary"><i class="fas fa-ban"></i> No</span>
                     {% endif %}
                 </td>
-                
+
                 <td>{{ act.fecha_inicio_gen }}</td>
                 <td><small>{{ act.operaciones }}</small></td>
                 <td>
-                    <a href="{{ url_for('print_activity_single', id=act.id) }}" class="btn btn-sm btn-secondary mb-1" target="_blank" title="Imprimir PDF">
+                    <a href="{{ url_for('print_activity_single', id=act.id) }}" class="btn btn-sm btn-secondary mb-1"
+                        target="_blank" title="Imprimir PDF">
                         <i class="fas fa-print"></i>
-                    </a> 
+                    </a>
                     {% if session.get('perm_actividades') %}
                     <a href="{{ url_for('edit_activity', id=act.id) }}" class="btn btn-sm btn-warning mb-1">
                         <i class="fas fa-edit"></i>
-                    </a> 
-                    <button type="button" class="btn btn-sm btn-danger mb-1" data-bs-toggle="modal" data-bs-target="#deleteActivityModal{{ act.id }}">
+                    </a>
+                    <button type="button" class="btn btn-sm btn-danger mb-1" data-bs-toggle="modal"
+                        data-bs-target="#deleteActivityModal{{ act.id }}">
                         <i class="fas fa-trash"></i>
                     </button>
                     {% endif %}
@@ -2752,7 +2991,8 @@ def generate_and_update_work_orders(conn, current_system_date):
 </div>
 
 {% for act in actividades %}
-<div class="modal fade" id="deleteActivityModal{{ act.id }}" tabindex="-1" aria-labelledby="deleteActivityLabel{{ act.id }}" aria-hidden="true">
+<div class="modal fade" id="deleteActivityModal{{ act.id }}" tabindex="-1"
+    aria-labelledby="deleteActivityLabel{{ act.id }}" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
@@ -2762,7 +3002,9 @@ def generate_and_update_work_orders(conn, current_system_date):
             <div class="modal-body text-start">
                 <p>¿Estás seguro de que quieres borrar la actividad <strong>{{ act.nombre }}</strong>?</p>
                 <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle"></i> <strong>Atención:</strong> Esta acción borrará también todas las <strong>Órdenes de Trabajo</strong> vinculadas a esta actividad. Esta acción no se puede deshacer.
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Atención:</strong> Esta acción borrará también
+                    todas las <strong>Órdenes de Trabajo</strong> vinculadas a esta actividad. Esta acción no se puede
+                    deshacer.
                 </div>
             </div>
             <div class="modal-footer">
@@ -3297,15 +3539,101 @@ $(document).ready(function() {
 --- INICIO ARCHIVO: templates\inventory\index.html ---
 {% extends "base.html" %}
 {% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"><h1 class="h2">Inventario de Equipos</h1><div><a href="{{ url_for('print_all_inventory') }}" class="btn btn-secondary btn-sm me-2" target="_blank"><i class="fas fa-print"></i> Imprimir Todo</a>{% if session.get('perm_inventario') %}<button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addEquipModal">+ Nuevo Equipo</button>{% endif %}</div></div>
-<div class="table-responsive"><table class="table table-striped table-hover datatable" id="tablaInventario"><thead class="table-dark"><tr><th></th><th>ID</th><th>Nombre</th><th>Tipo</th><th>Descripción</th><th>Archivos</th><th>Acciones</th></tr></thead><tbody>{% for item in items %}<tr><td></td><td>{{ item.id }}</td><td>{{ item.nombre }}</td><td>{{ item.tipo_nombre }}</td><td>{{ item.descripcion }}</td><td>{% set imgs = item.images|json_load %}{% if imgs %}<button class="btn btn-info btn-sm btn-xs" onclick="verGaleria('inventory', 'img', '{{ item.id }}')"><i class="fas fa-images"></i> {{ imgs|length }}</button>{% endif %}{% set pdfs = item.pdfs|json_load %}{% if pdfs %}<button class="btn btn-danger btn-sm btn-xs" onclick="verGaleria('inventory', 'pdf', '{{ item.id }}')"><i class="fas fa-file-pdf"></i> {{ pdfs|length }}</button>{% endif %}</td><td><a href="{{ url_for('print_inventory', id=item.id) }}" class="btn btn-sm btn-secondary mb-1" target="_blank" title="Imprimir PDF"><i class="fas fa-print"></i></a> {% if session.get('perm_inventario') %}<a href="{{ url_for('edit_inventory', id=item.id) }}" class="btn btn-sm btn-warning mb-1" title="Editar"><i class="fas fa-edit"></i></a> <button type="button" class="btn btn-sm btn-danger mb-1" data-bs-toggle="modal" data-bs-target="#deleteInventoryModal{{ item.id }}" title="Borrar"><i class="fas fa-trash"></i></button></td></tr>{% endif %}{% endfor %}</tbody></table></div>
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Inventario de Equipos</h1>
+    <div>
+        {% if session.get('perm_inventario') %}<button class="btn btn-primary btn-sm" data-bs-toggle="modal"
+            data-bs-target="#addEquipModal">+ Nuevo Equipo</button>{% endif %}
+        <a href="{{ url_for('print_all_inventory') }}" class="btn btn-secondary btn-sm me-2" target="_blank"><i
+                class="fas fa-print"></i> Imprimir Todo</a>
+    </div>
+</div>
+<div class="table-responsive">
+    <table class="table table-striped table-hover datatable" id="tablaInventario">
+        <thead class="table-dark">
+            <tr>
+                <th></th>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Descripción</th>
+                <th>Archivos</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>{% for item in items %}<tr>
+                <td></td>
+                <td>{{ item.id }}</td>
+                <td>{{ item.nombre }}</td>
+                <td>{{ item.tipo_nombre }}</td>
+                <td>{{ item.descripcion }}</td>
+                <td>{% set imgs = item.images|json_load %}{% if imgs %}<button class="btn btn-info btn-sm btn-xs"
+                        onclick="verGaleria('inventory', 'img', '{{ item.id }}')"><i class="fas fa-images"></i> {{
+                        imgs|length }}</button>{% endif %}{% set pdfs = item.pdfs|json_load %}{% if pdfs %}<button
+                        class="btn btn-danger btn-sm btn-xs"
+                        onclick="verGaleria('inventory', 'pdf', '{{ item.id }}')"><i class="fas fa-file-pdf"></i> {{
+                        pdfs|length }}</button>{% endif %}</td>
+                <td><a href="{{ url_for('print_inventory', id=item.id) }}" class="btn btn-sm btn-secondary mb-1"
+                        target="_blank" title="Imprimir PDF"><i class="fas fa-print"></i></a> {% if
+                    session.get('perm_inventario') %}<a href="{{ url_for('edit_inventory', id=item.id) }}"
+                        class="btn btn-sm btn-warning mb-1" title="Editar"><i class="fas fa-edit"></i></a> <button
+                        type="button" class="btn btn-sm btn-danger mb-1" data-bs-toggle="modal"
+                        data-bs-target="#deleteInventoryModal{{ item.id }}" title="Borrar"><i
+                            class="fas fa-trash"></i></button></td>
+            </tr>{% endif %}{% endfor %}</tbody>
+    </table>
+</div>
 
 {% for item in items %}
-<div class="modal fade" id="deleteInventoryModal{{ item.id }}" tabindex="-1" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-danger text-white"><h5 class="modal-title">Confirmar Borrado</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body text-start"><p>¿Estás seguro de que quieres borrar el equipo <strong>{{ item.nombre }}</strong>?</p><div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> <strong>Atención:</strong> Esta acción borrará permanentemente todos sus datos asociados.</div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><form action="{{ url_for('delete_inventory', id=item.id) }}" method="POST"><button type="submit" class="btn btn-danger">Sí, borrar todo</button></form></div></div></div></div>
+<div class="modal fade" id="deleteInventoryModal{{ item.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirmar Borrado</h5><button type="button" class="btn-close"
+                    data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start">
+                <p>¿Estás seguro de que quieres borrar el equipo <strong>{{ item.nombre }}</strong>?</p>
+                <div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> <strong>Atención:</strong>
+                    Esta acción borrará permanentemente todos sus datos asociados.</div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary"
+                    data-bs-dismiss="modal">Cancelar</button>
+                <form action="{{ url_for('delete_inventory', id=item.id) }}" method="POST"><button type="submit"
+                        class="btn btn-danger">Sí, borrar todo</button></form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endfor %}
 
-<div class="modal fade" id="addEquipModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><form action="{{ url_for('add_inventory') }}" method="POST" enctype="multipart/form-data"><div class="modal-header"><h5 class="modal-title">Añadir Equipo</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Nombre</label><input type="text" class="form-control" name="nombre" required></div><div class="mb-3"><label class="form-label">Tipo</label><select class="form-select" name="tipo_id" required>{% for t in tipos %}<option value="{{ t.id }}">{{ t.nombre }}</option>{% endfor %}</select></div><div class="mb-3"><label class="form-label">Descripción</label><textarea class="form-control" name="descripcion" rows="3"></textarea></div><div class="mb-3"><label class="form-label">Imágenes (Máx 5)</label><input type="file" class="form-control" name="images" multiple accept="image/*"></div><div class="mb-3"><label class="form-label">PDFs (Máx 5)</label><input type="file" class="form-control" name="pdfs" multiple accept="application/pdf"></div></div><div class="modal-footer"><button type="submit" class="btn btn-primary">Guardar</button></div></form></div></div></div>
-<script>function verGaleria(source, tipo, id) {window.location.href = "/view_files/" + source + "/" + tipo + "/" + id;}</script>
+<div class="modal fade" id="addEquipModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="{{ url_for('add_inventory') }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title">Añadir Equipo</h5><button type="button" class="btn-close"
+                        data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3"><label class="form-label">Nombre</label><input type="text" class="form-control"
+                            name="nombre" required></div>
+                    <div class="mb-3"><label class="form-label">Tipo</label><select class="form-select" name="tipo_id"
+                            required>{% for t in tipos %}<option value="{{ t.id }}">{{ t.nombre }}</option>{% endfor
+                            %}</select></div>
+                    <div class="mb-3"><label class="form-label">Descripción</label><textarea class="form-control"
+                            name="descripcion" rows="3"></textarea></div>
+                    <div class="mb-3"><label class="form-label">Imágenes (Máx 5)</label><input type="file"
+                            class="form-control" name="images" multiple accept="image/*"></div>
+                    <div class="mb-3"><label class="form-label">PDFs (Máx 5)</label><input type="file"
+                            class="form-control" name="pdfs" multiple accept="application/pdf"></div>
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-primary">Guardar</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>function verGaleria(source, tipo, id) { window.location.href = "/view_files/" + source + "/" + tipo + "/" + id; }</script>
 {% endblock %}
 --- FIN ARCHIVO: templates\inventory\index.html ---
 
@@ -3482,6 +3810,14 @@ $(document).ready(function() {
 
 <hr class="my-4">
 
+
+<div class="text-center mb-5">
+    <button onclick="window.print()" class="btn btn-lg btn-success">
+        <i class="fas fa-print me-2"></i> Imprimir Informe Completo
+    </button>
+</div>
+
+
 <!-- Tablas de datos -->
 <h3 class="mb-3">Órdenes de Trabajo del Periodo</h3>
 <div class="table-responsive mb-4">
@@ -3550,11 +3886,7 @@ $(document).ready(function() {
     </table>
 </div>
 
-<div class="text-center mb-5">
-    <button onclick="window.print()" class="btn btn-lg btn-success">
-        <i class="fas fa-print me-2"></i> Imprimir Informe Completo
-    </button>
-</div>
+
 
 <script>
     const ctxOT = document.getElementById('chartOTs').getContext('2d');
@@ -4023,10 +4355,12 @@ $(document).ready(function() {
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2">Órdenes de Trabajo</h1>
     <div class="d-flex gap-2">
-        <a href="{{ url_for('print_all_ots') }}" class="btn btn-secondary" target="_blank"><i class="fas fa-print"></i> Imprimir Todo</a>
         <form action="{{ url_for('generate_work_orders') }}" method="POST">
             <button type="submit" class="btn btn-warning"><i class="fas fa-sync-alt"></i> Generar OTs</button>
         </form>
+        <a href="{{ url_for('print_all_ots') }}" class="btn btn-secondary" target="_blank"><i class="fas fa-print"></i>
+            Imprimir Todo</a>
+
     </div>
 </div>
 
@@ -4076,8 +4410,10 @@ $(document).ready(function() {
                     {% else %}<span class="badge status-rechazada">Rechazada</span>{% endif %}
                 </td>
                 <td>
-                    <a href="{{ url_for('print_ot', id=ot.id) }}" class="btn btn-sm btn-secondary" target="_blank"><i class="fas fa-print"></i></a> 
-                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalOT{{ ot.id }}">Gestionar</button>
+                    <a href="{{ url_for('print_ot', id=ot.id) }}" class="btn btn-sm btn-secondary" target="_blank"><i
+                            class="fas fa-print"></i></a>
+                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#modalOT{{ ot.id }}">Gestionar</button>
                 </td>
             </tr>
             {% endfor %}
@@ -4099,12 +4435,12 @@ $(document).ready(function() {
                     <div class="mb-3">
                         <label class="form-label">Estado</label>
                         <select class="form-select" name="estado">
-                            <option value="En curso" {{ 'selected' if ot.estado == 'En curso' }}>En curso</option>
-                            <option value="Pendiente" {{ 'selected' if ot.estado == 'Pendiente' }}>Pendiente</option>
-                            <option value="Prevista" {{ 'selected' if ot.estado == 'Prevista' }}>Prevista</option>
-                            <option value="Realizada" {{ 'selected' if ot.estado == 'Realizada' }}>Realizada</option>
-                            <option value="Aplazada" {{ 'selected' if ot.estado == 'Aplazada' }}>Aplazada</option>
-                            <option value="Rechazada" {{ 'selected' if ot.estado == 'Rechazada' }}>Rechazada</option>
+                            <option value="En curso" {{ 'selected' if ot.estado=='En curso' }}>En curso</option>
+                            <option value="Pendiente" {{ 'selected' if ot.estado=='Pendiente' }}>Pendiente</option>
+                            <option value="Prevista" {{ 'selected' if ot.estado=='Prevista' }}>Prevista</option>
+                            <option value="Realizada" {{ 'selected' if ot.estado=='Realizada' }}>Realizada</option>
+                            <option value="Aplazada" {{ 'selected' if ot.estado=='Aplazada' }}>Aplazada</option>
+                            <option value="Rechazada" {{ 'selected' if ot.estado=='Rechazada' }}>Rechazada</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -4128,56 +4464,56 @@ $(document).ready(function() {
 
 {% block scripts %}
 <script>
-$(document).ready(function() {
-    // Restaurar filtros de fecha desde localStorage
-    var savedMin = localStorage.getItem('ot_min_date');
-    var savedMax = localStorage.getItem('ot_max_date');
-    
-    if (savedMin) $('#min').val(savedMin);
-    if (savedMax) $('#max').val(savedMax);
+    $(document).ready(function () {
+        // Restaurar filtros de fecha desde localStorage
+        var savedMin = localStorage.getItem('ot_min_date');
+        var savedMax = localStorage.getItem('ot_max_date');
 
-    // Clear any existing search functions to avoid stacking on reloads if not full reload
-    $.fn.dataTable.ext.search = [];
+        if (savedMin) $('#min').val(savedMin);
+        if (savedMax) $('#max').val(savedMax);
 
-    // Custom filtering function which will search data in column four between two values
-    $.fn.dataTable.ext.search.push(
-        function(settings, data, dataIndex) {
-            // Check if this is the correct table (optional, but good if multiple tables exist)
-            if ( settings.nTable.id !== 'tablaOTs' ) {
-                return true;
+        // Clear any existing search functions to avoid stacking on reloads if not full reload
+        $.fn.dataTable.ext.search = [];
+
+        // Custom filtering function which will search data in column four between two values
+        $.fn.dataTable.ext.search.push(
+            function (settings, data, dataIndex) {
+                // Check if this is the correct table (optional, but good if multiple tables exist)
+                if (settings.nTable.id !== 'tablaOTs') {
+                    return true;
+                }
+
+                var min = $('#min').val();
+                var max = $('#max').val();
+                var date = data[4]; // Index 4 is Fecha Gen. (YYYY-MM-DD) - Remember index shifted by checkbox
+
+                if (
+                    (min === "" || min === null) && (max === "" || max === null) ||
+                    (min === "" || min === null) && date <= max ||
+                    (min <= date) && (max === "" || max === null) ||
+                    (min <= date && date <= max)
+                ) {
+                    return true;
+                }
+                return false;
             }
-            
-            var min = $('#min').val();
-            var max = $('#max').val();
-            var date = data[4]; // Index 4 is Fecha Gen. (YYYY-MM-DD) - Remember index shifted by checkbox
+        );
 
-            if (
-                ( min === "" || min === null ) && ( max === "" || max === null ) ||
-                ( min === "" || min === null ) && date <= max ||
-                ( min <= date ) && ( max === "" || max === null ) ||
-                ( min <= date && date <= max )
-            ) {
-                return true;
-            }
-            return false;
-        }
-    );
- 
-    // Event listener to the two range filtering inputs to redraw on input
-    $('#min, #max').on('change', function () {
-        // Guardar en localStorage
-        localStorage.setItem('ot_min_date', $('#min').val());
-        localStorage.setItem('ot_max_date', $('#max').val());
-        $('#tablaOTs').DataTable().draw();
-    });
-
-    // Force draw if filters exist
-    if (savedMin || savedMax) {
-        setTimeout(function(){
+        // Event listener to the two range filtering inputs to redraw on input
+        $('#min, #max').on('change', function () {
+            // Guardar en localStorage
+            localStorage.setItem('ot_min_date', $('#min').val());
+            localStorage.setItem('ot_max_date', $('#max').val());
             $('#tablaOTs').DataTable().draw();
-        }, 100);
-    }
-});
+        });
+
+        // Force draw if filters exist
+        if (savedMin || savedMax) {
+            setTimeout(function () {
+                $('#tablaOTs').DataTable().draw();
+            }, 100);
+        }
+    });
 </script>
 {% endblock %}
 --- FIN ARCHIVO: templates\work_orders\index.html ---
