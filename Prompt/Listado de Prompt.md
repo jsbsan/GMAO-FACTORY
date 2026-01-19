@@ -688,3 +688,6 @@ Manualmente cambio la posicion de botontes:
 - Arreglado el checkbox de generar OT, de nueva actividad, que  no se marcaba. Defino estilo de colores fijo para el checkbox, independientemente del modo oscuro/claro
 - Añadido favicon para que se vea icono en pestaña
 - Añadidos textos aclaratorios en nueva actividad: periodicidad y generar Ot
+
+Añadido tambien pestaña para ayuda del programa offline
+Quiero añadir una nueva opción al menu principal llamada "ayuda" que muestre la ayuda al usuario. Esta ayuda tendrá una explicación de lo que hace cada opción del menu.
