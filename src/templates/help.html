@@ -10,17 +10,20 @@
     </div>
 
     <div class="accordion shadow-sm" id="accordionHelp">
-        
+
         <!-- RESUMEN -->
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingResumen">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseResumen" aria-expanded="true" aria-controls="collapseResumen">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseResumen" aria-expanded="true" aria-controls="collapseResumen">
                     <i class="fas fa-chart-pie me-2"></i> <strong>Resumen Ejecutivo</strong>
                 </button>
             </h2>
-            <div id="collapseResumen" class="accordion-collapse collapse show" aria-labelledby="headingResumen" data-bs-parent="#accordionHelp">
+            <div id="collapseResumen" class="accordion-collapse collapse show" aria-labelledby="headingResumen"
+                data-bs-parent="#accordionHelp">
                 <div class="accordion-body">
-                    Es la pantalla principal del sistema. Muestra gráficas y estadísticas sobre el estado de las órdenes de trabajo y las incidencias en un periodo de tiempo determinado.
+                    Es la pantalla principal del sistema. Muestra gráficas y estadísticas sobre el estado de las órdenes
+                    de trabajo y las incidencias en un periodo de tiempo determinado.
                     <ul>
                         <li>Puedes cambiar las fechas del informe en el panel superior "Configuración del Periodo".</li>
                         <li>Las gráficas son interactivas; pasa el ratón por encima para ver detalles.</li>
@@ -33,18 +36,23 @@
         <!-- INVENTARIO -->
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingInv">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInv" aria-expanded="false" aria-controls="collapseInv">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseInv" aria-expanded="false" aria-controls="collapseInv">
                     <i class="fas fa-boxes me-2"></i> <strong>Inventario</strong>
                 </button>
             </h2>
-            <div id="collapseInv" class="accordion-collapse collapse" aria-labelledby="headingInv" data-bs-parent="#accordionHelp">
+            <div id="collapseInv" class="accordion-collapse collapse" aria-labelledby="headingInv"
+                data-bs-parent="#accordionHelp">
                 <div class="accordion-body">
                     Aquí se gestionan todos los activos, máquinas o equipos de la planta.
                     <ul>
                         <li>Puedes crear nuevos equipos asignándoles un "Tipo" (ej: Eléctrico, Mecánico).</li>
                         <li>Es posible adjuntar hasta 5 fotos y 5 PDFs (manuales, planos) a cada equipo.</li>
-                        <li>Con el boton Exportar, si seleccionas las filas, la información de puede: copiar al portapapeles, pasar a excel, a pdf o impimir. Si no seleccionas ninguna fila es como si las hubieses seleccionados todas. </li>
-                        <strong>Nota importante:</strong> Si borras un equipo, se borrarán también todas sus actividades e historiales asociados.</li>
+                        <li>Con el boton Exportar, si seleccionas las filas, la información de puede: copiar al
+                            portapapeles, pasar a excel, a pdf o impimir. Si no seleccionas ninguna fila es como si las
+                            hubieses seleccionados todas. </li>
+                        <strong>Nota importante:</strong> Si borras un equipo, se borrarán también todas sus actividades
+                        e historiales asociados.</li>
                     </ul>
                 </div>
             </div>
@@ -53,19 +61,23 @@
         <!-- ACTIVIDADES -->
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingAct">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAct" aria-expanded="false" aria-controls="collapseAct">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseAct" aria-expanded="false" aria-controls="collapseAct">
                     <i class="fas fa-clipboard-list me-2"></i> <strong>Actividades (Plan de Mantenimiento)</strong>
                 </button>
             </h2>
-            <div id="collapseAct" class="accordion-collapse collapse" aria-labelledby="headingAct" data-bs-parent="#accordionHelp">
+            <div id="collapseAct" class="accordion-collapse collapse" aria-labelledby="headingAct"
+                data-bs-parent="#accordionHelp">
                 <div class="accordion-body">
                     Define el "qué" y el "cuándo" del mantenimiento preventivo.
                     <ul>
                         <li><strong>Periodicidad:</strong> Define cada cuántos días se repite la tarea.</li>
-                        <li><strong>Generar OTs:</strong> Si está activo, el sistema creará automáticamente las Órdenes de Trabajo futuras basándose en la fecha de inicio y la periodicidad.</li>
+                        <li><strong>Generar OTs:</strong> Si está activo, el sistema creará automáticamente las Órdenes
+                            de Trabajo futuras basándose en la fecha de inicio y la periodicidad.</li>
                         <li>Si editas una actividad, el plan futuro se recalculará automáticamente.</li>
-                        <li>Con el boton Exportar, si seleccionas las filas, la información de puede: copiar al portapapeles, pasar a excel, a pdf o impimir. 
-                        Si no seleccionas ninguna fila es como si las hubieses seleccionados todas. </li>
+                        <li>Con el boton Exportar, si seleccionas las filas, la información de puede: copiar al
+                            portapapeles, pasar a excel, a pdf o impimir.
+                            Si no seleccionas ninguna fila es como si las hubieses seleccionados todas. </li>
                     </ul>
                 </div>
             </div>
@@ -74,19 +86,23 @@
         <!-- ÓRDENES DE TRABAJO -->
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingOT">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOT" aria-expanded="false" aria-controls="collapseOT">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseOT" aria-expanded="false" aria-controls="collapseOT">
                     <i class="fas fa-tools me-2"></i> <strong>Órdenes de Trabajo (OTs)</strong>
                 </button>
             </h2>
-            <div id="collapseOT" class="accordion-collapse collapse" aria-labelledby="headingOT" data-bs-parent="#accordionHelp">
+            <div id="collapseOT" class="accordion-collapse collapse" aria-labelledby="headingOT"
+                data-bs-parent="#accordionHelp">
                 <div class="accordion-body">
                     Es el listado de tareas generadas que deben ejecutarse.
                     <ul>
-                        <li><strong>Estados:</strong> Pendiente (Rojo), En curso (Amarillo), Realizada (Verde), Prevista (Gris), Aplazada (Violeta) y Rechazada (Negra).</li>
+                        <li><strong>Estados:</strong> Pendiente (Rojo), En curso (Amarillo), Realizada (Verde), Prevista
+                            (Gris), Aplazada (Violeta) y Rechazada (Negra).</li>
                         <li>Puedes cambiar el estado de una OT haciendo clic en el botón "Gestionar".</li>
                         <li>El sistema genera OTs automáticamente hasta la "Fecha Prevista" configurada en Ajustes.</li>
-                        <li>Con el boton Exportar, si seleccionas las filas, la información de puede: copiar al portapapeles, pasar a excel, a pdf o impimir. 
-                        Si no seleccionas ninguna fila es como si las hubieses seleccionados todas. </li>
+                        <li>Con el boton Exportar, si seleccionas las filas, la información de puede: copiar al
+                            portapapeles, pasar a excel, a pdf o impimir.
+                            Si no seleccionas ninguna fila es como si las hubieses seleccionados todas. </li>
                     </ul>
                 </div>
             </div>
@@ -95,16 +111,21 @@
         <!-- CRONOGRAMA -->
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingCron">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCron" aria-expanded="false" aria-controls="collapseCron">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseCron" aria-expanded="false" aria-controls="collapseCron">
                     <i class="fas fa-calendar-alt me-2"></i> <strong>Cronogramas y Calendario</strong>
                 </button>
             </h2>
-            <div id="collapseCron" class="accordion-collapse collapse" aria-labelledby="headingCron" data-bs-parent="#accordionHelp">
+            <div id="collapseCron" class="accordion-collapse collapse" aria-labelledby="headingCron"
+                data-bs-parent="#accordionHelp">
                 <div class="accordion-body">
                     Dos formas visuales de ver la carga de trabajo:
                     <ul>
-                        <li><strong>Cronograma OTs:</strong> Una tabla anual donde las filas son los equipos/actividades y las columnas los meses. Permite ver la distribución anual de un vistazo. Puedes revisar los años pasados y 1 año por delante del actual</li>
-                        <li><strong>Calendario:</strong> Vista clásica del mes. Útil para ver la carga de trabajo mensual. Puedes ir los meses siguientes o los pasados.</li>
+                        <li><strong>Cronograma OTs:</strong> Una tabla anual donde las filas son los equipos/actividades
+                            y las columnas los meses. Permite ver la distribución anual de un vistazo. Puedes revisar
+                            los años pasados y 1 año por delante del actual</li>
+                        <li><strong>Calendario:</strong> Vista clásica del mes. Útil para ver la carga de trabajo
+                            mensual. Puedes ir los meses siguientes o los pasados.</li>
                         <li>En ambas vistas, puedes hacer clic en una tarea para editar su estado rápidamente.</li>
                     </ul>
                 </div>
@@ -114,18 +135,21 @@
         <!-- CORRECTIVOS -->
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingCorr">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCorr" aria-expanded="false" aria-controls="collapseCorr">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseCorr" aria-expanded="false" aria-controls="collapseCorr">
                     <i class="fas fa-exclamation-triangle me-2"></i> <strong>Correctivos</strong>
                 </button>
             </h2>
-            <div id="collapseCorr" class="accordion-collapse collapse" aria-labelledby="headingCorr" data-bs-parent="#accordionHelp">
+            <div id="collapseCorr" class="accordion-collapse collapse" aria-labelledby="headingCorr"
+                data-bs-parent="#accordionHelp">
                 <div class="accordion-body">
                     Módulo para registrar averías imprevistas o incidencias.
                     <ul>
                         <li>Permite registrar qué equipo falló, cuándo se detectó y cuándo se resolvió.</li>
                         <li>Puedes adjuntar fotos de la avería antes y después de la reparación.</li>
-                        <li>Con el boton Exportar, si seleccionas las filas, la información de puede: copiar al portapapeles, pasar a excel, a pdf o impimir. 
-                        Si no seleccionas ninguna fila es como si las hubieses seleccionados todas. </li>
+                        <li>Con el boton Exportar, si seleccionas las filas, la información de puede: copiar al
+                            portapapeles, pasar a excel, a pdf o impimir.
+                            Si no seleccionas ninguna fila es como si las hubieses seleccionados todas. </li>
                         <li>Útil para calcular el tiempo medio entre fallos (MTBF) en el futuro.</li>
                     </ul>
                 </div>
@@ -135,19 +159,25 @@
         <!-- CONFIGURACIÓN -->
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingConf">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseConf" aria-expanded="false" aria-controls="collapseConf">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseConf" aria-expanded="false" aria-controls="collapseConf">
                     <i class="fas fa-cog me-2"></i> <strong>Configuración Global</strong>
                 </button>
             </h2>
-            <div id="collapseConf" class="accordion-collapse collapse" aria-labelledby="headingConf" data-bs-parent="#accordionHelp">
+            <div id="collapseConf" class="accordion-collapse collapse" aria-labelledby="headingConf"
+                data-bs-parent="#accordionHelp">
                 <div class="accordion-body">
                     <strong><u>Zona administrativa</u></strong> (requiere permisos especiales).
                     <ul>
-                        <li><strong>Identidad:</strong> Cambia el nombre del mantenimiento que aparece en la cabecera.</li>
-                        <li><strong>Fecha del Sistema:</strong> Útil para simular el paso del tiempo o ajustar el "hoy" del programa.</li>
-                        <li><strong>Planificación Futura:</strong> Define hasta qué fecha futura quieres que el sistema genere OTs preventivas ("Previstas").</li>
+                        <li><strong>Identidad:</strong> Cambia el nombre del mantenimiento que aparece en la cabecera.
+                        </li>
+                        <li><strong>Fecha del Sistema:</strong> Útil para simular el paso del tiempo o ajustar el "hoy"
+                            del programa.</li>
+                        <li><strong>Planificación Futura:</strong> Define hasta qué fecha futura quieres que el sistema
+                            genere OTs preventivas ("Previstas").</li>
                         <li><strong>Backups:</strong> Descarga y restaura copias de seguridad de la base de datos.</li>
-                        <li><strong>Usuarios:</strong> Crea nuevos usuarios y gestiona sus permisos (Inventario, Actividades, Configuración).</li>
+                        <li><strong>Usuarios:</strong> Crea nuevos usuarios y gestiona sus permisos (Inventario,
+                            Actividades, Configuración).</li>
                     </ul>
                 </div>
             </div>

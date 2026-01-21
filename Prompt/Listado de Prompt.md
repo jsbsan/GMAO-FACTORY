@@ -691,3 +691,10 @@ Manualmente cambio la posicion de botontes:
 
 Añadido tambien pestaña para ayuda del programa offline
 Quiero añadir una nueva opción al menu principal llamada "ayuda" que muestre la ayuda al usuario. Esta ayuda tendrá una explicación de lo que hace cada opción del menu.
+
+
+------
+## Version v7.xx: Corregir en pestaña Correctivo que no se pueda previsualizar pdf ni imagenes
+------
+Analiza todo este código y confirmame cuando estes listo para corregir un error del codigo. (subido index de correctivos, base.html , app.py y utils.py).
+En la pestaña correctivo, en la tabla cuando pulso sobre el icono de previsualizacion de pdf o de imagen, no hace nada. Debe de previsualizar los pdf o imagenes asociada al correctivo.

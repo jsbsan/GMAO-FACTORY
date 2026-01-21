@@ -43,12 +43,12 @@ Nota: Debe de estar funcionando el programa docker desktop
 Dentro del directorio GMAO-FACTORY/src ejecutar el siguente comando en la terminal de Visual Studio Code:  
   
 ``` bash  
-docker build -t gmao-factory-7.10 .  
+docker build -t gmao-factory-7.12 .  
 ```  
   
 5. Ejecutar contenedor: (lo ejecuto dentro de Visual Studio Code en el terminal):  
   
 ``` bash    
-docker run --name JsbSan -p 5000:5000 gmao-factory-7.10  
+docker run --name JsbSan -p 5000:5000 gmao-factory-7.12  
 ```  
 
