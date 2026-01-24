@@ -13,5 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 5. Copiamos el resto de tu código al contenedor
 COPY . .
 
+EXPOSE 5000
+
 # 6. Comando para ejecutar tu app (CAMBIA 'main.py' por el nombre de tu archivo)
 CMD ["python", "app.py"]
