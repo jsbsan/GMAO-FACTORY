@@ -10,7 +10,7 @@
     </div>
 </div>
 <div class="table-responsive">
-    <table class="table table-striped table-hover datatable" id="tablaInventario">
+    <table class="table table-striped table-hover" id="tablaInventario" style="width:100%">
         <thead class="table-dark">
             <tr>
                 <th></th>
@@ -94,5 +94,110 @@
         </div>
     </div>
 </div>
-<script>function verGaleria(source, tipo, id) { window.location.href = "/view_files/" + source + "/" + tipo + "/" + id; }</script>
+
+<script>
+    function verGaleria(source, tipo, id) {
+        window.location.href = "/view_files/" + source + "/" + tipo + "/" + id;
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Inicialización personalizada de DataTables
+        if ($.fn.DataTable.isDataTable('#tablaInventario')) {
+            $('#tablaInventario').DataTable().destroy();
+        }
+
+        $('#tablaInventario').DataTable({
+            // Definición del layout (DOM) al estilo de index-a (Flexbox):
+            // Arriba: Buscar (izq) y Botones (der) en la misma línea
+            // Abajo: Length + Info (izq) y Paginación (der)
+            dom: '<"d-flex justify-content-between align-items-center mb-3"fB>rt<"d-flex justify-content-between align-items-center"<"d-flex align-items-center gap-3"li>p>',
+            buttons: [
+                {
+                    extend: 'collection',
+                    text: '<i class="fas fa-file-export"></i> Exportar',
+                    className: 'btn btn-secondary btn-sm',
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            text: '<i class="fas fa-file-excel"></i> Excel'
+                        },
+                        {
+                            extend: 'pdf',
+                            text: '<i class="fas fa-file-pdf"></i> PDF'
+                        },
+                        {
+                            extend: 'copy',
+                            text: '<i class="fas fa-copy"></i> Copiar al portapapeles'
+                        },
+                        {
+                            extend: 'print',
+                            text: '<i class="fas fa-print"></i> Imprimir'
+                        }
+                    ]
+                }
+            ],
+            language: {
+                search: "Buscar por contenido:",
+                lengthMenu: "Mostrar _MENU_ registros",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                infoEmpty: "Mostrando 0 a 0 de 0 registros",
+                infoFiltered: "(filtrado de _MAX_ registros totales)",
+                zeroRecords: "No se encontraron registros coincidentes",
+                paginate: {
+                    first: "Primero",
+                    last: "Último",
+                    next: "Siguiente",
+                    previous: "Anterior"
+                },
+                buttons: {
+                    copyTitle: 'Copiado al portapapeles',
+                    copySuccess: {
+                        _: '%d filas copiadas',
+                        1: '1 fila copiada'
+                    }
+                }
+            },
+            columnDefs: [{
+                orderable: false,
+                className: 'select-checkbox',
+                targets: 0
+            }],
+            select: {
+                style: 'multi',
+                selector: 'td:first-child'
+            },
+            order: [[1, 'asc']] // Ordenar por ID por defecto
+        });
+    });
+</script>
+
+<!-- Estilos para igualar el look and feel de index-a -->
+<style>
+    table.dataTable tbody td.select-checkbox:before,
+    table.dataTable tbody th.select-checkbox:before {
+        margin-top: 0px;
+    }
+
+    /* Alineación del input de búsqueda */
+    .dataTables_filter {
+        text-align: left !important;
+    }
+
+    .dataTables_filter label {
+        width: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+    .dataTables_filter input {
+        margin-left: 0.5em;
+        width: auto;
+        display: inline-block;
+    }
+
+    /* Espaciado para los botones de datatables */
+    .dt-buttons .btn {
+        margin-right: 0.5em;
+    }
+</style>
 {% endblock %}

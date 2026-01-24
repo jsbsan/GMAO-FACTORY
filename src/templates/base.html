@@ -260,7 +260,7 @@
     <div class="sidebar-brand">
         <!-- NOMBRE DEL MANTENIMIENTO DINÁMICO -->
         <h4>{{ maintenance_name }}</h4>
-        <small>🏭 GMAO Factory v7.10</small>
+        <small>🏭 GMAO Factory v7.15</small>
         <div class="mt-2">
             <button class="theme-toggle-btn">
                 <i class="fas fa-moon me-1"></i> <span class="theme-text">Modo Oscuro</span>
@@ -402,10 +402,10 @@
                 dom: 'Bfrtip',
                 stateSave: true,
                 stateSaveParams: function (settings, data) {
-                    data.version = "7.10";
+                    data.version = "7.15";
                 },
                 stateLoadParams: function (settings, data) {
-                    if (data.version !== "7.10") {
+                    if (data.version !== "7.15") {
                         return false;
                     }
                 },

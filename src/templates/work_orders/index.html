@@ -1,6 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
+<!-- Estilos copiados de index_a para mantener consistencia en botones y buscador -->
+<style>
+    /* Estilo para asegurar que el input de búsqueda se vea bien alineado */
+    .dataTables_filter {
+        text-align: left !important;
+    }
+    .dataTables_filter label {
+        width: 100%;
+        display: flex;
+        align-items: center;
+    }
+    .dataTables_filter input {
+        margin-left: 0.5em;
+        width: auto;
+        display: inline-block;
+    }
+    /* Ajuste para los botones de datatables para que coincidan con bootstrap */
+    .dt-buttons .btn {
+        margin-right: 0.5em;
+    }
+</style>
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2">Órdenes de Trabajo</h1>
     <div class="d-flex gap-2">
@@ -9,7 +31,6 @@
         </form>
         <a href="{{ url_for('print_all_ots') }}" class="btn btn-secondary" target="_blank"><i class="fas fa-print"></i>
             Imprimir Todo</a>
-
     </div>
 </div>
 
@@ -30,7 +51,8 @@
 </div>
 
 <div class="table-responsive">
-    <table class="table table-hover align-middle datatable" id="tablaOTs">
+    <!-- Se eliminó la clase 'datatable' para inicializarla manualmente en el script con la config de botones -->
+    <table class="table table-hover align-middle" id="tablaOTs">
         <thead class="table-dark">
             <tr>
                 <th></th>
@@ -114,6 +136,8 @@
 {% block scripts %}
 <script>
     $(document).ready(function () {
+        // --- Lógica de filtrado de fechas existente ---
+        
         // Restaurar filtros de fecha desde localStorage
         var savedMin = localStorage.getItem('ot_min_date');
         var savedMax = localStorage.getItem('ot_max_date');
@@ -121,20 +145,19 @@
         if (savedMin) $('#min').val(savedMin);
         if (savedMax) $('#max').val(savedMax);
 
-        // Clear any existing search functions to avoid stacking on reloads if not full reload
+        // Limpiar búsquedas previas
         $.fn.dataTable.ext.search = [];
 
-        // Custom filtering function which will search data in column four between two values
+        // Función de filtrado personalizada
         $.fn.dataTable.ext.search.push(
             function (settings, data, dataIndex) {
-                // Check if this is the correct table (optional, but good if multiple tables exist)
                 if (settings.nTable.id !== 'tablaOTs') {
                     return true;
                 }
 
                 var min = $('#min').val();
                 var max = $('#max').val();
-                var date = data[4]; // Index 4 is Fecha Gen. (YYYY-MM-DD) - Remember index shifted by checkbox
+                var date = data[4]; // Índice 4 es Fecha Gen. (YYYY-MM-DD)
 
                 if (
                     (min === "" || min === null) && (max === "" || max === null) ||
@@ -148,18 +171,82 @@
             }
         );
 
-        // Event listener to the two range filtering inputs to redraw on input
-        $('#min, #max').on('change', function () {
-            // Guardar en localStorage
-            localStorage.setItem('ot_min_date', $('#min').val());
-            localStorage.setItem('ot_max_date', $('#max').val());
-            $('#tablaOTs').DataTable().draw();
+        // --- Inicialización de DataTables con estilo de index_a ---
+        
+        var table = $('#tablaOTs').DataTable({
+            "language": {
+                "search": "Buscar por contenido:",
+                "lengthMenu": "Mostrar _MENU_ registros",
+                "zeroRecords": "No se encontraron resultados",
+                "info": "Mostrando página _PAGE_ de _PAGES_",
+                "infoEmpty": "No hay registros disponibles",
+                "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "buttons": {
+                    "copy": "Copiar",
+                    "csv": "CSV",
+                    "excel": "Excel",
+                    "pdf": "PDF",
+                    "print": "Imprimir",
+                    "colvis": "Columnas"
+                }
+            },
+            // Layout: Buscar a la izquierda, Botones a la derecha
+            "dom": '<"d-flex justify-content-between align-items-center mb-3"fB>rt<"d-flex justify-content-between align-items-center"<"d-flex align-items-center gap-3"li>p>',
+            "buttons": [
+                {
+                    extend: 'collection',
+                    text: '<i class="fas fa-file-export"></i> Exportar',
+                    className: 'btn btn-secondary btn-sm',
+                    buttons: [
+                        {
+                            extend: 'copy',
+                            text: '<i class="fas fa-copy"></i> Copiar'
+                        },
+                        {
+                            extend: 'excel',
+                            text: '<i class="fas fa-file-excel"></i> Excel'
+                        },
+                        {
+                            extend: 'pdf',
+                            text: '<i class="fas fa-file-pdf"></i> PDF'
+                        },
+                        {
+                            extend: 'print',
+                            text: '<i class="fas fa-print"></i> Imprimir'
+                        }
+                    ]
+                }
+            ],
+            // Configuración para checkboxes (opcional, para mantener consistencia con index_a si se desea selección)
+            "columnDefs": [ {
+                "orderable": false,
+                "className": 'select-checkbox',
+                "targets":   0
+            } ],
+            "select": {
+                "style":    'multi',
+                "selector": 'td:first-child'
+            },
+            "order": [[ 1, 'asc' ]] // Ordenar por ID
         });
 
-        // Force draw if filters exist
+        // Event listener para redibujar al cambiar fechas
+        $('#min, #max').on('change', function () {
+            localStorage.setItem('ot_min_date', $('#min').val());
+            localStorage.setItem('ot_max_date', $('#max').val());
+            table.draw();
+        });
+
+        // Redibujado inicial si hay filtros guardados
         if (savedMin || savedMax) {
             setTimeout(function () {
-                $('#tablaOTs').DataTable().draw();
+                table.draw();
             }, 100);
         }
     });

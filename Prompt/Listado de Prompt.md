@@ -694,7 +694,34 @@ Quiero añadir una nueva opción al menu principal llamada "ayuda" que muestre l
 
 
 ------
-## Version v7.xx: Corregir en pestaña Correctivo que no se pueda previsualizar pdf ni imagenes
+## Version v7.11: Corregir en pestaña Correctivo que no se pueda previsualizar pdf ni imagenes
 ------
 Analiza todo este código y confirmame cuando estes listo para corregir un error del codigo. (subido index de correctivos, base.html , app.py y utils.py).
 En la pestaña correctivo, en la tabla cuando pulso sobre el icono de previsualizacion de pdf o de imagen, no hace nada. Debe de previsualizar los pdf o imagenes asociada al correctivo.
+
+
+-----
+### Version v7.15: Situación de boton de buscar 
+-----
+(le adjunto el archivo "index.html" de inventario)
+Quiero que el boton de "Buscar" y donde escribo lo que tengo que buscar del datetable aparezca a la izquierda con el texto "Buscar por contenido"
+
+No veo el boton de "Exportar", ha desaparecido.
+El boton de "mostrar registros" puede ponerlo debajo de la tabla en vez de la arriba derecha como aparece ahora?
+Me ha desaparecido en la columna primera el checkbox para seleccionar la fila
+
+(le adjunto el archivo "index.html" de actividades)
+Modifica el código para que:
+- El boton de "Buscar" y donde escribo lo que tengo que buscar del datetable aparezca a la izquierda con el texto "Buscar por contenido". 
+- El boton "Exportar" debe quedar a la derecha. Quiero que sea un unico boton el de exportar, y que ese boton de la opción de exportar a excel, pdf, copiar al portapapeles e imprimir.
+- El boton de "mostrar registros" ponlo debajo de la tabla.
+- Debe de seguir la configuración de que la primera columna tenga el checkbox para seleccionar la filas.
+
+Para aplicar el formato al "index.html" de las ordenes de trabajo, no lo conseguia en este prompt.
+
+Al final hice este prompt, subiendo el index de actividades y el index de ordenes de trabajo y le dije:
+Rol: Eres diseñador web. Compara el archivo index_a y index_W. Quiero que los botones de la tabledata del index_W siga el mismo estilo del index_a, en lo que respecta a los botones de buscar y exportar.
+
+Con la index de correctivo hice lo mismo:
+Rol: Eres diseñador web. Compara el archivo index_a y index_c. Quiero que los botones de la tabledata del index_c siga el mismo estilo del index_a, en lo que respecta a los botones de buscar y exportar.
+

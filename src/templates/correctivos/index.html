@@ -1,5 +1,36 @@
 {% extends "base.html" %}
+
 {% block content %}
+<style>
+    .form-check-input:checked {
+        background-color: #0d6efd !important;
+        /* Negro/Gris oscuro */
+        border-color: #212529 !important;
+    }
+
+    /* Estilo adicional para asegurar que el input de búsqueda se vea bien alineado */
+    .dataTables_filter {
+        text-align: left !important;
+    }
+
+    .dataTables_filter label {
+        width: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+    .dataTables_filter input {
+        margin-left: 0.5em;
+        width: auto;
+        display: inline-block;
+    }
+
+    /* Ajuste para los botones de datatables para que coincidan con bootstrap */
+    .dt-buttons .btn {
+        margin-right: 0.5em;
+    }
+</style>
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2">Correctivos e Incidencias</h1>
     <div>
@@ -76,7 +107,8 @@
 </div>
 
 <div class="table-responsive">
-    <table class="table table-hover align-middle datatable" id="tablaCorrectivos">
+    <!-- Se eliminó la clase 'datatable' para inicializar manualmente y aplicar los estilos del index-a -->
+    <table class="table table-hover align-middle" id="tablaCorrectivos">
         <thead class="table-dark">
             <tr>
                 <th></th>
@@ -159,6 +191,7 @@ $(document).ready(function() {
     if (savedMin) $('#min-corr').val(savedMin);
     if (savedMax) $('#max-corr').val(savedMax);
 
+    // Definir la función de filtrado personalizada
     $.fn.dataTable.ext.search.push(
         function(settings, data, dataIndex) {
             if ( settings.nTable.id !== 'tablaCorrectivos' ) {
@@ -180,17 +213,90 @@ $(document).ready(function() {
             return false;
         }
     );
+
+    // Inicialización del DataTable con el estilo de index-a
+    var table = $('#tablaCorrectivos').DataTable({
+        "language": {
+            "search": "Buscar por contenido:",
+            "lengthMenu": "Mostrar _MENU_ registros",
+            "zeroRecords": "No se encontraron resultados",
+            "info": "Mostrando página _PAGE_ de _PAGES_",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            },
+            "select": {
+                "rows": {
+                    _: "%d filas seleccionadas",
+                    0: "",
+                    1: "1 fila seleccionada"
+                }
+            },
+            "buttons": {
+                "copy": "Copiar",
+                "csv": "CSV",
+                "excel": "Excel",
+                "pdf": "PDF",
+                "print": "Imprimir",
+                "colvis": "Columnas"
+            }
+        },
+        // Configuración del DOM para alinear botones y buscador como en index-a
+        "dom": '<"d-flex justify-content-between align-items-center mb-3"fB>rt<"d-flex justify-content-between align-items-center"<"d-flex align-items-center gap-3"li>p>',
+        "buttons": [
+            {
+                extend: 'collection',
+                text: '<i class="fas fa-file-export"></i> Exportar',
+                className: 'btn btn-secondary btn-sm',
+                buttons: [
+                    {
+                        extend: 'excel',
+                        text: '<i class="fas fa-file-excel"></i> Excel'
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="fas fa-file-pdf"></i> PDF'
+                    },
+                    {
+                        extend: 'copy',
+                        text: '<i class="fas fa-copy"></i> Copiar al portapapeles'
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="fas fa-print"></i> Imprimir'
+                    }
+                ]
+            }
+        ],
+        // Configuración para los checkboxes de selección
+        "columnDefs": [{
+            "orderable": false,
+            "className": 'select-checkbox',
+            "targets": 0
+        }],
+        "select": {
+            "style": 'multi',
+            "selector": 'td:first-child'
+        },
+        "order": [[1, 'desc']] // Ordenado por ID (columna 1) descendente por defecto
+    });
  
+    // Event listener para redibujar la tabla al cambiar fechas
     $('#min-corr, #max-corr').on('change', function () {
         // Guardar en localStorage
         localStorage.setItem('corr_min_date', $('#min-corr').val());
         localStorage.setItem('corr_max_date', $('#max-corr').val());
-        $('#tablaCorrectivos').DataTable().draw();
+        table.draw();
     });
 
+    // Si había filtros guardados, aplicar el filtro inicial
     if (savedMin || savedMax) {
         setTimeout(function(){
-            $('#tablaCorrectivos').DataTable().draw();
+            table.draw();
         }, 100);
     }
 });
