@@ -64,6 +64,7 @@ El sistema genera automáticamente un usuario administrador en el primer desplie
 
 * **Usuario:** Administrador  
 * **Contraseña:** 123456
+* **Manual de usuario:**  (https://github.com/jsbsan/GMAO-FACTORY/blob/main/docs/Manual%20de%20Usuario%20v7.00.md)
 
 ## **5\. Estructura del proyecto**
 
